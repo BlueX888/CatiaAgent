@@ -1,0 +1,43 @@
+{
+ "schema": "nist-pdf-benchmark-expectation/1",
+ "caseId": "CTC-01",
+ "frozenAt": "2026-10-30",
+ "inputSource": "derived",
+ "input": {
+  "path": "work/derived-20261029/CTC-01-sections2/CTC-01.pdf",
+  "sha256": "206409c3baebd7f133942f8a01189c756859d91a1b6fac2135e783421211436b",
+  "kind": "cross-section stack with cut spans",
+  "reviewStatus": "generated; data-prep rebuild differs by 0.034% volume (conic chords)"
+ },
+ "reference": {
+  "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_01_asme1_rd.stp",
+  "sha256": "bd5a73c58880ba9093f8dc653c87f4224d6a795459e7fb64f6fdc22ba76a02d3",
+  "measuredVolumeMm3": 14642823.557384,
+  "measuredIn": "OCCT (build123d) import of the NIST STEP, 2026-10-30",
+  "reExportedStep": null
+ },
+ "expected": {
+  "volumeMm3": 14642823.557384,
+  "bbox": {
+   "min": {
+    "x": -400.0,
+    "y": -225.0,
+    "z": -100.0
+   },
+   "max": {
+    "x": 400.0,
+    "y": 225.0,
+    "z": 50.0
+   }
+  }
+ },
+ "tolerances": {
+  "lengthMm": 0.01,
+  "coordinateMm": 0.01,
+  "volumeMm3": 7321.4
+ },
+ "toleranceBasis": {
+  "length": "Schedule profile coordinates rounded to 4 decimals; 0.01 mm covers transcription and kernel noise.",
+  "volume": "0.05% of 14642823 mm3 covers the section-stack conic chord approximation (data-prep rebuild -4952 mm3, 0.034%) plus kernel noise."
+ }
+}

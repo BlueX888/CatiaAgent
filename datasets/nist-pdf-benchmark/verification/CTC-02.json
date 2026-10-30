@@ -1,0 +1,44 @@
+{
+ "schema": "nist-pdf-benchmark-expectation/1",
+ "caseId": "CTC-02",
+ "frozenAt": "2026-10-30",
+ "inputSource": "derived",
+ "input": {
+  "path": "work/derived-20261029/CTC-02-layer-v2/CTC-02.pdf",
+  "sha256": "8bcc3bb4a2aef0e65e44601c4051e8c0c9b80fc4f3853a75add1f1d6fc254ea0",
+  "kind": "layer/profile schedule with layer normals, chamfer rows and copyable SEG arrays",
+  "reviewStatus": "generated; independent review pending",
+  "viewFallback": false
+ },
+ "reference": {
+  "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_02_asme1_rc.stp",
+  "sha256": "cd669778fbf9f11fa386a7fe8afe5a70513e3e17a5000e645d237dd4525d2775",
+  "measuredVolumeMm3": 47100535.49282,
+  "measuredIn": "OCCT (build123d) import of the NIST STEP, 2026-10-30",
+  "reExportedStep": null
+ },
+ "expected": {
+  "volumeMm3": 47100535.49282,
+  "bbox": {
+   "min": {
+    "x": -340.0,
+    "y": -40.0,
+    "z": -360.0
+   },
+   "max": {
+    "x": 340.0,
+    "y": 820.0,
+    "z": 40.0
+   }
+  }
+ },
+ "tolerances": {
+  "lengthMm": 0.01,
+  "coordinateMm": 0.01,
+  "volumeMm3": 471.005
+ },
+ "toleranceBasis": {
+  "length": "Schedule profile coordinates rounded to 4 decimals; 0.01 mm covers transcription and kernel noise.",
+  "volume": "max(10 mm3, 0.001% of reference volume): kernel boolean floor plus coordinate rounding."
+ }
+}

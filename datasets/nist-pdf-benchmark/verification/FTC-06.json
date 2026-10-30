@@ -1,0 +1,44 @@
+{
+ "schema": "nist-pdf-benchmark-expectation/1",
+ "caseId": "FTC-06",
+ "frozenAt": "2026-10-30",
+ "inputSource": "derived",
+ "input": {
+  "path": "work/derived-20261029/FTC-06-layer-v2/FTC-06.pdf",
+  "sha256": "5832dff5e428d023ca517eb8bb6fd2ea12d033a614513a2abe403e91b9c3444b",
+  "kind": "layer/profile schedule with layer normals, chamfer rows and copyable SEG arrays",
+  "reviewStatus": "generated; independent review pending",
+  "viewFallback": false
+ },
+ "reference": {
+  "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_06_asme1_rd.stp",
+  "sha256": "bf751dc227ead634776c4ef93fe6189109b62339bef57f83ad9dbfe2cd3f764b",
+  "measuredVolumeMm3": 3323546.070781,
+  "measuredIn": "OCCT (build123d) import of the NIST STEP, 2026-10-30",
+  "reExportedStep": null
+ },
+ "expected": {
+  "volumeMm3": 3323546.070781,
+  "bbox": {
+   "min": {
+    "x": -152.4,
+    "y": -0.0,
+    "z": -247.65
+   },
+   "max": {
+    "x": 152.4,
+    "y": 97.79,
+    "z": 0.0
+   }
+  }
+ },
+ "tolerances": {
+  "lengthMm": 0.01,
+  "coordinateMm": 0.01,
+  "volumeMm3": 33.235
+ },
+ "toleranceBasis": {
+  "length": "Schedule profile coordinates rounded to 4 decimals; 0.01 mm covers transcription and kernel noise.",
+  "volume": "max(10 mm3, 0.001% of reference volume): kernel boolean floor plus coordinate rounding."
+ }
+}

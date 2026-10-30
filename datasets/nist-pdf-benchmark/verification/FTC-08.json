@@ -1,0 +1,43 @@
+{
+ "schema": "nist-pdf-benchmark-expectation/1",
+ "caseId": "FTC-08",
+ "frozenAt": "2026-10-30",
+ "inputSource": "derived",
+ "input": {
+  "path": "work/derived-20261029/FTC-08-sections4/FTC-08.pdf",
+  "sha256": "baa3d7917f31c4aed16387d1114da9cb25613871cbf7cb838e8f482bdfad5eac",
+  "kind": "cross-section stack: 16 outer pads + 30 cut spans, blend sampling 1, named profile table",
+  "reviewStatus": "generated; data-prep rebuild differs by 0.011% volume"
+ },
+ "reference": {
+  "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_08_asme1_rc.stp",
+  "sha256": "c0c59faae620c5cf1d1f5eba025b4e8666625bd0a7658ecd5625d3a8badc9a7b",
+  "measuredVolumeMm3": 503592.175353,
+  "measuredIn": "OCCT (build123d) import of the NIST STEP, 2026-10-30",
+  "reExportedStep": null
+ },
+ "expected": {
+  "volumeMm3": 503592.175353,
+  "bbox": {
+   "min": {
+    "x": -155.79725,
+    "y": -111.34725,
+    "z": 0.0
+   },
+   "max": {
+    "x": 155.79725,
+    "y": 111.34725,
+    "z": 48.26
+   }
+  }
+ },
+ "tolerances": {
+  "lengthMm": 0.01,
+  "coordinateMm": 0.01,
+  "volumeMm3": 100.7
+ },
+ "toleranceBasis": {
+  "length": "Schedule profile coordinates rounded to 4 decimals; 0.01 mm covers transcription and kernel noise.",
+  "volume": "0.02% of 503592 mm3 covers the section-stack blend sampling error (data-prep rebuild +56 mm3, 0.011%) plus kernel noise."
+ }
+}

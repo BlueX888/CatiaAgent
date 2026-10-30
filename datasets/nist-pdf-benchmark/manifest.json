@@ -1,0 +1,784 @@
+{
+  "schema": "nist-pdf-benchmark-manifest/1",
+  "generated": "2026-10-28",
+  "sourceRoot": "datasets/NIST/models",
+  "caseCount": 17,
+  "notes": [
+    "The original PDF is always run as-is; derived drawings never replace that baseline.",
+    "Reference models and frozen expectations are verification-side inputs; the generation side must not read them.",
+    "Primary reference for FTC/CTC is the AP203 STEP, which this CATIA release opens; STC/HTC only ship CATPart/NX/Creo and the CATPart version must be checked in CATIA B31 SP7."
+  ],
+  "cases": [
+    {
+      "caseId": "STC-06",
+      "family": "STC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/STC_06.pdf",
+        "sha256": "633a138173600a827509621087a5e14e102b594465c46d58fdf6d7bda0d50fc4",
+        "bytes": 6036328,
+        "pages": 4,
+        "textChars": 347,
+        "images": 7,
+        "hasUsableTextLayer": false
+      },
+      "units": "inch",
+      "revision": "v4",
+      "geometryEquivalentReference": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_06_asme1_rd.stp",
+        "sha256": "bf751dc227ead634776c4ef93fe6189109b62339bef57f83ad9dbfe2cd3f764b",
+        "basis": "NIST README-240318: STC models are simplified versions of the FTC models; geometry is identical."
+      },
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/CATIA V5-6R2023/nist_stc_06_asme1_V56R2023.CATPart",
+          "sha256": "5c7dfddbb95f9ef1c2e5768d8710fdc142b784c6c77629497c20acaf28734073",
+          "bytes": 2550648
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/NX 2027/nist_stc_06_asme1_NX2027.prt",
+          "sha256": "a353ea165521513c1b24f637465c6a666a2ae5fd07f3310f27b1ac73c7c0cbea",
+          "bytes": 2376758
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/Creo 10/nist_stc_06_asme1_cr10030.prt.3",
+          "sha256": "91894e331f63775e73bcc78ce3e528931c0990f4da0bafe562e016a3cf3598f7",
+          "bytes": 1113308
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "image_only",
+        "reason": "3D PDF: no dimension text layer, but the page render shows the PMI callouts as image content and the saved views cover several orientations; usable only through the image-reading path. Reference CATPart is V5-6R2023 and does not open in B31 SP7.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "STC-07",
+      "family": "STC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/STC_07.pdf",
+        "sha256": "75693bd3917285e66e9cf59fcea110d38afdbb4521ed7f5f44c7e1e6fa64088e",
+        "bytes": 7683584,
+        "pages": 5,
+        "textChars": 394,
+        "images": 9,
+        "hasUsableTextLayer": false
+      },
+      "units": "inch",
+      "revision": "v4",
+      "geometryEquivalentReference": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_07_asme1_rd.stp",
+        "sha256": "b0eecb1ee17386ec0785a90dcdde52d6a152991db33aec0c69c7e1bbd30d42fa",
+        "basis": "NIST README-240318: STC models are simplified versions of the FTC models; geometry is identical."
+      },
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/CATIA V5-6R2023/nist_stc_07_asme1_V56R2023.CATPart",
+          "sha256": "3725676abe769b604080180b34488e7bafcb449e82782f2124334399b5cabb6a",
+          "bytes": 1376769
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/NX 2027/nist_stc_07_asme1_NX2027.prt",
+          "sha256": "81d2791d8300e344e27548ee74bf4fa6b77c6ce7f665da179d2cb7371f1fbb05",
+          "bytes": 3192437
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/Creo 10/nist_stc_07_asme1_cr10030.prt.1",
+          "sha256": "4641b84ab49c7758cb2be12aa87276555a0205934b1fe3614b35184af5926bcf",
+          "bytes": 1032748
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "image_only",
+        "reason": "3D PDF: no dimension text layer, but the page render shows the PMI callouts as image content and the saved views cover several orientations; usable only through the image-reading path. Reference CATPart is V5-6R2023 and does not open in B31 SP7.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "STC-08",
+      "family": "STC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/STC_08.pdf",
+        "sha256": "41f5b1ea5e8e2f65cfff74778c7095719c9b48f411d8ed46ba553ece5aacd0a4",
+        "bytes": 7272040,
+        "pages": 5,
+        "textChars": 394,
+        "images": 9,
+        "hasUsableTextLayer": false
+      },
+      "units": "inch",
+      "revision": "v4",
+      "geometryEquivalentReference": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_08_asme1_rc.stp",
+        "sha256": "c0c59faae620c5cf1d1f5eba025b4e8666625bd0a7658ecd5625d3a8badc9a7b",
+        "basis": "NIST README-240318: STC models are simplified versions of the FTC models; geometry is identical."
+      },
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/CATIA V5-6R2023/nist_stc_08_asme1_V56R2023.CATPart",
+          "sha256": "2098718c064c76f8620dc32cb0bdc277c07a953a02fde559546d6457ad99bf4f",
+          "bytes": 1926000
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/NX 2027/nist_stc_08_asme1_NX2027.prt",
+          "sha256": "14493c69704329f73c1c117ea2b258ef0cce803d7cd98a6ff2c5e48228c8315f",
+          "bytes": 1942777
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/Creo 10/nist_stc_08_asme1_cr10030.prt.1",
+          "sha256": "760b829a974ea0565e5f3f3d96ab18fb7f5644185ff6801d7ed2a4be9e058f09",
+          "bytes": 978882
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "image_only",
+        "reason": "3D PDF: no dimension text layer, but the page render shows the PMI callouts as image content and the saved views cover several orientations; usable only through the image-reading path. Reference CATPart is V5-6R2023 and does not open in B31 SP7.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "STC-09",
+      "family": "STC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/STC_09.pdf",
+        "sha256": "6cf8c10210a9e1d245c7a55d35bd6ed37cce2a08d571112d60823b0acbe32c8a",
+        "bytes": 7136095,
+        "pages": 5,
+        "textChars": 393,
+        "images": 9,
+        "hasUsableTextLayer": false
+      },
+      "units": "inch",
+      "revision": "v4",
+      "geometryEquivalentReference": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_09_asme1_rd.stp",
+        "sha256": "d12866d3ab0fc260efd0f1a5c54af47950be513486f61f65513877045582afa8",
+        "basis": "NIST README-240318: STC models are simplified versions of the FTC models; geometry is identical."
+      },
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/CATIA V5-6R2023/nist_stc_09_asme1_V5R2023.CATPart",
+          "sha256": "102e798f1774f38503e5c8b1012c4331eff629c64db103ac93c016f7cf05fea6",
+          "bytes": 1779385
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/NX 2027/nist_stc_09_asme1_NX2027.prt",
+          "sha256": "b34d234f141de6fdc9ec1c0cc7d088a1c62b2902d352000b4b6b5b0a86700aca",
+          "bytes": 3163569
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/Creo 10/nist_stc_09_asme1_cr10030.prt.1",
+          "sha256": "1c266b2af423e1cd88a017b1823909d9857ca295a1df03b986f512bb8e0025c8",
+          "bytes": 720342
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "image_only",
+        "reason": "3D PDF: no dimension text layer, but the page render shows the PMI callouts as image content and the saved views cover several orientations; usable only through the image-reading path. Reference CATPart is V5-6R2023 and does not open in B31 SP7.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "STC-10",
+      "family": "STC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/STC_10.pdf",
+        "sha256": "d6d9edf7b386986c33963aae00d09f0177d91831215b2e2466a88d100b9c26a8",
+        "bytes": 8139021,
+        "pages": 6,
+        "textChars": 424,
+        "images": 11,
+        "hasUsableTextLayer": true
+      },
+      "units": "mm",
+      "revision": "v4",
+      "geometryEquivalentReference": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_10_asme1_rb.stp",
+        "sha256": "7ab61ea7d6412b2df3b9b75123544d15810fe6792bf5adf7c820e6fe9e136424",
+        "basis": "NIST README-240318: STC models are simplified versions of the FTC models; geometry is identical."
+      },
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/CATIA V5-6R2023/nist_stc_10_asme1_V56R2023.CATPart",
+          "sha256": "243a87b1f9290ea2b93b6ec5258ab135872d4b10a393e890a5ebda51d3e077ac",
+          "bytes": 1718333
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/NX 2027/nist_stc_10_asme1_NX2027.prt",
+          "sha256": "b2c03f82d803aebddb230b1878d45154ae058acd2e22e1df21bc7cf8b38c5421",
+          "bytes": 7928359
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/NIST_STC_v4/NIST-STC-PMI-v4/Creo 10/nist_stc_10_asme1_cr10030.prt.1",
+          "sha256": "d5feaa43a2b543bc9ee6016320057ec7728bea75d7f34c596185df7835a86382",
+          "bytes": 1097862
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "image_only",
+        "reason": "3D PDF: no dimension text layer, but the page render shows the PMI callouts as image content and the saved views cover several orientations; usable only through the image-reading path. Reference CATPart is V5-6R2023 and does not open in B31 SP7.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "HTC",
+      "family": "HTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/HTC/NIST-HTC-PMI-v2/NIST_HTC_20240531.pdf",
+        "sha256": "d73e41e832c8509c3f1f80f017d0a071904b093989c452dd8db560fd81fdf842",
+        "bytes": 901881,
+        "pages": 11,
+        "textChars": 605,
+        "images": 22,
+        "hasUsableTextLayer": true
+      },
+      "units": "mm",
+      "revision": "2024-05-31",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/HTC/NIST-HTC-PMI-v2/nist_htc_V56R2023_20240530.CATPart",
+          "sha256": "32977d4615cda204976bc81091c0bc592ed9b2b6a66a118beb5503a96c521976",
+          "bytes": 1626263
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/HTC/NIST-HTC-PMI-v2/NIST_HTC_NX2027_20240531.prt",
+          "sha256": "6a5e39a6b978e0b0236e54bc9365c3cdc1678047b4c1188e042683d86e33ad08",
+          "bytes": 8634760
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/HTC/NIST-HTC-PMI-v2/nist_htc_creo_10020_20240530.prt.1",
+          "sha256": "f404b0615ef80efd82378df1467d7a5a7439e513800d6c1f97a602d8cc8e99cf",
+          "bytes": 1284332
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "image_only",
+        "reason": "3D PDF: 11 saved 3D views; no dimension text layer, callouts are image content. Reference CATPart is V5-6R2023 and does not open in B31 SP7.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "FTC-06",
+      "family": "FTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_06_asme1_rd.pdf",
+        "sha256": "f54e61f5432598cdecf925abf75b153381f55bf4c47e80fd60fb080c7c1b3149",
+        "bytes": 171484,
+        "pages": 3,
+        "textChars": 1086,
+        "images": 0,
+        "hasUsableTextLayer": true
+      },
+      "units": "inch",
+      "revision": "D",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_06_asme1_rd.stp",
+          "sha256": "bf751dc227ead634776c4ef93fe6189109b62339bef57f83ad9dbfe2cd3f764b",
+          "bytes": 222784
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ftc_06_asme1_rd_ct5290_ra.CATPart",
+          "sha256": "13f2d9780204b45f81d4fd823589f84020ec0ac4f2374a2e0c8dd1815badad2a",
+          "bytes": 2836702
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/NIST_PMI_CATIA_V5-6R2021/nist_ftc_06_asme1_ct5315_rd.CATPart",
+          "sha256": "db5e646a3faa81d6a2bf3eeb9bec5b57e90df7cbadacbfaaa4b14aee0b56d630",
+          "bytes": 2857607
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1-2 require the CAD model; page text contains notes and position callouts only, no size dimensions.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "FTC-07",
+      "family": "FTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_07_asme1_rd.pdf",
+        "sha256": "fcb214aa1aee70040b11eed88b65ebe42104f2ce1d0e94cb06668a75f8ec2456",
+        "bytes": 720347,
+        "pages": 4,
+        "textChars": 2241,
+        "images": 0,
+        "hasUsableTextLayer": true
+      },
+      "units": "inch",
+      "revision": "D",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_07_asme1_rd.stp",
+          "sha256": "b0eecb1ee17386ec0785a90dcdde52d6a152991db33aec0c69c7e1bbd30d42fa",
+          "bytes": 402549
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ftc_07_asme1_rd_ct5290_ra.CATPart",
+          "sha256": "ee49a27b5f3ad414eb088d94375b1f324ec91124a31ffc361af6f50cbc2492a4",
+          "bytes": 1524108
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1-2 require the CAD model; a few hole callouts exist but overall and position dimensions are model-defined.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "FTC-08",
+      "family": "FTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_08_asme1_rc.pdf",
+        "sha256": "4c4281a15857a585874b8193df5ab8fd22ecee507a3fe7de2143833403102260",
+        "bytes": 244241,
+        "pages": 4,
+        "textChars": 1556,
+        "images": 0,
+        "hasUsableTextLayer": true
+      },
+      "units": "inch",
+      "revision": "C",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_08_asme1_rc.stp",
+          "sha256": "c0c59faae620c5cf1d1f5eba025b4e8666625bd0a7658ecd5625d3a8badc9a7b",
+          "bytes": 450747
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ftc_08_asme1_rc_ct5290_ra.CATPart",
+          "sha256": "43f2acaac4f9cb8f8ac8557748ec86b6eedb25a7d9a2e48088ba0843c9e2627c",
+          "bytes": 1947383
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1-2 require the CAD model; text carries tolerance frames, not a complete dimension set.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "FTC-09",
+      "family": "FTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_09_asme1_rd.pdf",
+        "sha256": "43156f3696e34c4d9222ffaade5910c8879d501e8939370512f3865796d98d90",
+        "bytes": 318757,
+        "pages": 4,
+        "textChars": 1561,
+        "images": 0,
+        "hasUsableTextLayer": true
+      },
+      "units": "inch",
+      "revision": "D",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_09_asme1_rd.stp",
+          "sha256": "d12866d3ab0fc260efd0f1a5c54af47950be513486f61f65513877045582afa8",
+          "bytes": 263934
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ftc_09_asme1_rd_ct5290_ra.CATPart",
+          "sha256": "80d1f6b1226807be22df795ae682fd31a599a5c54ab1e36fda06b36f5c0c5e93",
+          "bytes": 1825402
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1-2 require the CAD model; only a subset of hole diameters and the sheet thickness are on the drawing.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "FTC-10",
+      "family": "FTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_10_asme1_rb.pdf",
+        "sha256": "26c71d56a9aa73fc47df8a9b6b4e916d237f3666d7146e410037fe49698849bc",
+        "bytes": 875826,
+        "pages": 5,
+        "textChars": 2528,
+        "images": 0,
+        "hasUsableTextLayer": true
+      },
+      "units": "mm",
+      "revision": "B",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_10_asme1_rb.stp",
+          "sha256": "7ab61ea7d6412b2df3b9b75123544d15810fe6792bf5adf7c820e6fe9e136424",
+          "bytes": 323619
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ftc_10_asme1_rb_ct5290_ra.CATPart",
+          "sha256": "aa41c914ca1ee2ee70b5b9a66acfcbad7b82b34d09279244cf2ccab81dda2452",
+          "bytes": 1865490
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/NIST_PMI_CATIA_V5-6R2021/nist_ftc_10_asme1_ct5315_rb.CATPart",
+          "sha256": "c18f19a15a06a8dfec49a65aae56d2b50e5b81de6ac0d8a58029521e09ebc25b",
+          "bytes": 2190399
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1-2 require the CAD model; callouts cover holes/tolerances but the body, pocket and positions are model-defined.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "FTC-11",
+      "family": "FTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_11_asme1_rb.pdf",
+        "sha256": "c402787d12ae4b90b27f7da027c60483d55a2e2616b0b7fa8b73a9a8aaf708ce",
+        "bytes": 73748,
+        "pages": 2,
+        "textChars": 931,
+        "images": 0,
+        "hasUsableTextLayer": true
+      },
+      "units": "mm",
+      "revision": "B",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_11_asme1_rb.stp",
+          "sha256": "d94ee0bed48f06e94621a03b6b088e16fac1bf70607f0d31dfbe87a17bb2ec7e",
+          "bytes": 7652
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ftc_11_asme1_rb_ct5290_ra.CATPart",
+          "sha256": "62922f3fa28632265ec00470d706641525854b06baf65d11cb120d5692e70a14",
+          "bytes": 569878
+        },
+        {
+          "role": "alternate2",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/NIST_PMI_CATIA_V5-6R2021/nist_ftc_11_asme1_ct5315_rb.CATPart",
+          "sha256": "3c0758fd30945f8121d24f595ba5229dd9f89cd6ab7e58b194db44d0452b6f85",
+          "bytes": 627895
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "candidate",
+        "reason": "OD 63, ID 32, thickness 1.93, edge radius R1.5 and units are on the drawing; the raised-rim section is shown in View B. Candidate for direct modelling; needs a frozen review before acceptance.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "CTC-01",
+      "family": "CTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_01_asme1_rd.pdf",
+        "sha256": "ba763b97ef7f8f0cf812702d4de94861fbd55a4aad44ebfaae394e41b8e9e03a",
+        "bytes": 114242,
+        "pages": 1,
+        "textChars": 154,
+        "images": 0,
+        "hasUsableTextLayer": false
+      },
+      "units": "mm",
+      "revision": "D",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_01_asme1_rd.stp",
+          "sha256": "bd5a73c58880ba9093f8dc653c87f4224d6a795459e7fb64f6fdc22ba76a02d3",
+          "bytes": 235156
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ctc_01_asme1_rd_ct5290_ra.CATPart",
+          "sha256": "3f19cc5350b8ca45ade6035d16ab4e1362243ac7e614a1dd9d658efd85a19e00",
+          "bytes": 1089645
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1 requires undimensioned features from the model; page text has only a few callouts.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "CTC-02",
+      "family": "CTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_02_asme1_rc.pdf",
+        "sha256": "f1cb7ed923c54ec788b16480177f5d8412f8d49047cb576de8509f229491a51f",
+        "bytes": 427564,
+        "pages": 3,
+        "textChars": 1880,
+        "images": 0,
+        "hasUsableTextLayer": true
+      },
+      "units": "mm",
+      "revision": "C",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_02_asme1_rc.stp",
+          "sha256": "cd669778fbf9f11fa386a7fe8afe5a70513e3e17a5000e645d237dd4525d2775",
+          "bytes": 1154618
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ctc_02_asme1_rc_ct5290_ra.CATPart",
+          "sha256": "2c5ae50c5672ca640e620c5dad239e07212b9478621573404e20b6d542d04f68",
+          "bytes": 3996974
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1 requires undimensioned features from the model; page text is notes only.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "CTC-03",
+      "family": "CTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_03_asme1_rc.pdf",
+        "sha256": "c581705f985efa4751db4021d2920089d1e9697eda198eb0386ad4322b8b83c4",
+        "bytes": 193183,
+        "pages": 1,
+        "textChars": 248,
+        "images": 0,
+        "hasUsableTextLayer": false
+      },
+      "units": "mm",
+      "revision": "C",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_03_asme1_rc.stp",
+          "sha256": "d4158ed46a3fb1d83c85cfec2e640bbaff8c28b2b39e1e66cb87fba9b7985af3",
+          "bytes": 252113
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ctc_03_asme1_rc_ct5290_ra.CATPart",
+          "sha256": "4dc28d14a8cabeefb040b709016ff87a1766e8b620a63e8932d6bc003ed4845f",
+          "bytes": 1139724
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1 requires undimensioned features from the model; page text has only a few callouts.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "CTC-04",
+      "family": "CTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_04_asme1_rd.pdf",
+        "sha256": "cd834573ef731300b4bbfd526b6d48657479507768d635dbfbd7e3bb88f0cb23",
+        "bytes": 124181,
+        "pages": 1,
+        "textChars": 309,
+        "images": 0,
+        "hasUsableTextLayer": false
+      },
+      "units": "mm",
+      "revision": "D",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_04_asme1_rd.stp",
+          "sha256": "f4f467dcf97e54ab2582ecd447d3bd55cd6a5590117a77889eacc1c4778917fe",
+          "bytes": 793056
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ctc_04_asme1_rd_ct5290_ra.CATPart",
+          "sha256": "ea28a43e981ba54e06bbbbfcceeff21dbca78694826329acae336ca797cee49f",
+          "bytes": 2771869
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1 requires undimensioned features from the model; page text has only a few callouts.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    },
+    {
+      "caseId": "CTC-05",
+      "family": "CTC",
+      "originalPdf": {
+        "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_05_asme1_rd.pdf",
+        "sha256": "1357a2aec060ab6ce963cc0ad974f0d693287bd2cb745ca409a6254604359313",
+        "bytes": 180750,
+        "pages": 2,
+        "textChars": 477,
+        "images": 0,
+        "hasUsableTextLayer": true
+      },
+      "units": "mm",
+      "revision": "D",
+      "geometryEquivalentReference": null,
+      "referenceModels": [
+        {
+          "role": "primary",
+          "path": "datasets/NIST/models/NIST_CTC_definitions/NIST_MBE_PMI_CTC_Definitions/nist_ctc_05_asme1_rd.stp",
+          "sha256": "edc5bb91c00a0fe6d1c76439130f6deabfef851e910538e8f23daf5dfe70f9e7",
+          "bytes": 326835
+        },
+        {
+          "role": "alternate1",
+          "path": "datasets/NIST/models/NIST_FTC_CTC/NIST-FTC-CTC-PMI-CAD-models/CATIA V5-6R2019/nist_ctc_05_asme1_rd_ct5290_ra.CATPart",
+          "sha256": "0bfd9c14be1e0169a9f062ba8843e9e46965549c6042033f9b3cfd52e8f0402b",
+          "bytes": 1444966
+        }
+      ],
+      "inputReview": {
+        "sufficiency": "insufficient",
+        "reason": "Drawing note 1 requires undimensioned features from the model; page text is notes only.",
+        "derivedPdfRequired": true,
+        "derivedPdfStatus": "planned"
+      },
+      "acceptance": {
+        "featureListFrozen": false,
+        "expectedValuesFrozen": false,
+        "completeModelVerified": false
+      }
+    }
+  ]
+}

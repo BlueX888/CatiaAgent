@@ -1,0 +1,58 @@
+{
+  "schema": "nist-pdf-benchmark-expectation/1",
+  "caseId": "FTC-11",
+  "frozenAt": "2026-10-28",
+  "inputSource": "original",
+  "reference": {
+    "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_11_asme1_rb.stp",
+    "sha256": "d94ee0bed48f06e94621a03b6b088e16fac1bf70607f0d31dfbe87a17bb2ec7e",
+    "measuredVolumeMm3": 5129.384483,
+    "measuredIn": "CATIA V5-6R2021 B31 SP7, SPAWorkbench, 2026-10-28"
+  },
+  "expected": {
+    "volumeMm3": 5129.384483,
+    "bbox": {
+      "min": {
+        "x": -31.5,
+        "y": -31.5,
+        "z": 0.0
+      },
+      "max": {
+        "x": 31.5,
+        "y": 31.5,
+        "z": 3.0
+      }
+    },
+    "cylinders": [
+      {
+        "radius": 31.5,
+        "count": 1
+      },
+      {
+        "radius": 16.0,
+        "count": 1
+      }
+    ],
+    "featureCount": 2,
+    "parameters": {
+      "OD": 63,
+      "ID": 32,
+      "T": 1.93,
+      "R": 1.5
+    }
+  },
+  "tolerances": {
+    "lengthMm": 0.05,
+    "coordinateMm": 0.01,
+    "volumeMm3": 25.0
+  },
+  "toleranceBasis": {
+    "length": "Drawing values are nominal; reference web thickness is 1.925 mm against drawing 1.93 mm, inside the drawing's +-0.08 mm.",
+    "volume": "25 mm3 is 0.49% of 5129 mm3, tighter than the +-0.08 mm thickness tolerance would allow (~4.1%).",
+    "bbox": "STL tessellation of toroidal faces; 0.05 mm deflection allowance."
+  },
+  "notChecked": [
+    "Surface finish, hardness and manufacturing compliance.",
+    "Free-state distortion: the drawing says the part is non-rigid; this model is the nominal free-state geometry."
+  ]
+}

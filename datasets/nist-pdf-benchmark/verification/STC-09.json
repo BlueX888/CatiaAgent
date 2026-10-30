@@ -1,0 +1,132 @@
+{
+ "schema": "nist-pdf-benchmark-expectation/1",
+ "caseId": "STC-09",
+ "frozenAt": "2026-10-29",
+ "inputSource": "derived-equivalent",
+ "input": {
+  "path": "work/derived-20261029/FTC-09-layer-v7/FTC-09.pdf",
+  "sha256": "33538575fd8a020ce6d7528bd6889d9e4386a57e88751a5854a3ead4b7b105c2",
+  "kind": "layer/profile schedule generated from the NIST FTC-09 STEP, used for STC-09 because NIST README-240318 states STC-09 is the 1:1 simplified equivalent of FTC-09 with identical geometry",
+  "reviewStatus": "generated; equivalence documented in manifest.geometryEquivalentReference"
+ },
+ "reference": {
+  "path": "datasets/NIST/models/NIST_FTC_definitions/NIST_MBE_PMI_FTC_Definitions/nist_ftc_09_asme1_rd.stp",
+  "sha256": "d12866d3ab0fc260efd0f1a5c54af47950be513486f61f65513877045582afa8",
+  "measuredVolumeMm3": 136445.104825,
+  "measuredIn": "OCCT (build123d) import of the geometry-equivalent FTC-09 STEP",
+  "equivalence": "NIST README-240318: STC is a simplified version of FTC, numbering 1:1, identical geometry."
+ },
+ "expected": {
+  "volumeMm3": 136445.104825,
+  "bbox": {
+   "min": {
+    "x": -95.25,
+    "y": 0.0,
+    "z": -139.7
+   },
+   "max": {
+    "x": 95.25,
+    "y": 3.03784,
+    "z": 139.7
+   }
+  },
+  "cylinders": [
+   {
+    "radius": 0.415,
+    "count": 1
+   },
+   {
+    "radius": 0.54,
+    "count": 1
+   },
+   {
+    "radius": 1.093,
+    "count": 1
+   },
+   {
+    "radius": 1.41,
+    "count": 1
+   },
+   {
+    "radius": 1.417,
+    "count": 1
+   },
+   {
+    "radius": 1.778,
+    "count": 1
+   },
+   {
+    "radius": 1.984,
+    "count": 14
+   },
+   {
+    "radius": 2.807,
+    "count": 4
+   },
+   {
+    "radius": 2.972,
+    "count": 8
+   },
+   {
+    "radius": 3.175,
+    "count": 28
+   },
+   {
+    "radius": 3.261,
+    "count": 1
+   },
+   {
+    "radius": 3.517,
+    "count": 1
+   },
+   {
+    "radius": 3.569,
+    "count": 6
+   },
+   {
+    "radius": 4.0,
+    "count": 4
+   },
+   {
+    "radius": 4.196,
+    "count": 1
+   },
+   {
+    "radius": 4.547,
+    "count": 1
+   },
+   {
+    "radius": 4.568,
+    "count": 1
+   },
+   {
+    "radius": 4.763,
+    "count": 3
+   },
+   {
+    "radius": 6.35,
+    "count": 8
+   },
+   {
+    "radius": 9.525,
+    "count": 2
+   }
+  ],
+  "holeCount": 83,
+  "bossCount": 5
+ },
+ "tolerances": {
+  "lengthMm": 0.005,
+  "coordinateMm": 0.005,
+  "volumeMm3": 10.0
+ },
+ "toleranceBasis": {
+  "length": "Schedule values are rounded to 4 decimals (0.0001 mm); 0.005 mm covers transcription and kernel noise.",
+  "volume": "10 mm3 = 0.007% of 136445 mm3; a 0.0001 mm coordinate rounding over ~20000 mm2 of surface is ~2 mm3, plus boolean noise.",
+  "bbox": "Computed directly from the reference bounding box, symmetric tolerance."
+ },
+ "notChecked": [
+  "Surface finish and manufacturing compliance.",
+  "The NREL marking is geometry in the reference; it must be present for the material comparison."
+ ]
+}
