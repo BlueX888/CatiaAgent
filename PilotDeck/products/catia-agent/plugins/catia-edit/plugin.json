@@ -1,0 +1,24 @@
+{
+  "name": "catia-edit",
+  "version": "0.3.0",
+  "description": "CATIA V5 参数化改型与 PDF 图纸建模：改型走 catia-edit/1 编辑协议（begin/inspect/apply/status/finalize/recover 与只读意图编译）；PDF 图纸建模走 catia-pdf-model 技能（inspect → validate → compile → build → 独立校验）。",
+  "commands": "commands",
+  "skills": "skills",
+  "mcpServers": {
+    "catia": {
+      "command": "${env:CATIA_MCP_PYTHON}",
+      "args": [
+        "-m",
+        "catia_mcp"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "CATIA_MCP_WORK_DIR": "${env:CATIA_MCP_WORK_DIR}",
+        "CATIA_CAD_SUPPORT_PYTHON": "${env:CATIA_CAD_SUPPORT_PYTHON}",
+        "CATIA_OCR_PYTHON": "${env:CATIA_OCR_PYTHON}"
+      },
+      "callTimeoutMs": 1800000,
+      "concurrencySafe": false
+    }
+  }
+}

@@ -1,0 +1,25 @@
+"""CATIA V5 MCP Tools - CAD automation tools exposed via MCP."""
+
+from catia_mcp.tools.document import DocumentTools
+from catia_mcp.tools.drawing import DraftingTools
+from catia_mcp.tools.sketcher import SketcherTools
+from catia_mcp.tools.part_design import PartDesignTools
+from catia_mcp.tools.diagnostics import DiagnosticsTools
+from catia_mcp.tools.gsd import GSDTools
+from catia_mcp.tools.knowledge import KnowledgeTools
+from catia_mcp.tools.assembly import AssemblyTools
+from catia_mcp.tools.measurement import MeasurementTools
+from catia_mcp.tools.export import ExportTools
+
+__all__ = [
+    "DocumentTools",
+    "DraftingTools",
+    "SketcherTools",
+    "PartDesignTools",
+    "GSDTools",
+    "KnowledgeTools",
+    "DiagnosticsTools",
+    "AssemblyTools",
+    "MeasurementTools",
+    "ExportTools",
+]

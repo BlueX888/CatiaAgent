@@ -7,8 +7,8 @@ interval the true cross-section is emitted as region rows:
 
 The generation agent builds the part as the union of pads: pad each OUTER
 profile from Z0 to Z1 on the plane at Z0, with the INNER profiles as holes in
-the same sketch. This captures disconnected regions, through and blind cuts
-exactly, without relying on the agent to infer pocket directions.
+the same sketch. A sampled stack can approximate curved and side features;
+its volume alone does not establish geometric completeness.
 
 Levels come from every planar face normal to the main axis plus the axial
 extent of non-planar faces (tori/cones/spheres are sampled inside their span so
@@ -53,6 +53,33 @@ def axial(value, axis_point, direction):
     return sum((value[i] - axis_point[i]) * direction[i] for i in range(3))
 
 
+def side_radius(face, kind):
+    if kind == "CYLINDER":
+        try:
+            return float(face.radius)
+        except (AttributeError, TypeError, ValueError):
+            pass
+    for edge in face.edges():
+        if str(edge.geom_type).endswith("CIRCLE"):
+            radius = base.edge_radius(edge)
+            if radius is not None:
+                return radius
+    return None
+
+
+def side_semi_angle(face, kind):
+    if kind != "CONE":
+        return None
+    try:
+        return r(float(face.semi_angle))
+    except (AttributeError, TypeError, ValueError):
+        try:
+            from OCP.BRepAdaptor import BRepAdaptor_Surface
+            return r(math.degrees(BRepAdaptor_Surface(face.wrapped).Cone().SemiAngle()))
+        except Exception:
+            return None
+
+
 def build_rows(shape, main_axis=None, blend_samples=BLEND_SAMPLES):
     faces = list(shape.faces())
     planes = [(f, f.normal_at()) for f in faces if str(f.geom_type).endswith("PLANE")]
@@ -87,24 +114,14 @@ def build_rows(shape, main_axis=None, blend_samples=BLEND_SAMPLES):
         if span is None:
             continue
         if abs(face_direction[axis_index]) < 0.999:
-            radius = None
-            for edge in face.edges():
-                if str(edge.geom_type).endswith("CIRCLE"):
-                    radius = base.edge_radius(edge)
-                    if radius is not None:
-                        break
-            semi_angle = None
-            if kind == "CONE":
-                try:
-                    semi_angle = r(face.semi_angle)
-                except Exception:
-                    semi_angle = None
+            radius = side_radius(face, kind)
+            semi_angle = side_semi_angle(face, kind)
             side_features.append({
                 "kind": kind, "axisPoint": [r(point.X), r(point.Y), r(point.Z)],
                 "axisDirection": [r(v) for v in face_direction],
                 "radius": None if radius is None else r(radius),
                 "span": [r(span[0]), r(span[1])],
-                "semiAngle": None,
+                "semiAngle": semi_angle,
                 "area": r(face.area, 3),
             })
             continue
@@ -253,7 +270,8 @@ def build_rows(shape, main_axis=None, blend_samples=BLEND_SAMPLES):
         "then cut each C row's profile P<i> from Z0 to Z1 (pocket, direction normal).",
         "L<k> Z0 a Z1 b A area OUTER P<i>   C<k> CUT P<i> Z0 a Z1 b   P<i> CIRCLE u v r | P<i> WIRE + START/SEGn",
         "WIRE START/SEGn are the exact compact requirement arrays; copy them in order.",
-        "S rows are side features not parallel to the main axis (holes/bosses on side faces).",
+        "S rows describe side surfaces not parallel to the main axis; their geometry may already be approximated by layers.",
+        "S rows alone do not specify whether to add or remove material; request clarification before using them.",
     ]
     return (rows, layers, profile_order, side_features, direction, (u_name, v_name),
             sketch_plane, cut_rows, header)
@@ -275,8 +293,12 @@ def main(argv=None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     output_pdf = out_dir / f"{case['caseId']}.pdf"
     sidecar = out_dir / f"{case['caseId']}.sections.json"
-    if output_pdf.exists() or sidecar.exists():
-        raise SystemExit(f"Refusing to overwrite {output_pdf} or {sidecar}")
+    spec_path = out_dir / f"{case['caseId']}.spec.json"
+    artifacts = (output_pdf, sidecar, spec_path, output_pdf.with_suffix(".provenance.json"),
+                 output_pdf.with_suffix(".withtext.pdf"))
+    for artifact in artifacts:
+        if artifact.exists() or artifact.is_symlink():
+            raise SystemExit(f"Refusing to overwrite {artifact}")
 
     shape = bd.import_step(str(step_path))
     (rows, layers, profiles, side_features, direction, names, plane,
@@ -284,7 +306,7 @@ def main(argv=None) -> int:
     chunks = [rows[i:i + ROWS_PER_SHEET] for i in range(0, len(rows), ROWS_PER_SHEET)]
     sheets = [{
         "size": "A3", "views": False, "projection": "THIRD ANGLE",
-        "notes": header[:6], "annotations": [],
+        "notes": header, "annotations": [],
     }]
     total = len(chunks)
     for index, chunk in enumerate(chunks):
@@ -298,8 +320,8 @@ def main(argv=None) -> int:
     spec = {"sourceStep": str(step_path), "outputPdf": str(output_pdf),
             "caseId": case["caseId"], "title": f"{case['caseId']} DERIVED NOMINAL",
             "sheets": sheets}
-    spec_path = out_dir / f"{case['caseId']}.spec.json"
-    spec_path.write_text(json.dumps(spec, ensure_ascii=False, indent=1), encoding="utf-8")
+    with spec_path.open("x", encoding="utf-8") as output:
+        json.dump(spec, output, ensure_ascii=False, indent=1)
     box = (shape.solids()[0].bounding_box() if shape.solids() else shape.bounding_box())
     frozen = {
         "schema": "nist-section-schedule/1", "caseId": case["caseId"],
@@ -314,7 +336,8 @@ def main(argv=None) -> int:
         "sideFeatures": side_features,
         "rowCount": len(rows), "sheetCount": len(sheets),
     }
-    sidecar.write_text(json.dumps(frozen, ensure_ascii=False, indent=1), encoding="utf-8")
+    with sidecar.open("x", encoding="utf-8") as output:
+        json.dump(frozen, output, ensure_ascii=False, indent=1)
     print(json.dumps({"case": case["caseId"], "rows": len(rows), "sheets": len(sheets),
                       "layers": len(layers), "profiles": len(profiles),
                       "side": len(side_features), "volume": frozen["volumeMm3"]}, ensure_ascii=False))

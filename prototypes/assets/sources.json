@@ -1,0 +1,80 @@
+{
+  "downloaded": "2026-10-23",
+  "assets": [
+    {
+      "file": "mcp-logo.svg",
+      "source": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/main/docs/logo/light.svg",
+      "bytes": 16772
+    },
+    {
+      "file": "mcp-mark.svg",
+      "source": "https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/main/docs/favicon.svg",
+      "bytes": 1095
+    },
+    {
+      "file": "catia-logo-white.png",
+      "source": "https://www.3ds.com/assets/invest/logo/2023-04/3ds_catia_logotype_rgb_white.png",
+      "bytes": 6240
+    },
+    {
+      "file": "user-round.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/user-round.svg",
+      "bytes": 279
+    },
+    {
+      "file": "list-tree.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/list-tree.svg",
+      "bytes": 355
+    },
+    {
+      "file": "wrench.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/wrench.svg",
+      "bytes": 417
+    },
+    {
+      "file": "refresh-cw.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/refresh-cw.svg",
+      "bytes": 392
+    },
+    {
+      "file": "shield-check.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/shield-check.svg",
+      "bytes": 415
+    },
+    {
+      "file": "file-box.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/file-box.svg",
+      "bytes": 610
+    },
+    {
+      "file": "database.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/database.svg",
+      "bytes": 329
+    },
+    {
+      "file": "book-open.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/book-open.svg",
+      "bytes": 387
+    },
+    {
+      "file": "cpu.svg",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/cpu.svg",
+      "bytes": 590
+    },
+    {
+      "file": "lucide-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/lucide-icons/lucide/main/LICENSE",
+      "bytes": 3208
+    },
+    {
+      "file": "agentcpm-platform-icon.png",
+      "source": "F:/CatiaAgent/AgentCPM/ui/public/pilotdeck-p-mark-compact.png",
+      "bytes": 325202
+    }
+  ],
+  "notes": [
+    "MCP and CATIA marks are unmodified official source assets.",
+    "Functional icons are from Lucide and are not product logos.",
+    "Per user instruction, AgentCPM reuses the current platform icon with the updated name. This is not a claim of a newly published AgentCPM logo."
+  ]
+}

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CATIA Agent · 技术架构</title>
+<style>
+:root{color-scheme:light;--blue:#14538a;--mid:#417eae;--ink:#203651;--muted:#60728a;--line:#bacde0;--red:#da462f;--paper:#f4f7fa}
+*{box-sizing:border-box}body{margin:0;height:100vh;padding-bottom:64px;background:#e3e9ef;display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:Arial,"Microsoft YaHei","PingFang SC",sans-serif;color:var(--ink)}:fullscreen body{padding-bottom:0}
+.stage{position:relative;width:1600px;height:900px;flex:none;transform-origin:center;overflow:hidden}.slide{position:relative;width:1600px;height:900px;background-color:var(--paper);background-image:linear-gradient(#d9e5f180 1px,transparent 1px),linear-gradient(90deg,#d9e5f180 1px,transparent 1px);background-size:50px 50px}.slide:before{content:"";position:absolute;inset:16px 20px;border:1px solid var(--line);pointer-events:none}
+header{position:absolute;left:48px;right:48px;top:42px}h1{font-size:34px;line-height:1.3;color:var(--blue);margin:0;font-weight:700;letter-spacing:-.7px}.subtitle{margin:14px 0 0;font-size:19px;line-height:1.4;color:var(--muted);letter-spacing:.5px}.tag{position:absolute;right:0;top:9px;font-size:14px;letter-spacing:1px;color:var(--muted);border-left:2px solid var(--line);padding-left:18px}
+.section-label{position:absolute;left:48px;font-size:20px;color:var(--blue);font-weight:700;display:flex;align-items:baseline;gap:20px}.section-label small{font-size:15px;color:var(--muted);font-weight:400}.section-one{top:150px}.section-two{top:668px}
+.diagram-panel{position:absolute;left:48px;top:188px;width:1504px;height:448px;border:1px solid var(--line);background:#fff}
+.wires{position:absolute;inset:0;pointer-events:none;z-index:1}.wires text{font-family:Arial,"Microsoft YaHei",sans-serif;font-size:14px;fill:var(--blue)}.wires .feedback-label{font-size:16px;font-weight:700;fill:var(--red)}
+.node{position:absolute;top:294px;height:196px;border:1.5px solid var(--blue);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;z-index:2;transition:background .2s,box-shadow .2s}.node h2{font-size:23px;line-height:1.3;margin:0;color:var(--blue);font-weight:700;white-space:nowrap}.node p{font-size:16px;line-height:1.4;margin:0;color:var(--muted);white-space:nowrap}.user{left:72px;width:120px;background:#edf3f8}.agent{left:240px;top:266px;width:448px;height:252px;border:2px solid #225f98;display:block;background:#f5f9ff;box-shadow:inset 0 4px 0 #225f98}.tools{left:744px;width:160px}.environment{left:952px;width:160px;background:var(--blue)}.verification{left:1160px;width:160px}.delivery{left:1368px;width:160px;background:#edf3f8}.corner{position:absolute;right:12px;top:-32px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;background:var(--mid)}
+.agent-heading{position:absolute;left:20px;right:20px;top:20px;display:flex;align-items:center;justify-content:space-between;gap:14px}.platform-brand{display:flex;align-items:center;gap:11px}.platform-brand img{width:38px;height:38px;object-fit:contain}.agent-heading h2{font-size:30px;letter-spacing:-.8px;color:#163860}.agent-heading .micro{font-size:14px;color:var(--blue);white-space:nowrap}.agent-steps{position:absolute;left:18px;top:102px;display:grid;grid-template-columns:repeat(3,108px);gap:32px}.agent-step{height:78px;border:1px solid var(--line);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}.agent-step strong{display:flex;align-items:center;gap:6px;font-size:18px;color:var(--blue)}.agent-step strong img{width:16px;height:16px;object-fit:contain}.agent-step span{font-size:13px;color:var(--muted)}.agent-step.feedback{border-color:#dfab9f;background:#fff6f2}.agent-step.feedback strong{color:var(--red)}.agent-flow{position:absolute;left:-2px;top:-2px;width:448px;height:252px;pointer-events:none}.agent-flow text{font:13px Arial,"Microsoft YaHei",sans-serif;fill:var(--red)}
+.node-icon{width:32px;height:32px;object-fit:contain;margin-bottom:2px}.protocol-brand{height:34px;display:flex;align-items:center;gap:8px;color:#172b41;font-size:25px;font-weight:700}.protocol-brand img{width:30px;height:30px}.catia-brand{width:128px;height:34px;object-fit:contain}.environment h2{font-size:23px;color:#fff}.environment p{color:#dceaf5}.node.active{background:#fff3ed;box-shadow:0 0 0 3px #da462f35;border-color:var(--red)}.node.active h2{color:var(--red)}.environment.active{background:#1b608f}.environment.active h2{color:#fff}
+.foundation-title{position:absolute;left:72px;top:560px;font-size:19px;line-height:25px;font-weight:700;color:var(--blue)}.foundation-title small{display:block;font-size:13px;font-weight:400;color:var(--muted)}.foundations{position:absolute;left:240px;right:72px;top:548px;height:68px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.foundation{background:#f4f7fa;border:1px solid #d5e0eb;padding:10px 14px}.foundation strong{display:block;font-size:17px;line-height:22px;color:var(--blue);margin-bottom:4px}.foundation strong img{width:16px;height:16px;margin-right:7px;vertical-align:-2px}.foundation span{display:block;font-size:15px;line-height:20px;color:var(--muted)}
+.mechanisms{position:absolute;left:48px;right:48px;top:708px;height:124px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.mechanism{padding:24px 17px;background:#ffffffb8;border:1px solid var(--line);border-top:2px solid var(--mid)}.mechanism h3{font-size:21px;color:var(--blue);margin:0 0 18px;display:flex;align-items:center;gap:10px}.mechanism .letter{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:var(--mid);font-size:12px;flex:none}.mechanism p{margin:0;font-size:17px;line-height:24px;color:var(--muted);white-space:nowrap}
+footer{position:absolute;left:48px;right:48px;bottom:24px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between}footer a{color:inherit;text-decoration:none;border-bottom:1px solid #b9cadb}footer a:hover{color:var(--blue)}
+.toolbar{position:fixed;bottom:13px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:6px;background:#203651;color:#fff;z-index:5}.toolbar button{border:0;border-radius:2px;background:#ffffff14;color:#fff;padding:9px 14px;font:14px Arial,"Microsoft YaHei",sans-serif;cursor:pointer;white-space:nowrap}.toolbar button:hover{background:#ffffff2b}.toolbar button:focus-visible{outline:2px solid #99c6ef;outline-offset:2px}.toolbar .primary{background:var(--mid)}.status{font-size:12px;min-width:125px;padding:0 8px;color:#d7e4f0}.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;font-size:14px;z-index:9}.toast:empty{display:none}
+@media(prefers-reduced-motion:reduce){.node{transition:none}}
+@media print{@page{size:420mm 236.25mm;margin:0}body{display:block;background:var(--paper);overflow:visible;width:420mm;height:236.25mm;padding:0}.stage{width:420mm;height:236.25mm;transform:none!important}.slide{transform:scale(.992125984);transform-origin:top left;-webkit-print-color-adjust:exact;print-color-adjust:exact}.toolbar,.toast{display:none}.node.active{box-shadow:none}}
+</style>
+</head>
+<body>
+<main class="stage" aria-label="CATIA Agent 技术架构单页演示">
+<article class="slide">
+<header><h1>AgentCPM × CATIA：从设计意图到可验证模型</h1><p class="subtitle">自然语言需求 → 规划与执行 → 验证与交付</p><span class="tag">技术架构 / 01</span></header>
+<div class="section-label section-one">① 技术架构与运行闭环<small>规划 · 工具调用 · 反馈循环</small></div>
+<div class="diagram-panel"></div>
+<svg class="wires" viewBox="0 0 1600 900" role="img" aria-label="需求经过 Agent、MCP、CATIA 和校验，达标后交付，未达标时反馈给 Agent">
+<defs><marker id="arrow" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L7 4L0 8Z" fill="#14538a"/></marker><marker id="back" markerUnits="userSpaceOnUse" markerWidth="7" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L7 4L0 8Z" fill="#da462f"/></marker></defs>
+<g fill="none" stroke="#14538a" stroke-width="2"><path d="M198 392H234" marker-end="url(#arrow)"/><path d="M694 474H716V450H738" marker-end="url(#arrow)"/><path d="M910 392H946" marker-end="url(#arrow)"/><path d="M1118 392H1154" marker-end="url(#arrow)"/><path d="M1326 392H1362" marker-end="url(#arrow)"/></g>
+<text x="1344" y="374" text-anchor="middle" style="font-size:13px">通过</text>
+<path d="M1240 288V238H716V409H694" fill="none" stroke="#da462f" stroke-width="2.5"/>
+
+<text x="977" y="227" text-anchor="middle" class="feedback-label">校验反馈 / 异常状态</text>
+</svg>
+<section class="node user" data-step="0"><img class="node-icon" src="assets/user-round.svg" alt=""><h2>工程师</h2><p>自然语言需求</p></section>
+<section class="node agent" data-step="1"><span class="corner">A</span><div class="agent-heading"><div class="platform-brand"><img src="assets/agentcpm-platform-icon.png" alt="沿用现有平台图标"><h2>AgentCPM</h2></div><span class="micro">Agent 决策与编排</span></div>
+<svg class="agent-flow" viewBox="0 0 448 252" aria-hidden="true"><path d="M134 143H154" fill="none" stroke="#14538a" stroke-width="1.8" marker-end="url(#arrow)"/><path d="M214 188V208H442" fill="none" stroke="#14538a" stroke-width="1.8"/><path d="M442 143H414" fill="none" stroke="#da462f" stroke-width="2" marker-end="url(#back)"/><path d="M354 98V84H74V98" fill="none" stroke="#da462f" stroke-width="1.8" marker-end="url(#back)"/><text x="224" y="238" text-anchor="middle">继续 / 修正 / 停止</text></svg>
+<div class="agent-steps"><div class="agent-step"><strong><img src="assets/list-tree.svg" alt="">任务规划</strong><span>意图澄清 / 约束</span></div><div class="agent-step"><strong><img src="assets/wrench.svg" alt="">工具调用</strong><span>选择工具 / 参数</span></div><div class="agent-step feedback"><strong><img src="assets/refresh-cw.svg" alt="">反馈决策</strong><span>观察结果 / 判定</span></div></div></section>
+<section class="node tools" data-step="2"><span class="corner">B</span><div class="protocol-brand"><img src="assets/mcp-mark.svg" alt="MCP 官方标识"><span>MCP</span></div><h2>领域工具</h2><p>读取 / 修改 / 测量</p></section>
+<section class="node environment" data-step="3"><img class="catia-brand" src="assets/catia-logo-white.png" alt="Dassault Systèmes CATIA 官方标识"><h2>V5 执行环境</h2><p>求解 / 几何重建</p></section>
+<section class="node verification" data-step="4"><span class="corner">C</span><img class="node-icon" src="assets/shield-check.svg" alt=""><h2>结果校验</h2><p>参数 / 几何 / 约束</p></section>
+<section class="node delivery" data-step="5"><span class="corner">D</span><img class="node-icon" src="assets/file-box.svg" alt=""><h2>模型交付</h2><p>文件 / 报告</p></section>
+<span class="foundation-title">AgentCPM<small>平台核心能力</small></span>
+<div class="foundations"><div class="foundation"><strong><img src="assets/file-box.svg" alt="">项目工作空间</strong><span>资料归档 / 项目上下文</span></div><div class="foundation"><strong><img src="assets/database.svg" alt="">知识与白盒记忆</strong><span>规范检索 / 记忆可查可改</span></div><div class="foundation"><strong><img src="assets/wrench.svg" alt="">Skill / MCP 扩展</strong><span>流程复用 / 工具接入</span></div><div class="foundation"><strong><img src="assets/list-tree.svg" alt="">任务运行与协同</strong><span>进度留痕 / 澄清与中断</span></div><div class="foundation"><strong><img src="assets/cpu.svg" alt="">模型路由与用量</strong><span>模型选配 / 用量追踪</span></div></div>
+<div class="section-label section-two">② 核心机制<small>A–D 对应上图模块</small></div>
+<div class="mechanisms"><section class="mechanism"><h3><span class="letter">A</span>规划与反馈循环</h3><p>意图澄清 / 约束对齐 / 反馈修正</p></section><section class="mechanism"><h3><span class="letter">B</span>受控执行</h3><p>工作副本 / 参数检查 / 串行操作</p></section><section class="mechanism"><h3><span class="letter">C</span>证据反馈</h3><p>模型读回 / 目标比对 / 异常停止</p></section><section class="mechanism"><h3><span class="letter">D</span>可追溯交付</h3><p>新版本 / 重开验证 / 变更记录</p></section></div>
+<footer><span>技术方案示意 · AgentCPM + CATIA MCP · <a href="assets/sources.json" target="_blank" rel="noopener">素材来源</a></span><span>CATIA Agent / 01</span></footer>
+</article>
+</main>
+<nav class="toolbar" aria-label="演示控制"><button class="primary" id="play" type="button">演示闭环</button><span class="status" id="status" aria-live="polite">单页架构总览</span><button id="reset" type="button">总览</button><button id="fullscreen" type="button">全屏</button><button id="print" type="button">打印 / PDF</button></nav><div class="toast" role="status" id="toast"></div>
+<script>
+const stage=document.querySelector('.stage');
+function fit(){const gap=document.fullscreenElement?0:24;const bottom=document.fullscreenElement?0:76;stage.style.transform=`scale(${Math.min((innerWidth-gap)/1600,(innerHeight-bottom)/900)})`;}
+addEventListener('resize',fit);document.addEventListener('fullscreenchange',fit);fit();
+const names=['工程师提出目标','Agent 理解与规划','MCP 调用领域工具','CATIA 更新模型','读回并校验','反馈进入下一轮决策','修正后再次执行','CATIA 更新模型','再次校验','通过后交付'];
+const sequence=[0,1,2,3,4,1,2,3,4,5];let timer=null,step=-1;
+const play=document.getElementById('play'),status=document.getElementById('status');
+function stop(){clearTimeout(timer);timer=null;play.textContent='演示闭环';}
+function reset(){stop();step=-1;document.querySelectorAll('.active').forEach(n=>n.classList.remove('active'));status.textContent='单页架构总览';}
+function advance(){step++;if(step>=sequence.length){stop();status.textContent='闭环演示完成';return;}document.querySelectorAll('[data-step]').forEach(n=>n.classList.toggle('active',Number(n.dataset.step)===sequence[step]));status.textContent=names[step];timer=setTimeout(advance,1300);}
+play.onclick=()=>{if(timer){stop();return;}step=-1;play.textContent='暂停演示';advance();};document.getElementById('reset').onclick=reset;
+ document.getElementById('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{const t=document.getElementById('toast');t.textContent='当前浏览器未开放全屏，请使用 F11';setTimeout(()=>t.textContent='',3000);}};
+ document.getElementById('print').onclick=()=>{reset();window.print();};
+ document.addEventListener('keydown',e=>{if(e.target.closest('button'))return;if(e.code==='Space'){e.preventDefault();play.click();}if(e.key==='Escape')reset();});
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+# CATIA Agent 迁移运行配置（新 PilotDeck 基座）
+#
+# 用法：
+#   PILOT_HOME=F:\CatiaAgent\work\pilotdeck-migration-20261105\home
+#   PILOTDECK_CONFIG_PATH=<本文件>
+#   DEEPSEEK_API_KEY=<从既有安全位置注入，禁止写进仓库>
+#
+# 模型固定为 deepseek/deepseek-flash（官方 DeepSeek），推理默认 high。
+# 该配置对齐 pi 的 DeepSeek 模型设置：thinking-type、支持 low/high/max。
+# 不配置任何 Opus/GPT 回退。
+schemaVersion: 1
+agent:
+  model: deepseek/deepseek-flash
+  subagents:
+    default: inherit
+  maxOutputTokens: 32768
+model:
+  providers:
+    deepseek:
+      protocol: openai
+      url: https://api.deepseek.com/v1
+      apiKey: ${DEEPSEEK_API_KEY}
+      timeoutMs: 120000
+      models:
+        deepseek-flash:
+          displayName: DeepSeek V4.1 Flash
+          capabilities:
+            maxContextTokens: 1000000
+          thinking:
+            state: enabled
+            efforts:
+              - low
+              - high
+              - max
+            format: thinking-type
+          multimodal:
+            input:
+              - text
+              - image
+memory:
+  enabled: false
+tools:
+  webSearch:
+    enabled: false
+webui:
+  runtime:
+    host: 127.0.0.1
+    serverPort: 3001
+    vitePort: 5173
+    apiTimeoutMs: 120000
+    databasePath: F:/CatiaAgent/work/pilotdeck-migration-20261105/home/auth.db
+    workspacesRoot: F:/CatiaAgent/work/pilotdeck-migration-20261105/workspaces
+telemetry:
+  enabled: false

@@ -1,0 +1,254 @@
+# Changelog
+
+All notable changes to this project are documented here.
+
+## [Unreleased]
+
+### Changed
+- CATIA calls and connection cleanup run serially on one STA worker. Ordinary
+  errors and client cancellations do not lock the server; queued calls run after
+  the current operation completes. Cancellation does not cancel a COM call.
+- Server-boundary errors for all 98 existing tools now return a structured envelope
+  and MCP `isError=true`; successful text outputs and tool schemas are unchanged.
+  `UNSUPPORTED_CAPABILITY` retains cache, release and workbench guidance.
+- Require `mcp>=1.27.0,<2` for structured handler results and transport-close
+  cancellation support; declare the directly imported `jsonschema>=4.20,<5`.
+- Windows CI installs development dependencies and runs pytest regression tests.
+
+### Fixed
+- Topology selection no longer hardcodes English search terms. CATIA's
+  `Selection.Search` resolves type names in the UI language, so on a zh-CN
+  installation `Topology.Vertex` is rejected while `Type=顶点` resolves; every
+  topology-consuming tool (`catia_get_bounding_box`, `catia_list_faces`,
+  `catia_list_edges`, `Face.N`/`Edge.N` resolution for measure/fillet/chamfer,
+  face-driven drawing views) now tries the known spellings in order and raises
+  instead of reporting a rejected query as "no such topology"
+  (`catia_mcp/topology.py`).
+- `catia_measure_distance` reports millimetres again: `GetMinimumDistance`
+  returns the document length unit, not MKS, so the ×1000 conversion turned a
+  20 mm gap into 20 m (field-verified on V5-6R2021 B31 SP7).
+- `catia_diagnose` no longer reports `GetBoundingBox` / `GetInertia` as missing
+  Measurable methods; neither exists on V5's Measurable API and neither is
+  used (the bounding box is a vertex sweep, inertia comes from the Inertia
+  object).
+
+### Runtime limits
+- A CATIA modal dialog can block the worker and shutdown. Client cancellation
+  does not prove model rollback or stop an in-flight COM call. Close the blocking
+  dialog; if CATIA cannot recover, terminate CNEXT and restart the MCP process.
+
+### Added
+- PDF drawing -> parametric part workflow (v1): `catia_inspect_drawing`,
+  `catia_crop_drawing`, `catia_validate_requirements`,
+  `catia_compile_build_plan`, `catia_build_part`, `catia_verify_part`.
+  Requirements must cite text spans that contain the stated numbers; the plan
+  is a whitelisted operation list; delivery is decided by
+  `scripts/independent_verify_part.py` running in a separate process, plus a
+  copy-based editability check that changes `L` and measures the result.
+  Contract: `docs/pdf-modeling-v1.md`.
+- Add `PyMuPDF` as a runtime dependency for PDF text/bbox extraction.
+- **Remote access over Streamable HTTP**: `catia-mcp --http` serves the tools
+  at `/mcp` so the agent can run on a Mac or another machine while CATIA runs
+  on a Windows PC or a cloud workstation. Loopback-only by default; binding
+  any other address requires a bearer token (`--token` or `CATIA_MCP_TOKEN`,
+  `--new-token` generates one), compared in constant time, with DNS-rebinding
+  protection on loopback. stdio stays the default and is unchanged. Setup for
+  Claude Code, Cursor, VS Code and Claude Desktop in docs/remote-access.md.
+- **Knowledgeware module (98 tools total)**: `catia_create_parameter`
+  (lengths and angles valuated with explicit units), `catia_set_formula`
+  (create or modify in place), `catia_list_relations`,
+  `catia_delete_relation` and `catia_create_design_table` with column
+  associations, through the documented Parameters/Relations interfaces.
+  Derived from the knowledge module proposed in PR #3.
+- **Drafting views and annotations (93 tools total)**:
+  `catia_drawing_projection_view` (right/left/top/bottom/rear via
+  DefineProjectionView with the documented CatProjViewType values),
+  `catia_drawing_section_view` (section view or cut along a polyline
+  profile via DefineSectionView), `catia_drawing_detail_view`
+  (DefineCircularDetailView), `catia_drawing_add_text` (DrawingTexts.Add)
+  and `catia_drawing_add_table` (DrawingTables.Add with cell filling and
+  column widths, the building block for title blocks and BOMs). Signatures
+  taken from the V5 automation reference; derived from the drafting work
+  proposed in PR #3, rewritten to the project's conventions. Awaiting live
+  validation.
+- `catia_delete_feature`: delete a feature by name through the selection
+  (from PR #2's proposal).
+- **Dimensioning generative views the way CATIA actually allows it** (87
+  tools total). A V5R20 live lab established that generated projection
+  curves are never exposed to Automation (GeometricElements shows only
+  the axis and manual 2D items), so `catia_drawing_generate_dimensions`
+  implements the proven route: one associative dimension per supported 3D
+  sketch constraint via DrawingSheet.GenerateDimensions, with the drawing
+  activated first (otherwise CATIA silently does nothing) and a dimension
+  count postcondition. `catia_drawing_list_dimensions` reports values and
+  status (basic_2d vs 3d_driven). The manual tools are rescoped to
+  Factory2D geometry and CatDimType codes corrected to the 0-based enum
+  (radius = 5 verified live).
+- `catia_drawing_add_view` gains face-driven projection (`face`: the view
+  is projected on a planar face's own plane via Measurable.GetPlane and
+  SetProjectionPlane with the two in-plane vectors, orientation-independent)
+  and `angle` for in-plane rotation. Field-proven on a real industrial part.
+- Shared `read_measurable_array` helper: array-filling Measurable methods
+  (GetCOG, GetPoint, GetPlane) run inside CATIA via SystemService.Evaluate
+  and return the array directly; coordinates come back in the document's
+  length unit (mm), so center of gravity and bounding-box vertices are no
+  longer scaled.
+- **`catia_user_pattern`** (85 tools total): copies of a feature placed on
+  the points of a sketch, via AddNewUserPattern + AddFeatureToLocatePositions.
+  Field-validated on V5R20 (4 copies measured on their sketch points plus the seed).
+- `catia_circ_pattern` takes `axis` (x/y/z) and `center`; the rotation axis
+  Reference is minted from a GSD line in a throwaway donor document, the
+  only route accepted on V5R20 (an in-document GSD line makes the call
+  fail with 0x80020009). Validated: 4 bosses at radius 40 mm, 0/90/180/270.
+- `catia_rect_pattern` defaults its directions to the origin planes
+  (PlaneYZ -> X, PlaneZX -> Y), validated on a measured 2x2 grid; explicit
+  edges remain available.
+- `catia_drawing_add_view` takes `body_name` to draw a single body
+  (validated with a control view on V5R20).
+- `catia_close_sketch` reports the closed sketch's name so later tools can
+  address it reliably.
+- `catia_rect_pattern` accepts optional `dir1_edge`/`dir2_edge` ('Edge.N')
+  to pin the pattern directions on real topology edges. Field-proven on
+  V5R20: edge references from the selection are accepted as directions,
+  and CATIA rejects two parallel directions, so two adjacent edges
+  sharing a corner are required.
+- **Drafting module (experimental, 84 tools total)**: `catia_new_drawing`
+  creates a CATDrawing and `catia_drawing_add_view` projects an open Part
+  as a generative front view (xy/yz/zx) on the active sheet, built from
+  automation probes field-validated on CATIA V5R20 by contributor
+  ESE3X. `catia_drawing_list_view_geometry` lists a view's manually drawn
+  2D geometry and `catia_drawing_add_dimension` places dimensions between
+  such elements via DrawingDimensions.Add (generated curves are not
+  addressable, see the generate_dimensions entry above). Section views,
+  text and tables followed (see the entry above).
+- README repositioned as agent-agnostic: per-client MCP setup for Claude
+  Desktop/Code, Cursor, Windsurf, Cline, VS Code and generic stdio hosts,
+  plus release/CI/license badges.
+
+### Fixed
+- **Center of gravity and bounding-box coordinates were scaled by 1000**:
+  GetCOG/GetPoint/GetPlane return coordinates in the document's length
+  unit (mm, field-observed on V5R20 via GetPlane on a real part), unlike
+  Area/Volume which are MKS. The 0.2.2 conversion multiplied them by
+  1000; removed.
+
+## [0.2.2] — 2026-10-04
+
+### Added
+- **`catia_diagnose` tool** (79 tools total): reports the exact CATIA
+  version/release/service pack, the Python/pywin32 environment, and probes
+  which automation APIs the installation resolves (ShapeFactory and
+  HybridShapeFactory methods matching exactly what the real tools call,
+  SPAWorkbench availability), with guidance notes. Motivated by a V5R20
+  field report where Part Design feature creation was intermittently
+  unavailable (root cause later identified: stale pywin32 cache).
+- Compatibility notes section in the README (V5R20 and V5-6 2020 field
+  reports).
+
+- **`catia_list_faces` tool** (80 tools total) and canonical indexed names
+  (`Edge.N` / `Face.N`) from `catia_list_edges`, feeding the new topology
+  path of `catia_measure_distance`.
+
+### Fixed
+- **Part Design overhaul after an adversarial API audit (30 confirmed
+  findings)**: fillet, chamfer, draft and thickness now target real
+  Face.N/Edge.N references and honor their schema arguments (previously
+  silently ignored); shell anchors on the face to remove per the
+  documented 3-parameter signature; rectangular and circular patterns use
+  the full 12-parameter signatures (they failed with
+  DISP_E_BADPARAMCOUNT on every call, and circular counts now go in the
+  angular slot); holes use AddNewHoleFromSketch, set Diameter.Value
+  correctly and honor the type argument; mirror drops its dead
+  feature_name argument. Center of gravity and the inertia matrix are
+  now computed through SystemService.Evaluate because in/out safearrays
+  do not marshal through late-bound COM (previous COG output was the
+  caller's unmodified zeros), with inertia data from the SPAWorkbench
+  Inertia object (Measurable.GetInertia does not exist); mass from the
+  CATIA material is reported. The bounding box is computed from a vertex
+  sweep (Measurable.GetBoundingBox does not exist in any V5 release) and
+  states its exactness. Pocket honors an explicitly requested direction
+  instead of silently flipping it. Arc sweeps crossing 0 degrees are
+  normalized. HSO selection and sketch state are cleaned up on all error
+  paths.
+- **`catia_measure_distance` can now target faces and edges**: topology
+  resolves via the final shape's HSO enumeration and the selection's
+  Reference property (`CreateReferenceFromObject` rejects HSO topology
+  cells, field-verified E_INVALIDARG). Awaiting live field confirmation.
+- **`catia_sketch_constraint` never worked**: it passed raw geometry elements
+  where the API requires Reference objects (DISP_E_TYPEMISMATCH on every
+  call), and most CatConstraintType enum codes were wrong (only tangent was
+  correct). Both fixed; constraint names are now returned for verification.
+  Root-caused and validated on live CATIA by a V5R20 field test campaign.
+- **`catia_sketch_arc` called a method that does not exist**: Factory2D has
+  no CreateArc in any V5 release. Arcs are now created as open circles via
+  CreateCircle with start/end parameters (field-validated fix).
+- **`catia_pocket` could report success while removing no material**: the cut
+  side was never established. Orientation is now set explicitly, the body
+  volume is measured before/after, the direction is flipped automatically
+  when nothing was removed, and the result message states the measured
+  effect (or FEATURE_NO_EFFECT honestly). Field-validated: 10x10x5 pocket
+  removes exactly 500 mm3.
+- **`catia_close_sketch` lost track of open sketches across server
+  restarts**: it now re-adopts the document's in-work sketch instead of
+  failing while CATIA visibly holds a sketch open.
+- Missing COM APIs now return a clear `UNSUPPORTED_CAPABILITY` message
+  naming the likely causes instead of a raw AttributeError. Field testing
+  on V5R20 identified a stale pywin32 `gen_py` cache as the most common
+  cause (methods that exist stop resolving); the error message, the
+  diagnostics notes and a new Troubleshooting entry now point to clearing
+  it first. V5R20 is confirmed running the full core workflow (part,
+  sketch, pad) once the cache is cleared.
+- Measurement tools obtain SPAWorkbench from the active document first:
+  `GetWorkbench` is a Document method in the V5 automation model, not an
+  Application method.
+
+## [0.2.1] — 2026-10-02
+
+### Fixed
+- **All measurement tools returned MKS values mislabeled as mm**: CATIA V5's
+  SPAWorkbench Measurable API returns meters/m2/m3 regardless of display
+  units, so `catia_get_inertia`, `catia_get_bounding_box` and
+  `catia_measure_distance` were off by factors of 1 000 to 1 000 000 000
+  (volume), and the derived mass was wrong by 1e9. All measurement results
+  are now converted to mm-based units at the server boundary; the inertia
+  matrix is explicitly labeled `inertia_matrix_kg_m2`. Feature creation
+  (pads, sketches, holes) was always genuinely in mm and is unchanged.
+  Reported by a user via LinkedIn after real-model testing.
+
+## [0.2.0] — 2026-08-20
+
+### Added
+- **Generative Shape Design (GSD) module** — 24 new wireframe/surface tools
+  (geometrical sets, 3D points/lines/planes/splines/circles, multi-sections
+  surface, sweep, extrude, revolve, fill, blend, offset, join, split, trim,
+  symmetry, ThickSurface/CloseSurface), bringing the server to **78 tools**.
+  Contributed by @gaoflow in #4, runtime-tested against a live CATIA V5
+  instance (30/30 smoke tests).
+- GSD smoke test script (`scripts/gsd_smoke_test.py`).
+- CI workflow running the offline test suite on Windows (Python 3.10/3.12).
+
+### Fixed
+- **All 14 Part Design tools raised `AttributeError`**: `Body` has no
+  `ShapeFactory` in the CATIA V5 automation model — now uses
+  `part.ShapeFactory`. Reported in #1 by @wuqing8577-netizen, fixed via #4
+  (also proposed in #2 by @amirhossein199741).
+- `Application.ActiveEditor` does not exist in CATIA V5 — view refresh,
+  screenshot, set-view and fit-all now go through `ActiveWindow.ActiveViewer`
+  (#4).
+- Screenshots: CATIA V5 cannot capture PNG; the format is now chosen from the
+  file extension (JPEG/BMP/TIFF) with a JPEG fallback for `.png` paths (#4).
+- `pip install -e .` failed: invalid `build-backend` replaced with
+  `setuptools.build_meta` (#4, also proposed in #2 and #5).
+- Log file is written next to the package instead of the process working
+  directory (which is `System32` when launched by Claude Desktop) (#4).
+- `catia_new_part` / `catia_new_product` no longer crash when CATIA rejects
+  the requested name (read-only `Part.Name` on some versions); the actual
+  outcome is reported honestly. Contributed by @ewhenbula-svg in #5.
+- **mcp SDK pinned to `<2`**: mcp 2.0.0 removed the low-level
+  `Server.list_tools`/`call_tool` decorator API, breaking the server at
+  startup on fresh installs.
+
+## [0.1.0] — 2026-02-25
+
+Initial release: 54 tools covering documents, 2D sketching, Part Design,
+assembly, measurement, export and view control over CATIA V5 COM automation.

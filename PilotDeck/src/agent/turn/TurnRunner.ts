@@ -1,0 +1,609 @@
+import { agentError, normalizeAgentError } from "../protocol/errors.js";
+import { writeModelContextSnapshot } from '../../session/context/ModelContextSnapshot.js';
+import type { AgentEvent } from "../protocol/events.js";
+import type { AgentInput, AgentModelOverride } from "../protocol/input.js";
+import type { AgentRunMode } from "../protocol/input.js";
+import type { AgentTurnResult } from "../protocol/result.js";
+import type { AgentLoop, AgentLoopSeedState } from "../loop/AgentLoop.js";
+import type { AgentTranscriptWriter } from "../../session/transcript/TranscriptWriter.js";
+import { TurnInputProcessor } from "./TurnInputProcessor.js";
+import type { CanonicalMessage, CanonicalUsage } from "../../model/index.js";
+import type { LifecycleRuntime } from "../../lifecycle/index.js";
+import type { PermissionMode, PermissionRuleSet } from "../../permission/index.js";
+import type { AgentStatusMessageInput, AgentTranscriptWriterState } from "../../session/transcript/TranscriptWriter.js";
+import type { SessionMetadataStore } from "../../session/metadata/SessionMetadataStore.js";
+import type { SessionMetadataValue } from "../../session/transcript/TranscriptEntry.js";
+import type { SessionTitleGenerator } from "../../session/title/SessionTitleGenerator.js";
+import { createVisibleErrorStatusDetail } from "../../status/agentStatus.js";
+import { FileArtifactCollector, type FileArtifact } from "../../session/artifacts/index.js";
+import type { AgentSteerMessage } from "../session/SteerMailbox.js";
+
+export type TurnRunnerOptions = {
+  sessionId: string;
+  turnId: string;
+  messages: CanonicalMessage[];
+  input: AgentInput;
+  maxTurns?: number;
+  runMode?: AgentRunMode;
+  permissionMode?: PermissionMode;
+  allowedReadFiles?: string[];
+  /** The user's actual permission preference before plan-mode override. */
+  basePermissionMode?: PermissionMode;
+  /** Allow model-visible plan mode tools for this turn. */
+  allowPlanModeTools?: boolean;
+  canPrompt?: boolean;
+  permissionRules?: Partial<PermissionRuleSet>;
+  abortSignal?: AbortSignal;
+  /** Synthetic messages appended after user input; stored with metadata.synthetic flag. */
+  syntheticMessages?: CanonicalMessage[];
+  modelOverride?: AgentModelOverride;
+  modelSelection?: NonNullable<SessionMetadataValue["modelSelection"]>;
+  openSteerMailbox?: () => void;
+  drainSteerMessages?: () => AgentSteerMessage[];
+  drainOrCloseSteerMailbox?: () => { messages: AgentSteerMessage[]; closed: boolean };
+  closeSteerMailbox?: () => AgentSteerMessage[];
+};
+
+export type TurnRunnerResult = {
+  result: AgentTurnResult;
+  messages: CanonicalMessage[];
+};
+
+export type TurnRunnerRuntimeContext = {
+  cwd: string;
+  transcriptPath: string;
+  /** Disable Agent-generated file artifact collection for non-project chats. */
+  collectFileArtifacts?: boolean;
+};
+
+export type TurnRunnerRuntimeReloadSnapshot = {
+  runtimeContext: TurnRunnerRuntimeContext;
+  transcriptWriterState?: AgentTranscriptWriterState;
+  metadata?: SessionMetadataValue;
+};
+
+export type TurnRunnerDependencies = {
+  fileHistory?: import("../../tool/protocol/types.js").PilotDeckToolFileHistorySink;
+  metadataStore?: SessionMetadataStore;
+  sessionTitleGenerator?: SessionTitleGenerator;
+  autoGenerateSessionTitle?: boolean;
+};
+
+type PendingSessionTitle = {
+  controller: AbortController;
+  cleanup: () => void;
+  completed: boolean;
+  title: string | null;
+  /** Settles when the title generation finishes (success, failure, or timeout). */
+  promise: Promise<void>;
+};
+
+const SESSION_LISTING_PROMPT_MAX_CHARS = 1_200;
+
+export class TurnRunner {
+  private disposed = false;
+  private pendingSessionTitle: PendingSessionTitle | undefined;
+
+  constructor(
+    private readonly loop: AgentLoop,
+    private readonly transcript: AgentTranscriptWriter,
+    private readonly inputProcessor = new TurnInputProcessor(),
+    private readonly now: () => Date = () => new Date(),
+    private readonly lifecycle?: LifecycleRuntime,
+    private readonly runtimeContext: TurnRunnerRuntimeContext = {
+      cwd: process.cwd(),
+      transcriptPath: "",
+    },
+    private readonly turnDependencies: TurnRunnerDependencies = {},
+  ) {}
+
+  async *run(options: TurnRunnerOptions): AsyncGenerator<AgentEvent, TurnRunnerResult, unknown> {
+    yield { type: "turn_started", sessionId: options.sessionId, turnId: options.turnId };
+    let artifactCollector: FileArtifactCollector | undefined;
+    let ownedPaths: string[] | undefined;
+    let checkpointsFinished = false;
+    const finishCheckpoints = async (status: "complete" | "incomplete") => {
+      if (checkpointsFinished) return;
+      checkpointsFinished = true;
+      try {
+        const checkpoint = await this.turnDependencies.fileHistory?.finishTurn?.(status);
+        if (checkpoint) ownedPaths = checkpoint.changes.map(change => change.path);
+        if (checkpoint) await this.transcript.recordAgentStatusMessage?.(options.sessionId, options.turnId, {
+          event: "checkpoint_recorded", kind: "status", text: "文件检查点已保存", detail: { checkpointId: checkpoint.id, files: checkpoint.changes.length, unprotected: checkpoint.unprotected },
+        });
+      } catch (error) {
+        await this.transcript.recordAgentStatusMessage?.(options.sessionId, options.turnId, {
+          event: "checkpoint_failed", kind: "error", text: "文件检查点保存失败", detail: { message: error instanceof Error ? error.message : String(error) },
+        });
+      }
+    };
+    try {
+      const unacknowledgedSteers = new Map<string, AgentSteerMessage>();
+      const trackDrainedSteers = (steers: AgentSteerMessage[]): AgentSteerMessage[] => {
+        for (const steer of steers) unacknowledgedSteers.set(steer.itemId, steer);
+        return steers;
+      };
+      const closeSteerMailbox = (): AgentEvent[] => {
+        const unapplied = new Map(unacknowledgedSteers);
+        for (const steer of options.closeSteerMailbox?.() ?? []) {
+          unapplied.set(steer.itemId, steer);
+        }
+        unacknowledgedSteers.clear();
+        return [...unapplied.values()].map((steer) => ({
+          type: "steer_unapplied" as const,
+          sessionId: options.sessionId,
+          turnId: options.turnId,
+          itemId: steer.itemId,
+          reason: "turn_ended" as const,
+        }));
+      };
+      let artifactsFinished = false;
+      const finishArtifacts = async (result: AgentTurnResult): Promise<FileArtifact[]> => {
+        await finishCheckpoints(result.type === "success" ? "complete" : "incomplete");
+        if (!artifactCollector || artifactsFinished) return [];
+        artifactsFinished = true;
+        const artifacts = await artifactCollector.finish(
+          result.type === "success" ? "complete" : "incomplete",
+          ownedPaths,
+        ).catch(() => []);
+        if (artifacts.length > 0) {
+          await Promise.resolve(
+            this.transcript.recordFileArtifacts?.(
+              options.sessionId,
+              options.turnId,
+              artifacts,
+            ),
+          ).catch(() => {});
+        }
+        return artifacts;
+      };
+      const accepted = this.inputProcessor.accept(options.input);
+      const allAcceptedMessages = [...accepted.messages, ...(options.syntheticMessages ?? [])];
+      const messages = [...options.messages, ...allAcceptedMessages];
+
+      try {
+        await this.transcript.recordAcceptedInput(
+          options.sessionId,
+          options.turnId,
+          allAcceptedMessages,
+          acceptedInputMetadata(options),
+        );
+      } catch (error) {
+        const agentTranscriptError = agentError("agent_transcript_error", "Failed to record accepted input.", error);
+        const result = this.createErrorResult(options, agentTranscriptError);
+        const status = await this.recordTurnFailureStatus(options, agentTranscriptError);
+        yield this.toAgentStatusEvent(options, status);
+        yield { type: "turn_failed", sessionId: options.sessionId, turnId: options.turnId, error: agentTranscriptError };
+        yield { type: "turn_completed", sessionId: options.sessionId, turnId: options.turnId, result };
+        return { result, messages: options.messages };
+      }
+
+      await this.persistListingPromptMetadata(options, accepted.messages);
+      yield { type: "input_accepted", sessionId: options.sessionId, turnId: options.turnId, messages: accepted.messages };
+
+      try {
+        await this.turnDependencies.fileHistory?.beginTurn?.(options.sessionId, options.turnId, options.messages, options.abortSignal);
+      } catch (cause) {
+        const error = agentError("agent_transcript_error", "Cannot save the file checkpoint before this turn.", cause);
+        const result = this.createErrorResult(options, error);
+        await this.recordErrorResult(options, result);
+        const status = await this.recordTurnFailureStatus(options, error);
+        yield this.toAgentStatusEvent(options, status);
+        yield { type: "turn_failed", sessionId: options.sessionId, turnId: options.turnId, error };
+        yield { type: "turn_completed", sessionId: options.sessionId, turnId: options.turnId, result };
+        return { result, messages: options.messages };
+      }
+
+      // Acknowledge durable input before scanning the workspace. The baseline
+      // still completes before hooks/model/tools can mutate any files.
+      artifactCollector = this.runtimeContext.collectFileArtifacts === false
+        ? undefined
+        : await FileArtifactCollector.start({
+            cwd: this.runtimeContext.cwd,
+            allowedInputPaths: options.allowedReadFiles,
+            now: this.now,
+          }).catch(() => undefined);
+
+      const prompt = inputToPromptText(options.input);
+      const userPromptHooks = await this.lifecycle?.dispatch({
+        event: "UserPromptSubmit",
+        baseInput: {
+          sessionId: options.sessionId,
+          transcriptPath: this.runtimeContext.transcriptPath,
+          cwd: this.runtimeContext.cwd,
+        },
+        payload: { prompt },
+        matchQuery: "UserPromptSubmit",
+        signal: options.abortSignal,
+      });
+      yield { type: "user_prompt_submitted", sessionId: options.sessionId, turnId: options.turnId, prompt };
+      if (userPromptHooks?.effects.some((effect) => effect.type === "block")) {
+        const error = agentError("agent_unsupported_feature", "UserPromptSubmit hook blocked model execution.");
+        const result = this.createErrorResult(
+          options,
+          error,
+        );
+        await this.recordErrorResult(options, result);
+        const artifacts = await finishArtifacts(result);
+        if (artifacts.length > 0) {
+          yield { type: "file_artifacts", sessionId: options.sessionId, turnId: options.turnId, artifacts };
+        }
+        const status = await this.recordTurnFailureStatus(options, error);
+        yield this.toAgentStatusEvent(options, status);
+        await this.finalizeSessionMetadata(options);
+        yield { type: "turn_failed", sessionId: options.sessionId, turnId: options.turnId, error };
+        yield { type: "turn_completed", sessionId: options.sessionId, turnId: options.turnId, result };
+        return { result, messages };
+      }
+      messages.push(...(userPromptHooks?.messages ?? []));
+
+      const sessionTitle = this.maybeGenerateSessionTitle(options, accepted.messages);
+
+      if (!accepted.shouldCallModel) {
+        const error = agentError("agent_unsupported_feature", "Input was accepted but model execution was not requested.");
+        const result = this.createErrorResult(
+          options,
+          error,
+        );
+        await this.recordErrorResult(options, result);
+        const artifacts = await finishArtifacts(result);
+        if (artifacts.length > 0) {
+          yield { type: "file_artifacts", sessionId: options.sessionId, turnId: options.turnId, artifacts };
+        }
+        const status = await this.recordTurnFailureStatus(options, error);
+        yield this.toAgentStatusEvent(options, status);
+        await this.finalizeSessionMetadata(options, sessionTitle);
+        yield { type: "turn_failed", sessionId: options.sessionId, turnId: options.turnId, error };
+        yield { type: "turn_completed", sessionId: options.sessionId, turnId: options.turnId, result };
+        return { result, messages };
+      }
+
+      options.openSteerMailbox?.();
+      try {
+        let hasRecordedVisibleFailureStatus = false;
+        const generator = this.loop.run({
+          sessionId: options.sessionId,
+          turnId: options.turnId,
+          messages,
+          maxTurns: options.maxTurns,
+          runMode: options.runMode,
+          permissionMode: options.permissionMode,
+          allowedReadFiles: options.allowedReadFiles,
+          basePermissionMode: options.basePermissionMode,
+          allowPlanModeTools: options.allowPlanModeTools,
+          canPrompt: options.canPrompt,
+          permissionRules: options.permissionRules,
+          modelOverride: options.modelOverride,
+          abortSignal: options.abortSignal,
+          drainSteerMessages: options.drainSteerMessages
+            ? () => trackDrainedSteers(options.drainSteerMessages?.() ?? [])
+            : undefined,
+          drainOrCloseSteerMailbox: options.drainOrCloseSteerMailbox
+            ? () => {
+                const drained = options.drainOrCloseSteerMailbox?.() ?? { messages: [], closed: true };
+                return { ...drained, messages: trackDrainedSteers(drained.messages) };
+              }
+            : undefined,
+          onSteerApplied: (itemId) => {
+            const applied = unacknowledgedSteers.get(itemId);
+            if (applied) messages.push(applied.message);
+            unacknowledgedSteers.delete(itemId);
+          },
+          onDurableMessage: (msg) => this.transcript.recordDurableMessage(options.sessionId, options.turnId, msg),
+          onModelContext: this.runtimeContext.transcriptPath
+            ? snapshot => writeModelContextSnapshot(this.runtimeContext.transcriptPath, snapshot)
+            : undefined,
+          onAgentStatusMessage: async (status) => {
+            if (isVisibleFailureStatus(status)) {
+              hasRecordedVisibleFailureStatus = true;
+            }
+            await this.transcript.recordAgentStatusMessage?.(options.sessionId, options.turnId, status);
+          },
+          onCompactPersisted: async ({ boundary, messages: compactMessages }) => {
+            if (boundary.kind !== "compact" || boundary.subtype !== "compact_boundary") return;
+            await this.transcript.recordControlBoundary?.(options.sessionId, options.turnId, {
+              ...boundary,
+              snapshot: { version: 1, messages: compactMessages },
+            });
+          },
+        });
+        let runResult: TurnRunnerResult | undefined;
+        let turnCompletedEvent: Extract<AgentEvent, { type: "turn_completed" }> | undefined;
+        while (true) {
+          const next = await generator.next();
+          if (next.done) {
+            runResult = next.value;
+            break;
+          }
+          const event = next.value;
+          if (event.type === "tool_result") {
+            artifactCollector?.observeToolResult(event.result);
+          }
+          if (event.type === "file_artifacts") {
+            continue;
+          }
+          if (event.type === "turn_completed") {
+            turnCompletedEvent = event;
+            continue;
+          }
+          if (event.type === "turn_failed" && !hasRecordedVisibleFailureStatus) {
+            const status = await this.recordTurnFailureStatus(options, event.error);
+            hasRecordedVisibleFailureStatus = true;
+            yield this.toAgentStatusEvent(options, status);
+          }
+          yield event;
+        }
+
+        const unappliedSteers = closeSteerMailbox();
+        const artifacts = await finishArtifacts(runResult.result);
+        if (artifacts.length > 0) {
+          yield { type: "file_artifacts", sessionId: options.sessionId, turnId: options.turnId, artifacts };
+        }
+        for (const event of unappliedSteers) yield event;
+        await this.transcript.recordTurnResult(options.sessionId, options.turnId, runResult.result);
+        await this.finalizeSessionMetadata(options, sessionTitle);
+        if (turnCompletedEvent) yield turnCompletedEvent;
+        return runResult;
+      } catch (error) {
+        const unappliedSteers = closeSteerMailbox();
+        const normalized = normalizeAgentError(error);
+        const result = this.createErrorResult(options, normalized);
+        const artifacts = await finishArtifacts(result);
+        if (artifacts.length > 0) {
+          yield { type: "file_artifacts", sessionId: options.sessionId, turnId: options.turnId, artifacts };
+        }
+        await Promise.resolve(this.transcript.recordTurnResult(options.sessionId, options.turnId, result)).catch(() => {});
+        const status = await this.recordTurnFailureStatus(options, normalized);
+        yield this.toAgentStatusEvent(options, status);
+        await this.finalizeSessionMetadata(options, sessionTitle);
+        yield { type: "turn_failed", sessionId: options.sessionId, turnId: options.turnId, error: normalized };
+        for (const event of unappliedSteers) yield event;
+        yield { type: "turn_completed", sessionId: options.sessionId, turnId: options.turnId, result };
+        return { result, messages };
+      }
+    } finally {
+      await finishCheckpoints("incomplete");
+      options.closeSteerMailbox?.();
+      artifactCollector?.dispose();
+    }
+  }
+
+  snapshotForRuntimeReload(): TurnRunnerRuntimeReloadSnapshot {
+    return {
+      runtimeContext: { ...this.runtimeContext },
+      transcriptWriterState: this.transcript.snapshotState?.(),
+      metadata: this.turnDependencies.metadataStore?.getSnapshot(),
+    };
+  }
+
+  snapshotFileState(): AgentLoopSeedState {
+    return this.loop.snapshotFileState();
+  }
+
+  private createErrorResult(options: TurnRunnerOptions, error: ReturnType<typeof agentError>): AgentTurnResult {
+    const timestamp = this.now().toISOString();
+    return {
+      type: "error",
+      sessionId: options.sessionId,
+      turnId: options.turnId,
+      stopReason: error.code === "agent_aborted" ? "aborted_streaming" : "model_error",
+      usage: emptyUsage(),
+      permissionDenials: [],
+      turns: 0,
+      startedAt: timestamp,
+      completedAt: timestamp,
+      errors: [error],
+    };
+  }
+
+  private async recordErrorResult(_options: TurnRunnerOptions, result: AgentTurnResult): Promise<void> {
+    await Promise.resolve(this.transcript.recordTurnResult(result.sessionId, result.turnId, result)).catch(() => {});
+  }
+
+  private async recordTurnFailureStatus(
+    options: TurnRunnerOptions,
+    error: ReturnType<typeof agentError>,
+  ): Promise<AgentStatusMessageInput> {
+    const status = this.createTurnFailureStatus(error);
+    await Promise.resolve(this.transcript.recordAgentStatusMessage?.(options.sessionId, options.turnId, status)).catch(() => {});
+    return status;
+  }
+
+  private createTurnFailureStatus(error: ReturnType<typeof agentError>): AgentStatusMessageInput {
+    return {
+      event: "turn_failed",
+      kind: "error",
+      text: error.message,
+      detail: createVisibleErrorStatusDetail({
+        message: error.message,
+        code: error.code,
+        userHint: error.userHint ?? "Retry the turn; if it repeats, check the gateway logs or adjust the request.",
+        scope: "turn",
+        source: "agent",
+      }),
+    };
+  }
+
+  private toAgentStatusEvent(options: TurnRunnerOptions, status: AgentStatusMessageInput): AgentEvent {
+    return {
+      type: "agent_status",
+      sessionId: options.sessionId,
+      turnId: options.turnId,
+      event: status.event,
+      detail: status.detail,
+    };
+  }
+
+  /** Invalidate background work before the session transcript is removed/replaced. */
+  async dispose(): Promise<void> {
+    this.disposed = true;
+    this.pendingSessionTitle?.controller.abort("session_closed");
+    this.pendingSessionTitle?.cleanup();
+    // A provider may ignore cancellation. Do not wait for its network request;
+    // the completion guard below prevents it from ever saving a late title.
+    await this.transcript.close?.();
+  }
+
+  private maybeGenerateSessionTitle(
+    options: TurnRunnerOptions,
+    acceptedMessages: CanonicalMessage[],
+  ): PendingSessionTitle | undefined {
+    if (this.disposed || this.turnDependencies.autoGenerateSessionTitle !== true) {
+      return undefined;
+    }
+    const metadataStore = this.turnDependencies.metadataStore;
+    const generateTitle = this.turnDependencies.sessionTitleGenerator;
+    if (!metadataStore || !generateTitle) {
+      return undefined;
+    }
+    const snapshot = metadataStore.getSnapshot();
+    if (snapshot.title || snapshot.aiTitle) {
+      return undefined;
+    }
+    if (this.pendingSessionTitle && !this.pendingSessionTitle.completed) {
+      return this.pendingSessionTitle;
+    }
+    const text = allHumanText([...options.messages, ...acceptedMessages]);
+    if (!text) {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const cleanup = linkAbortSignal(options.abortSignal, controller);
+    const selectedModel = options.modelOverride
+      ?? (options.modelSelection?.mode === "model" ? options.modelSelection : undefined);
+    const pending: PendingSessionTitle = {
+      controller,
+      cleanup,
+      completed: false,
+      title: null,
+      promise: generateTitle({
+        text,
+        sessionId: options.sessionId,
+        turnId: options.turnId,
+        signal: controller.signal,
+        model: selectedModel ? { provider: selectedModel.provider, model: selectedModel.model } : undefined,
+      })
+        .then(async (title) => {
+          if (this.disposed || controller.signal.aborted) return;
+          pending.title = title;
+          if (title) {
+            const snap = metadataStore.getSnapshot();
+            if (!snap.title && !snap.aiTitle) {
+              await metadataStore.saveAiTitle(title, options.turnId);
+            }
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          pending.completed = true;
+          cleanup();
+        }),
+    };
+    this.pendingSessionTitle = pending;
+    return pending;
+  }
+
+  private async finalizeSessionMetadata(
+    options: TurnRunnerOptions,
+    pending?: PendingSessionTitle,
+  ): Promise<void> {
+    // Title completion saves its own metadata. It must not hold the session
+    // slot after the reply finishes; later turns can continue while it runs.
+    pending?.cleanup();
+    await this.turnDependencies.metadataStore?.reappendTail(options.turnId).catch(() => {});
+  }
+
+  private async persistListingPromptMetadata(
+    options: TurnRunnerOptions,
+    acceptedMessages: CanonicalMessage[],
+  ): Promise<void> {
+    const metadataStore = this.turnDependencies.metadataStore;
+    if (!metadataStore) return;
+
+    const snapshot = metadataStore.getSnapshot();
+    const prompt = allHumanText(acceptedMessages);
+    if (!prompt && !options.modelSelection) return;
+
+    const boundedPrompt = prompt?.slice(0, SESSION_LISTING_PROMPT_MAX_CHARS);
+    await metadataStore.record(options.turnId, {
+      ...(boundedPrompt ? {
+        ...(snapshot.firstPrompt ? {} : { firstPrompt: boundedPrompt }),
+        lastPrompt: boundedPrompt,
+      } : {}),
+      ...(options.modelSelection ? { modelSelection: { ...options.modelSelection } } : {}),
+      updatedAt: this.now().toISOString(),
+    }).catch(() => {});
+  }
+}
+
+function isVisibleFailureStatus(status: AgentStatusMessageInput): boolean {
+  return status.kind === "error" && status.event !== "turn_failed";
+}
+
+function acceptedInputMetadata(options: TurnRunnerOptions): Record<string, unknown> | undefined {
+  const metadata: Record<string, unknown> = {};
+  // Save alongside input so a crash before the metadata snapshot cannot lose the choice.
+  if (options.modelSelection) metadata.modelSelection = { ...options.modelSelection };
+  if (options.permissionMode) {
+    metadata.permissionMode = options.permissionMode;
+  }
+  if (options.runMode) {
+    metadata.runMode = options.runMode;
+  }
+  if (options.basePermissionMode) {
+    metadata.basePermissionMode = options.basePermissionMode;
+  }
+  if (options.allowPlanModeTools !== undefined) {
+    metadata.allowPlanModeTools = options.allowPlanModeTools;
+  }
+  return Object.keys(metadata).length > 0 ? metadata : undefined;
+}
+
+function emptyUsage(): CanonicalUsage {
+  return {};
+}
+
+function inputToPromptText(input: AgentInput): string {
+  if (input.type === "text") {
+    return input.text;
+  }
+  return input.content
+    .filter((block) => block.type === "text")
+    .map((block) => block.text)
+    .join("\n");
+}
+
+function allHumanText(messages: CanonicalMessage[]): string | null {
+  const parts: string[] = [];
+  for (const message of messages) {
+    if (message.role !== "user" || message.metadata?.synthetic) {
+      continue;
+    }
+    const text = message.content
+      .filter((block) => block.type === "text")
+      .map((block) => (block.type === "text" ? block.text : ""))
+      .join("\n")
+      .trim();
+    if (text) {
+      parts.push(text);
+    }
+  }
+  return parts.length > 0 ? parts.join("\n") : null;
+}
+
+function linkAbortSignal(
+  source: AbortSignal | undefined,
+  controller: AbortController,
+): () => void {
+  if (!source) {
+    return () => {};
+  }
+  if (source.aborted) {
+    controller.abort(source.reason);
+    return () => {};
+  }
+  const onAbort = () => controller.abort(source.reason);
+  source.addEventListener("abort", onAbort, { once: true });
+  return () => source.removeEventListener("abort", onAbort);
+}

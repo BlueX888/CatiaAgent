@@ -1,0 +1,335 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  findCatalogProviderById,
+  type CatalogProvider,
+} from "../../../../../shared/catalogProviders";
+import type {
+  ConfigSaveOptions,
+  ConfigSaveResult,
+} from "../../../../../hooks/usePilotDeckConfig";
+import type { ModelRemovalConfigResponse } from "../utils/modelRemoval";
+import { patch } from "../utils/patch";
+import type { PilotDeckConfig, V2Provider } from "../types";
+import { providerDisplayName } from "../utils/providerRefs";
+import {
+  countEnabledModels,
+  isProviderPending,
+  isProviderConfigured,
+} from "../utils/providerStatus";
+import CatalogPicker from "./CatalogPicker";
+import { PlusIcon, SearchIcon } from "./icons";
+import ProviderAvatar from "./ProviderAvatar";
+import ProviderCard from "./ProviderCard";
+
+type ModelsSectionProps = {
+  config: PilotDeckConfig;
+  onChange: (
+    next: PilotDeckConfig,
+    options?: ConfigSaveOptions,
+  ) => void | ConfigSaveResult | Promise<void | ConfigSaveResult>;
+  /** Adopt the config the server wrote after an atomic model/provider removal. */
+  onServerConfig?: (response: ModelRemovalConfigResponse) => void;
+};
+
+type PendingProvider = {
+  id: string;
+  provider: V2Provider;
+};
+
+export default function ModelsSection({ config, onChange, onServerConfig }: ModelsSectionProps) {
+  const { t } = useTranslation("settings");
+  const providers = useMemo(
+    () => config.model?.providers ?? {},
+    [config.model?.providers],
+  );
+  const ids = useMemo(() => Object.keys(providers), [providers]);
+  const [selectedId, setSelectedId] = useState(ids[0] ?? "");
+  const [cardKey, setCardKey] = useState(0);
+  const selectionGeneration = useRef(0);
+  const [savingProvider, setSavingProvider] = useState<PendingProvider | null>(null);
+  const [search, setSearch] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedPending, setSelectedPending] = useState<boolean | null>(null);
+  const [pendingProvider, setPendingProvider] = useState<PendingProvider | null>(null);
+  const allIds = useMemo(
+    () => pendingProvider && !ids.includes(pendingProvider.id)
+      ? [...ids, pendingProvider.id]
+      : ids,
+    [ids, pendingProvider],
+  );
+
+  // A save may change the provider ID or turn a draft into a saved provider.
+  // Keep its editor/modal alive; reset only when selecting a different provider.
+  const selectProvider = (id: string) => {
+    if (id === selectedId) return;
+    setSelectedId(id);
+    setCardKey(++selectionGeneration.current);
+  };
+
+  useEffect(() => {
+    if (
+      selectedId
+      && (ids.includes(selectedId) || pendingProvider?.id === selectedId || savingProvider?.id === selectedId)
+    ) return;
+    setSelectedId(pendingProvider?.id ?? ids[0] ?? "");
+    setCardKey(++selectionGeneration.current);
+  }, [ids, pendingProvider?.id, savingProvider?.id, selectedId]);
+
+  useEffect(() => {
+    setSelectedPending(null);
+  }, [selectedId]);
+
+  const applyChange = async (
+    next: PilotDeckConfig,
+    options?: ConfigSaveOptions,
+  ): Promise<ConfigSaveResult> => {
+    // Adding the first model after an empty pool restores the default in the
+    // same explicit save; simply viewing Settings never writes configuration.
+    if (!next.agent?.model) {
+      const first = Object.entries(next.model?.providers ?? {}).find(([id, value]) =>
+        isProviderConfigured(value, findCatalogProviderById(id)));
+      if (first) next = patch(next, ["agent", "model"], `${first[0]}/${Object.keys(first[1].models ?? {})[0]}`);
+    }
+    return (await onChange(next, options)) ?? { ok: true };
+  };
+
+  const buildRenamedConfig = (oldId: string, newId: string) => {
+    const id = newId.trim();
+    if (!id || id === oldId) return { ok: true as const, config };
+    if (providers[id]) return { ok: false as const };
+    const next: Record<string, V2Provider> = {};
+    for (const [k, v] of Object.entries(providers)) {
+      next[k === oldId ? id : k] = v;
+    }
+    // References to the old ID (agent, memory, routing, statistics) are
+    // rewritten by the server from the `providerRenames` save metadata.
+    return { ok: true as const, config: patch(config, ["model", "providers"], next) };
+  };
+
+  const saveProvider = async (
+    oldId: string,
+    newId: string,
+    provider: V2Provider,
+  ): Promise<{ ok: boolean; error?: string }> => {
+    const trimmed = newId.trim();
+    const renamed = buildRenamedConfig(oldId, trimmed);
+    if (!renamed.ok) {
+      return { ok: false, error: t("pilotDeckConfig.panels.models.providerIdDuplicate") };
+    }
+    const targetId = trimmed || oldId;
+    const nextConfig = patch(renamed.config, ["model", "providers", targetId], provider);
+    const owner = selectionGeneration.current;
+    const saving = { id: oldId, provider };
+    setSavingProvider(saving);
+    try {
+      const result = await applyChange(
+        nextConfig,
+        targetId !== oldId
+          ? { providerRenames: [{ from: oldId, to: targetId }] }
+          : undefined,
+      );
+      // A completed save must not take selection back from a newer editor.
+      if (result.ok && targetId !== oldId && selectionGeneration.current === owner) {
+        setSelectedId(current => current === oldId ? targetId : current);
+      }
+      return result;
+    } finally {
+      setSavingProvider(current => current === saving ? null : current);
+    }
+  };
+
+  const savePendingProvider = async (
+    newId: string,
+    provider: V2Provider,
+  ): Promise<{ ok: boolean; error?: string }> => {
+    if (!pendingProvider) return { ok: false };
+    const draft = pendingProvider;
+    const owner = selectionGeneration.current;
+    const targetId = newId.trim() || pendingProvider.id;
+    if (providers[targetId]) {
+      return { ok: false, error: t("pilotDeckConfig.panels.models.providerIdDuplicate") };
+    }
+    const result = await applyChange(
+      patch(config, ["model", "providers", targetId], provider),
+    );
+    if (result.ok) {
+      setPendingProvider(current => current === draft ? null : current);
+      if (selectionGeneration.current === owner) {
+        setSelectedId(current => current === draft.id ? targetId : current);
+      }
+    }
+    return result;
+  };
+
+  const discardPendingProvider = () => {
+    setPendingProvider(null);
+    setSelectedId(ids[0] ?? "");
+    setCardKey(++selectionGeneration.current);
+  };
+
+  const handleCatalogPick = (cp: CatalogProvider) => {
+    if (providers[cp.id]) return;
+    setPendingProvider({
+      id: cp.id,
+      provider: {
+        apiKey: "",
+        protocol: cp.protocol,
+        url: cp.defaultUrl,
+        models: {},
+      },
+    });
+    selectProvider(cp.id);
+  };
+
+  const handleCustom = () => {
+    let i = 1;
+    while (providers[`provider${i}`] || pendingProvider?.id === `provider${i}`) i++;
+    const id = `provider${i}`;
+    setPendingProvider({
+      id,
+      provider: {
+        protocol: "openai",
+        url: "",
+        apiKey: "",
+        models: {},
+      },
+    });
+    selectProvider(id);
+  };
+
+  const filteredIds = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return allIds;
+    return allIds.filter((id) => {
+      const catalog = findCatalogProviderById(id);
+      const name = providerDisplayName(
+        id,
+        catalog,
+        t("pilotDeckConfig.panels.models.customProvider"),
+      );
+      return name.toLowerCase().includes(query) || id.toLowerCase().includes(query);
+    });
+  }, [allIds, search, t]);
+
+  const selectedIsPending = pendingProvider?.id === selectedId;
+  const selectedProvider = selectedIsPending
+    ? pendingProvider.provider
+    : selectedId
+      ? providers[selectedId] ?? (savingProvider?.id === selectedId ? savingProvider.provider : undefined)
+      : undefined;
+  const selectedCatalog = selectedId ? findCatalogProviderById(selectedId) : undefined;
+
+  return (
+    <div className="model-pool-workspace">
+      <aside className="provider-rail" aria-label={t("pilotDeckConfig.panels.models.providersKicker")}>
+        <header className="provider-rail-header">
+          <div>
+            <span className="section-kicker">{t("pilotDeckConfig.panels.models.providersKicker")}</span>
+            <strong>{t("pilotDeckConfig.panels.models.connectionCount", { count: allIds.length })}</strong>
+          </div>
+          <button
+            className="add-provider-rail-button"
+            type="button"
+            aria-label={t("pilotDeckConfig.panels.models.addProvider")}
+            onClick={() => setPickerOpen(true)}
+          >
+            <PlusIcon size={17} />
+            {t("pilotDeckConfig.panels.models.addProviderShort")}
+          </button>
+        </header>
+        <label className="provider-search">
+          <SearchIcon />
+          <input
+            placeholder={t("pilotDeckConfig.panels.models.searchProviders")}
+            aria-label={t("pilotDeckConfig.panels.models.searchProviders")}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </label>
+        <div className="provider-list">
+          {allIds.length === 0 && (
+            <p className="provider-empty">{t("pilotDeckConfig.panels.models.emptyProviders")}</p>
+          )}
+          {allIds.length > 0 && filteredIds.length === 0 && (
+            <p className="provider-empty">{t("pilotDeckConfig.panels.models.noMatchingProviders")}</p>
+          )}
+          {filteredIds.map((id) => {
+            const isDraft = pendingProvider?.id === id;
+            const provider = isDraft ? pendingProvider.provider : (providers[id] ?? {});
+            const catalog = findCatalogProviderById(id);
+            const pending = id === selectedId && selectedPending !== null
+              ? selectedPending
+              : isDraft || isProviderPending(provider, catalog);
+            const name = providerDisplayName(
+              id,
+              catalog,
+              t("pilotDeckConfig.panels.models.customProvider"),
+            );
+            return (
+              <button
+                key={id}
+                type="button"
+                className={`provider-row${id === selectedId ? " selected" : ""}`}
+                onClick={() => selectProvider(id)}
+              >
+                <ProviderAvatar providerId={id} catalogEntry={catalog} />
+                <span className="provider-row-copy">
+                  <strong>{name}</strong>
+                  <small>
+                    {t("pilotDeckConfig.panels.models.modelCountShort", {
+                      count: countEnabledModels(provider),
+                    })}
+                  </small>
+                </span>
+                {pending ? (
+                  <span
+                    className="connection-dot pending"
+                    title={t("pilotDeckConfig.panels.models.pending")}
+                    aria-label={t("pilotDeckConfig.panels.models.pending")}
+                  />
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      </aside>
+
+      {selectedId && selectedProvider ? (
+        <ProviderCard
+          key={cardKey}
+          providerId={selectedId}
+          provider={selectedProvider}
+          isNew={selectedIsPending}
+          catalogEntry={selectedCatalog}
+          defaultModelOptions={Object.entries(providers).flatMap(([id, value]) =>
+            isProviderConfigured(value, findCatalogProviderById(id))
+              ? Object.keys(value.models ?? {}).map(modelId => `${id}/${modelId}`)
+              : [])}
+          currentDefaultModel={typeof config.agent?.model === "string" ? config.agent.model : ""}
+          onRemoved={onServerConfig}
+          onSave={(nextId, nextProvider) => (
+            selectedIsPending
+              ? savePendingProvider(nextId, nextProvider)
+              : saveProvider(selectedId, nextId, nextProvider)
+          )}
+          onRemove={discardPendingProvider}
+          onCancelNew={discardPendingProvider}
+          onPendingChange={setSelectedPending}
+        />
+      ) : (
+        <section className="provider-detail empty" aria-label={t("pilotDeckConfig.panels.models.title")}>
+          <p>{t("pilotDeckConfig.panels.models.emptyProviders")}</p>
+        </section>
+      )}
+
+      <CatalogPicker
+        open={pickerOpen}
+        existingIds={new Set(allIds)}
+        onPick={handleCatalogPick}
+        onCustom={handleCustom}
+        onClose={() => setPickerOpen(false)}
+      />
+    </div>
+  );
+}

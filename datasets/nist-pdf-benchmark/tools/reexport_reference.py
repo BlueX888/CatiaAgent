@@ -3,8 +3,8 @@
 Some NIST STEP files are valid single solids that fail OCCT's shell-soundness
 check, which breaks boolean material comparison. The same revision's CATPart
 opens in the installed CATIA; exporting it produces a CATIA-written STEP. This
-tool records the conversion and checks that the re-export matches the original
-STEP volume and bbox before it is used as a comparison reference.
+tool records the conversion but does not establish equivalence to the original
+STEP; that requires a separate independent comparison.
 """
 from __future__ import annotations
 

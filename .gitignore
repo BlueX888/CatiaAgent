@@ -1,0 +1,42 @@
+# Local datasets, experiments and generated artifacts
+/work/
+/runs/
+/CATPart/
+/汇报材料/
+/.claude/
+/datasets/*
+!/datasets/nist-pdf-benchmark/
+/datasets/nist-pdf-benchmark/*
+!/datasets/nist-pdf-benchmark/derived/
+!/datasets/nist-pdf-benchmark/tools/
+!/datasets/nist-pdf-benchmark/tests/
+/datasets/nist-pdf-benchmark/derived/*
+!/datasets/nist-pdf-benchmark/derived/*.py
+/datasets/nist-pdf-benchmark/tools/*
+!/datasets/nist-pdf-benchmark/tools/*.py
+/datasets/nist-pdf-benchmark/tests/*
+!/datasets/nist-pdf-benchmark/tests/*.py
+
+# Dependencies, builds and local configuration
+node_modules/
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.py[cod]
+*.log
+.env
+.env.*
+!.env.example
+
+# Local PilotDeck screenshots and working files
+**/.work/
+/PilotDeck/crops/
+/PilotDeck/crop*.png
+/PilotDeck/front_crop.png
+/PilotDeck/sect_crop.png
+
+# Upstream documentation media (Git LFS objects are not included)
+/PilotDeck/assets/
+/PilotDeck/src/context/memory/edgeclaw-memory-core/ui-source/assets/brand/logo.png

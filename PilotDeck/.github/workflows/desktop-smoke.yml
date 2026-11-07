@@ -1,0 +1,169 @@
+name: Desktop
+
+on:
+  pull_request:
+    paths:
+      - apps/desktop/**
+      - packages/**
+      - src/**
+      - tests/**
+      - scripts/**
+      - resources/**
+      - ui/**
+      - skills/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - tsconfig.json
+      - .github/workflows/desktop-*.yml
+      - .github/workflows/release.yml
+      - .github/workflows/release-retry.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  changes:
+    name: Select native packaging checks
+    runs-on: ubuntu-latest
+    outputs:
+      packaging: ${{ steps.paths.outputs.packaging }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.23.1
+      - id: paths
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node apps/desktop/scripts/classify-ci-changes.mjs "$BASE_SHA" "$HEAD_SHA"
+
+  checkpoint-regression:
+    name: Checkpoints (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.23.1
+          cache: pnpm
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install Web and Gateway dependencies
+        run: pnpm install --frozen-lockfile --filter pilotdeck --filter pilotdeck-ui
+      - name: Build Gateway and regression tests
+        run: pnpm run build
+      - name: Test MCP transport, observations and managed computer use
+        run: pnpm run test:mcp
+      - name: Test computer use permission state and platform isolation
+        run: >-
+          pnpm --dir ui exec vitest run
+          server/services/computerUse.test.js
+          src/components/settings/view/computerUse/index.test.tsx
+          server/routes/computer-use.test.js
+      - name: Test native computer use process and endpoint lifecycle
+        run: node --test apps/desktop/scripts/computer-use.test.mjs
+      - name: Test standalone macOS and Linux computer use
+        # The macOS host fixtures use POSIX app paths. Windows desktop uses
+        # the IPC controller and real named-pipe fixture tested above.
+        if: runner.os != 'Windows'
+        run: pnpm --dir ui exec vitest run server/services/standaloneComputerUse.test.js
+      - name: Test checkpoints, restore, Git operations and internal ignore rules
+        run: pnpm run test:checkpoints
+      - name: Test General workspace upgrades and continued conversations
+        run: >-
+          pnpm --dir ui exec vitest run
+          server/utils/generalWorkspace.test.js
+          server/utils/generalWorkspaceMigration.test.js
+          server/projects.test.js
+          server/pilotdeck-bridge.sending.test.js
+      - name: Test review UI and Windows path matching
+        run: >-
+          pnpm --dir ui exec vitest run
+          src/components/chat-review/ChatReview.spec.tsx
+          src/components/chat-review/ChangesReviewTab.spec.tsx
+          src/components/chat-review/GitReviewTab.spec.tsx
+          src/components/chat-review/TurnFileResults.spec.tsx
+          src/utils/workspaceFileMention.spec.ts
+          server/routes/checkpoints.test.js
+          server/utils/pilotPaths.test.js
+          server/utils/pathSafety.test.js
+
+  static-checks:
+    name: Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.32.1
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22.23.1
+          cache: pnpm
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compile desktop shell
+        run: pnpm --filter pilotdeck-desktop run compile
+
+      - name: Test desktop packaging helpers
+        run: pnpm --filter pilotdeck-desktop run test
+
+      - name: Test shared runtime diagnostics and inline script data
+        run: node --test packages/config/tests/*.test.cjs scripts/lib/*.test.mjs
+
+      - name: Test desktop updater network
+        # Requires electron-updater, intentionally absent from the Web-only job.
+        run: >-
+          pnpm --dir ui exec vitest run
+          server/services/desktopUpdateNetwork.test.ts
+          server/services/desktopUpdateAvailability.test.ts
+          server/services/desktopUpdates.spec.ts
+          server/services/desktopAutoUpdate.test.ts
+          server/services/jsonReleaseProvider.test.ts
+
+  # Packaging changes and manual runs exercise every release target. Ordinary
+  # app changes still receive the fast cross-platform and static checks above.
+  linux:
+    name: Linux
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.packaging == 'true'
+    uses: ./.github/workflows/desktop-linux.yml
+
+  macos:
+    name: macOS
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.packaging == 'true'
+    uses: ./.github/workflows/desktop-macos.yml
+
+  windows:
+    name: Windows
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.packaging == 'true'
+    uses: ./.github/workflows/desktop-windows.yml

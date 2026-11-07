@@ -1,0 +1,4 @@
+# Optional, isolated environment. Do not install into the CATIA COM runtime.
+cadgen==0.8.1
+PyMuPDF>=1.24,<2
+rapidocr-onnxruntime==1.4.4

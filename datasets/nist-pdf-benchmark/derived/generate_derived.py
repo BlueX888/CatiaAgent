@@ -1,4 +1,4 @@
-"""Generate a derived, dimension-complete NIST acceptance drawing from the reference STEP.
+"""Generate a candidate NIST measurement drawing from the reference STEP.
 
 Verification-side data preparation only. The output PDF is the single input the
 generation agent sees; it carries views, callouts and coordinate tables measured
@@ -8,6 +8,8 @@ embedded. Every number in the tables is a measurement of the reference geometry.
 Usage (cadgen/OCCT interpreter):
     python generate_derived.py --case FTC-09 --out-dir derived/ftc09 [--dry-run]
 
+The candidate does not certify feature or dimension completeness. It must be
+reviewed and supplemented before it can be used as an acceptance input.
 The script refuses to overwrite an existing PDF/provenance pair.
 """
 from __future__ import annotations
@@ -61,11 +63,17 @@ def face_radius(face):
         value = face.radius
         if value is not None:
             return float(value)
-    except (TypeError, ValueError):
+    except (AttributeError, TypeError, ValueError):
         pass
-    circles = [edge.length / (2 * math.pi) for edge in face.edges()
-               if str(edge.geom_type).endswith("CIRCLE")]
-    return max(circles) if circles else None
+    for edge in face.edges():
+        if str(edge.geom_type).endswith("CIRCLE"):
+            try:
+                radius = edge.radius
+                if radius is not None:
+                    return float(radius)
+            except (AttributeError, TypeError, ValueError):
+                continue
+    return None
 
 
 def cylinder_records(shape):
@@ -89,7 +97,9 @@ def cylinder_records(shape):
             point_value = (vertex.X, vertex.Y, vertex.Z)
             values.append(sum((point_value[i] - getattr(point, "XYZ"[i])) * direction[i]
                               for i in range(3)))
-        span = (max(values) - min(values)) if values else 0.0
+        if not values:
+            continue
+        span = max(values) - min(values)
         # material inside the radius => boss, outside => hole
         radial = [centre.X - point.X, centre.Y - point.Y, centre.Z - point.Z]
         dot = sum(radial[i] * direction[i] for i in range(3))
@@ -107,12 +117,13 @@ def cylinder_records(shape):
             continue
         records.append({
             "radius": radius, "diameter": 2 * radius, "axis": direction,
-            "centre": [centre.X, centre.Y, centre.Z], "axialSpan": span, "side": side,
+            # The face centre can lie on a curved surface, not on its axis.
+            "centre": base, "axialSpan": span, "side": side,
         })
     return records
 
 
-def group_cylinders(records, bbox_size):
+def group_cylinders(records):
     groups = {}
     for record in records:
         key = (round(record["diameter"], 3), round(record["axialSpan"], 3),
@@ -120,13 +131,9 @@ def group_cylinders(records, bbox_size):
         groups.setdefault(key, []).append(record)
     result = []
     for (diameter, span, axis, side), items in groups.items():
-        axis_index = max(range(3), key=lambda index: abs(axis[index]))
-        extent = bbox_size[axis_index]
-        through = span >= extent - 0.05
-        # Callout centre: representative member; the table carries every centre.
         result.append({
-            "diameter": diameter, "span": span, "axis": axis, "axisIndex": axis_index,
-            "side": side, "through": through, "centres": [item["centre"] for item in items],
+            "diameter": diameter, "span": span, "axis": axis,
+            "side": side, "centres": [item["centre"] for item in items],
             "count": len(items),
         })
     result.sort(key=lambda item: (item["side"], item["diameter"], item["count"]), reverse=True)
@@ -181,13 +188,26 @@ def profile_rows(shape, normal, limit_faces=2, limit_rows=90):
 
 
 def build_spec(case, step_path, output_pdf):
-    shape = bd.import_step(str(step_path))
+    imported = bd.import_step(str(step_path))
+    solids = list(imported.solids())
+    if len(solids) != 1:
+        raise ValueError("Measurement drawing requires exactly one solid")
+    # Views are rendered from the complete source STEP. Reject loose geometry
+    # rather than measuring the solid but drawing construction edges as well.
+    shape = solids[0]
+    for member_type in ("faces", "edges", "vertices"):
+        solid_members = list(getattr(shape, member_type)())
+        if any(not any(member.wrapped.IsSame(solid_member.wrapped) for solid_member in solid_members)
+               for member in getattr(imported, member_type)()):
+            raise ValueError("Reference STEP contains non-solid geometry; use a verified pure-solid rendering STEP")
+    face_counts = {kind: sum(1 for face in shape.faces() if str(face.geom_type).endswith(kind))
+                   for kind in ("CYLINDER", "CONE")}
     box = shape.bounding_box()
     size = [box.size.X, box.size.Y, box.size.Z]
     centre = [(box.min.X + box.max.X) / 2, (box.min.Y + box.max.Y) / 2,
               (box.min.Z + box.max.Z) / 2]
     records = cylinder_records(shape)
-    groups = group_cylinders(records, size)
+    groups = group_cylinders(records)
 
     dominant = None
     best = -1.0
@@ -201,50 +221,41 @@ def build_spec(case, step_path, output_pdf):
     normal = [round(dominant.X), round(dominant.Y), round(dominant.Z)]
     main_view = view_for_axis(normal)
 
+    # A cylindrical face is not necessarily one complete hole or boss. Do not
+    # infer feature counts, through status, or depth from its face span.
     annotations = [{"kind": "overall", "view": main_view}]
-    # Repeated features get one grouped callout; single holes are listed only in
-    # the coordinate schedule, otherwise the leaders pile onto the same view.
-    for group in groups:
-        if group["count"] < 3:
-            continue
-        view = view_for_axis(group["axis"])
-        target = group["centres"][0]
-        if group["side"] == "hole":
-            kwargs = {"thru": True} if group["through"] else {"depth": round(group["span"], 3)}
-            kwargs["count"] = group["count"]
-            annotations.append({"kind": "hole", "view": view,
-                                "args": [target, round(group["diameter"], 3)], "kwargs": kwargs})
-        else:
-            annotations.append({"kind": "diameter", "view": view,
-                                "args": [target, round(group["diameter"] / 2, 3)]})
 
     rows = []
     rows.append(f"UNITS MM   DATUM: MODEL ORIGIN   OVERALL {size[0]:.3f} X {size[1]:.3f} X {size[2]:.3f}")
     hole_groups = [g for g in groups if g["side"] == "hole"]
     boss_groups = [g for g in groups if g["side"] == "boss"]
-    rows.append(f"HOLES {sum(g['count'] for g in hole_groups)}   BOSSES {sum(g['count'] for g in boss_groups)}")
+    rows.append(f"CYLINDRICAL FACES CLASSIFIED {len(records)} OF {face_counts['CYLINDER']}; "
+                "FACES MAY BE PARTIAL OR SHARE A FEATURE")
+    rows.append(f"CONICAL FACES {face_counts['CONE']}; CONICAL SURFACE DIMENSIONS NOT INCLUDED")
     hole_id = 0
     for group in hole_groups:
         for centre in group["centres"]:
             hole_id += 1
-            mode = "THRU" if group["through"] else f"DEPTH {group['span']:.3f}"
-            axis_name = "XYZ"[group["axisIndex"]]
-            rows.append(f"H{hole_id:03d} X{centre[0]:.3f} Y{centre[1]:.3f} Z{centre[2]:.3f} "
-                        f"D{group['diameter']:.3f} {mode} AX{axis_name}")
+            direction = group["axis"]
+            rows.append(f"F{hole_id:03d} CONCAVE AXIS POINT X{centre[0]:.3f} Y{centre[1]:.3f} Z{centre[2]:.3f} "
+                        f"D{group['diameter']:.3f} AXIAL SPAN {group['span']:.3f} "
+                        f"DIRECTION ({direction[0]:.3f},{direction[1]:.3f},{direction[2]:.3f})")
     boss_id = 0
     for group in boss_groups:
         for centre in group["centres"]:
             boss_id += 1
-            rows.append(f"B{boss_id:03d} X{centre[0]:.3f} Y{centre[1]:.3f} Z{centre[2]:.3f} "
-                        f"D{group['diameter']:.3f} H{group['span']:.3f} AX{'XYZ'[group['axisIndex']]}")
+            direction = group["axis"]
+            rows.append(f"F{hole_id + boss_id:03d} CONVEX AXIS POINT X{centre[0]:.3f} Y{centre[1]:.3f} Z{centre[2]:.3f} "
+                        f"D{group['diameter']:.3f} AXIAL SPAN {group['span']:.3f} "
+                        f"DIRECTION ({direction[0]:.3f},{direction[1]:.3f},{direction[2]:.3f})")
     profile = profile_rows(shape, normal)
+    rows.append("PARTIAL PROFILE ROWS - ONLY TWO PLANAR FACE OUTER WIRES; INCOMPLETE")
     rows.append("PROFILE ROWS: L X1 Y1 Z1 X2 Y2 Z2 | A CX CY CZ R SX SY SZ MX MY MZ")
     rows.extend(profile)
 
     header = [f"UNITS MM   DATUM: MODEL ORIGIN   OVERALL {size[0]:.3f} X {size[1]:.3f} X {size[2]:.3f}",
-              f"HOLES {sum(g['count'] for g in groups if g['side'] == 'hole')}   "
-              f"BOSSES {sum(g['count'] for g in groups if g['side'] == 'boss')}   "
-              "FEATURE POSITIONS ARE IN THE COORDINATE SCHEDULE PAGES"]
+              "CANDIDATE MEASUREMENTS ONLY - NOT A COMPLETE ENGINEERING DRAWING",
+              "CYLINDRICAL FACE MEASUREMENTS DO NOT ESTABLISH FEATURE COUNTS OR DEPTHS"]
     chunks = [rows[index:index + ROWS_PER_SHEET] for index in range(0, len(rows), ROWS_PER_SHEET)]
     sheets = [{
         "size": "A3", "scale": 0.2, "projection": "THIRD ANGLE",
@@ -254,7 +265,7 @@ def build_spec(case, step_path, output_pdf):
     for index, chunk in enumerate(chunks):
         sheets.append({
             "size": "A3", "views": False, "projection": "THIRD ANGLE",
-            "notes": [f"COORDINATE SCHEDULE {index + 1} OF {total} - ORDINATE DIMENSIONING",
+            "notes": [f"FACE MEASUREMENTS {index + 1} OF {total} - NOT A COMPLETE DRAWING",
                       f"UNITS MM   DATUM: MODEL ORIGIN   OVERALL "
                       f"{size[0]:.3f} X {size[1]:.3f} X {size[2]:.3f}", *chunk],
             "annotations": [],
@@ -265,8 +276,8 @@ def build_spec(case, step_path, output_pdf):
         "caseId": case["caseId"],
         "title": f"{case['caseId']} DERIVED NOMINAL",
         "sheets": sheets,
-        "_summary": {"rows": len(rows), "sheets": len(sheets), "holes": hole_id,
-                     "bosses": boss_id, "profileRows": len(profile), "dominantNormal": normal},
+        "_summary": {"rows": len(rows), "sheets": len(sheets), "concaveFaces": hole_id,
+                     "convexFaces": boss_id, "profileRows": len(profile), "dominantNormal": normal},
     }
     return spec
 
@@ -276,16 +287,21 @@ def main(argv=None) -> int:
     parser.add_argument("--case", required=True)
     parser.add_argument("--out-dir", required=True)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--source-step", help="Optional reference-side STEP for rendering")
     args = parser.parse_args(argv)
     case, step_path = load_case(args.case)
+    if args.source_step:
+        step_path = Path(args.source_step).resolve(strict=True)
+        if step_path.suffix.lower() not in {".step", ".stp"}:
+            raise ValueError("source-step must be a STEP file")
     out_dir = Path(args.out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     output_pdf = out_dir / f"{case['caseId']}.pdf"
-    if output_pdf.exists():
-        raise SystemExit(f"Refusing to overwrite {output_pdf}")
+    spec_path = out_dir / f"{case['caseId']}.spec.json"
+    if output_pdf.exists() or spec_path.exists() or output_pdf.with_suffix(".provenance.json").exists():
+        raise SystemExit(f"Refusing to overwrite artifacts in {out_dir}")
     spec = build_spec(case, step_path, output_pdf)
     summary = spec.pop("_summary")
-    spec_path = out_dir / f"{case['caseId']}.spec.json"
     spec_path.write_text(json.dumps(spec, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps({"spec": str(spec_path), **summary}, ensure_ascii=False))
     if args.dry_run:
