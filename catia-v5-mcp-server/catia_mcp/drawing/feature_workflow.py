@@ -131,7 +131,7 @@ def _measurable_difference(checks):
     measurable = False
     for check in checks:
         name = check.get("name")
-        if name in {"bbox", "surface_distance"}:
+        if name in {"bbox", "bbox_measurement", "surface_distance"}:
             value, tolerance = check.get("actualMm"), check.get("toleranceMm")
         elif name == "volume_measurement":
             value, tolerance = check.get("actualMm3"), check.get("toleranceMm3")

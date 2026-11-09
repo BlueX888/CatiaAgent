@@ -1,0 +1,2459 @@
+{
+  "schema": "catia-pdf-evidence/1",
+  "source": {
+    "path": "F:\\CatiaAgent\\runs\\orla-pilotdeck\\attempts\\ORL-b6dd4661b\\p4-20261107160601\\.tmp\\chat-uploads\\08535bc2-8edb-438f-b058-4d5a731bf0e0\\files\\attachment-drawing.pdf\\content.pdf",
+    "sha256": "bdfa26e1532551b33d65cf6157ea2544a1546a5740165af24035785850d9f2b5",
+    "bytes": 84289,
+    "pageCount": 1,
+    "inspectedPages": [
+      1
+    ]
+  },
+  "pages": [
+    {
+      "page": 1,
+      "widthMm": 420.0,
+      "heightMm": 297.0,
+      "spans": [],
+      "textSpanCount": 0,
+      "ocrSpanCount": 0,
+      "text": "",
+      "dimensionCandidates": [],
+      "unitHints": [],
+      "drawings": {
+        "pathCount": 451,
+        "bboxMm": [
+          0.0,
+          0.0,
+          420.0,
+          297.0
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "code": "PAGE_NO_TEXT_LAYER",
+      "page": 1,
+      "message": "page 1 has no text spans; its dimensions cannot be cited as evidence."
+    }
+  ],
+  "ocr": {
+    "requested": false,
+    "engine": null,
+    "dpi": null,
+    "minConfidence": null
+  },
+  "howToCite": "Every requirement dimension must cite one or more span ids from this manifest. A cited span must contain the stated number. OCR spans (p<n>:o<i>) are pixel reads: cite them only after checking the value against the rendered view. Context ids (ctx:...) come from the separately supplied 2D drawing context, not the PDF.",
+  "contextEvidence": [
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1140",
+      "text": "45",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1140",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 44.99999999999886,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            342.2316695416082,
+            77.81730422537834,
+            0.0
+          ],
+          [
+            333.2316695416084,
+            91.03962573707719,
+            0.0
+          ],
+          [
+            342.2316695416082,
+            91.03962398846028,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:114B",
+      "text": "595",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:114B",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 595.0,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            65.5754189952545,
+            54.12965923699863,
+            0.0
+          ],
+          [
+            184.5754189952545,
+            85.52680013267349,
+            0.0
+          ],
+          [
+            65.5754189952545,
+            99.62680013267317,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:114C",
+      "text": "45",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:114C",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 44.99999999999886,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            193.5754189952543,
+            54.12965923699863,
+            0.0
+          ],
+          [
+            184.5754189952545,
+            85.52680013267349,
+            0.0
+          ],
+          [
+            193.5754189952543,
+            85.52680013267349,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:114D",
+      "text": "920",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:114D",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 920.0,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            249.5754189952545,
+            45.94725383618589,
+            0.0
+          ],
+          [
+            65.5754189952545,
+            99.62680013267317,
+            0.0
+          ],
+          [
+            249.5754189952545,
+            91.12680013267317,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:114E",
+      "text": "250",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:114E",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 250.0,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            246.5754189952545,
+            63.65486348613064,
+            0.0
+          ],
+          [
+            196.5754189952545,
+            90.52680013267383,
+            0.0
+          ],
+          [
+            246.5754189952545,
+            90.52680013267383,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1150",
+      "text": "15",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1150",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 15.0,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            249.5754189952545,
+            63.65486348613064,
+            0.0
+          ],
+          [
+            246.5754189952545,
+            90.52680013267383,
+            0.0
+          ],
+          [
+            249.5754189952545,
+            91.12680013267317,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1151",
+      "text": "280",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1151",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 280.0000000000011,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            249.5754189952545,
+            54.12965923699863,
+            0.0
+          ],
+          [
+            193.5754189952543,
+            85.52680013267349,
+            0.0
+          ],
+          [
+            249.5754189952545,
+            91.12680013267317,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1152",
+      "text": "Ø200",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1152",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 199.9999999999972,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "%%C<>",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            275.5805401940157,
+            130.5268001326732,
+            0.0
+          ],
+          [
+            248.9754189952544,
+            90.52680013267371,
+            0.0
+          ],
+          [
+            248.9754189952544,
+            130.5268001326731,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1155",
+      "text": "38",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1155",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 38.00000000000068,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            249.5754189952545,
+            146.1543508512084,
+            0.0
+          ],
+          [
+            241.9754189952544,
+            119.904973214646,
+            0.0
+          ],
+          [
+            249.5754189952545,
+            129.9268001326737,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:13B9",
+      "text": "40",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:13B9",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 40.0,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            176.5754189952545,
+            63.65486348613064,
+            0.0
+          ],
+          [
+            184.5754189952545,
+            85.52680013267349,
+            0.0
+          ],
+          [
+            176.5754189952545,
+            96.52680013267349,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:14AC",
+      "text": "Ø250",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:14AC",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 250.0000000000006,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "%%C<>",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            284.4495357542168,
+            85.52680013267353,
+            0.0
+          ],
+          [
+            193.5754189952543,
+            135.5268001326736,
+            0.0
+          ],
+          [
+            193.5754189952543,
+            85.52680013267349,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:14D5",
+      "text": "Ø140",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:14D5",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 140.0000000000006,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "%%C<>",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            36.57501305691557,
+            96.52680013267353,
+            0.0
+          ],
+          [
+            176.5754189952545,
+            124.5268001326736,
+            0.0
+          ],
+          [
+            176.5754189952545,
+            96.52680013267349,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:14E3",
+      "text": "Ø115",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:14E3",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 115.0000000000006,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "%%C<>",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            47.26229734710139,
+            99.02680013267354,
+            0.0
+          ],
+          [
+            66.1754189952544,
+            122.0268001326736,
+            0.0
+          ],
+          [
+            66.1754189952544,
+            99.02680013267349,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1568",
+      "text": "12x45°",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1568",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 12.00000000000955,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "<>x45%%D",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            174.1754189952526,
+            63.65486348613064,
+            0.0
+          ],
+          [
+            176.5754189952545,
+            96.52680013267349,
+            0.0
+          ],
+          [
+            174.1754189952526,
+            99.02680013267349,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:18D7",
+      "text": "Ø200",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:18D7",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 199.9999999999973,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "%%C<>",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            279.9876662539732,
+            225.3628927303201,
+            0.0
+          ],
+          [
+            248.9754189952544,
+            185.3628927303205,
+            0.0
+          ],
+          [
+            248.9754189952544,
+            225.36289273032,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1915",
+      "text": "15",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1915",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 15.0,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            249.5754189952545,
+            236.6503160287525,
+            0.0
+          ],
+          [
+            246.5754189952545,
+            205.3628966161356,
+            0.0
+          ],
+          [
+            249.5754189952545,
+            224.7628927303206,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1923",
+      "text": "250",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1923",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 249.9999518374028,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            196.5754238115137,
+            236.6503160287525,
+            0.0
+          ],
+          [
+            246.5754141789943,
+            205.3628471212955,
+            0.0
+          ],
+          [
+            196.5754238115137,
+            205.3628471213052,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:19C1",
+      "text": "R22,5",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:19C1",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 22.50000000000085,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 4,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            242.0754189952544,
+            205.3628960216059,
+            0.0
+          ],
+          [
+            245.5138066022347,
+            202.4598819561619,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint4"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1A26",
+      "text": "3x45°",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1A26",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 2.999999999999545,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "<>x45%%D",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            65.5754189952545,
+            230.9499026027248,
+            0.0
+          ],
+          [
+            66.1754189952544,
+            216.8628927303205,
+            0.0
+          ],
+          [
+            65.5754189952545,
+            216.2628927303206,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:1A27",
+      "text": "Ø115",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1A27",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 115.0000000000006,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "%%C<>",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            47.26229734710138,
+            193.8628927303205,
+            0.0
+          ],
+          [
+            66.1754189952544,
+            216.8628927303205,
+            0.0
+          ],
+          [
+            66.1754189952544,
+            193.8628927303204,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:20AD",
+      "text": "185",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:20AD",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 184.70000437154,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            373.4954432223298,
+            130.5268001326734,
+            0.0
+          ],
+          [
+            342.2316700365009,
+            93.58679925836537,
+            0.0
+          ],
+          [
+            337.7316733277864,
+            130.5268001326734,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:20C4",
+      "text": "∅200",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:20C4",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 199.9999999999991,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 3,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            355.0922086067374,
+            120.4571483052351,
+            0.0
+          ],
+          [
+            320.3711380488356,
+            100.5964519601118,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint4"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:20D8",
+      "text": "∅110",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:20D8",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 110.000000001103,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 3,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            347.9387763233873,
+            106.4261845155222,
+            0.0
+          ],
+          [
+            327.5245703321857,
+            114.6274157498246,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint4"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:20F4",
+      "text": "∅16",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:20F4",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 16.00000000000023,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 3,
+        "textOverride": "",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            344.4236461630238,
+            117.1301700573682,
+            0.0
+          ],
+          [
+            346.5960527010835,
+            119.479776371923,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint4"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:2689",
+      "text": "10x50°",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2689",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 10.00000000000114,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "<>x50%%D",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            195.5754189952545,
+            246.6403377652037,
+            0.0
+          ],
+          [
+            193.5754189952543,
+            230.3628927303201,
+            0.0
+          ],
+          [
+            195.5754189952545,
+            225.3628927303205,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:268A",
+      "text": "12x40°",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:268A",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 12.00000000000045,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "<>x40%%D",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            182.1754189952544,
+            240.1044840442713,
+            0.0
+          ],
+          [
+            184.5754189952545,
+            230.3628927303204,
+            0.0
+          ],
+          [
+            182.1754189952544,
+            219.3628927303201,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:270F",
+      "text": "3x45°",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:270F",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 3.000000000000682,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "<>x45%%D",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            249.5754189952545,
+            169.8778570504516,
+            0.0
+          ],
+          [
+            248.9754189952544,
+            185.3628927303207,
+            0.0
+          ],
+          [
+            249.5754189952545,
+            185.9628927303201,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:2729",
+      "text": "3x45°",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2729",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 2.999999999999545,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "<>x45%%D",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            65.5754189952545,
+            179.775882857916,
+            0.0
+          ],
+          [
+            66.1754189952544,
+            193.8628927303202,
+            0.0
+          ],
+          [
+            65.5754189952545,
+            194.4628927303201,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:dimensions:drawing_e2e63036993ea9033898d553:2837",
+      "text": "Ø16",
+      "source": "drawing_context",
+      "sourceKind": "dimensions",
+      "sourceSha256": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2837",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs",
+      "rawMeasurement": {
+        "value": 15.99998488772599,
+        "unit": "drawing_unit",
+        "basis": "declared_drawing_unit",
+        "dimensionType": 0,
+        "textOverride": "%%C<>",
+        "textOverridePresent": true,
+        "lengthScaleFactor": 5.0,
+        "definitionPoints": [
+          [
+            264.4743632842915,
+            116.7049762371008,
+            0.0
+          ],
+          [
+            249.5754189952545,
+            119.904973214646,
+            0.0
+          ],
+          [
+            249.5754189952545,
+            116.7049762371008,
+            0.0
+          ]
+        ],
+        "definitionPointNames": [
+          "defpoint",
+          "defpoint2",
+          "defpoint3"
+        ],
+        "dimensionRotationDegrees": null,
+        "dimensionExtrusion": null,
+        "coordinateSystem": "layout_wcs"
+      }
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1019",
+      "text": "SLOTTED STEPPED SHAFT",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1019",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:101B",
+      "text": "SIZE:",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:101B",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:101C",
+      "text": "REV: ",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:101C",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:101D",
+      "text": "SHEET:",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:101D",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:101F",
+      "text": "DRAWING ID:",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:101F",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1022",
+      "text": "SCALE:",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1022",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:102C",
+      "text": "NOTES:\n\nA.\tALL DIMENSIONS ARE IN MILLIMITERS\n",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:102C",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1030",
+      "text": "ORL-b6dd4661b",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1030",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1031",
+      "text": "1",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1031",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1032",
+      "text": "1:5",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1032",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1033",
+      "text": "1 / 1",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1033",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1034",
+      "text": "A3",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1034",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:10BD",
+      "text": "ISOMETRIC",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:10BD",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:10DD",
+      "text": "FRONT",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:10DD",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:111C",
+      "text": "SECTION A-A",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:111C",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1121",
+      "text": "THIRD-ANGLE PROJECTION   |   SCALE 1:5",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1121",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:2132",
+      "text": "A",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2132",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:21B2",
+      "text": "A",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:21B2",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:241B",
+      "text": "BOTTON",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:241B",
+      "spatialFrameId": "block:17",
+      "coordinateSystem": "layout_wcs"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:286D",
+      "text": "45",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:286D",
+      "spatialFrameId": "block:1187",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:2876",
+      "text": "595",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2876",
+      "spatialFrameId": "block:1195",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:287F",
+      "text": "45",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:287F",
+      "spatialFrameId": "block:11A1",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:2888",
+      "text": "920",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2888",
+      "spatialFrameId": "block:11AF",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:2891",
+      "text": "250",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2891",
+      "spatialFrameId": "block:11BB",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:289C",
+      "text": "15",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:289C",
+      "spatialFrameId": "block:11D5",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28A5",
+      "text": "280",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28A5",
+      "spatialFrameId": "block:11E3",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28AE",
+      "text": "Ø200",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28AE",
+      "spatialFrameId": "block:11EF",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28B7",
+      "text": "38",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28B7",
+      "spatialFrameId": "block:11FB",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28C0",
+      "text": "40",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28C0",
+      "spatialFrameId": "block:13BA",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:292E",
+      "text": "Ø250",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:292E",
+      "spatialFrameId": "block:14AD",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:2942",
+      "text": "Ø140",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2942",
+      "spatialFrameId": "block:14D6",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28E0",
+      "text": "Ø115",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28E0",
+      "spatialFrameId": "block:14E4",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28EB",
+      "text": "12x45°",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28EB",
+      "spatialFrameId": "block:1569",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:27CF",
+      "text": "Ø200",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:27CF",
+      "spatialFrameId": "block:18D9",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:26C4",
+      "text": "15",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:26C4",
+      "spatialFrameId": "block:1916",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:26CD",
+      "text": "250",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:26CD",
+      "spatialFrameId": "block:1924",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:27C5",
+      "text": "R22,5",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:27C5",
+      "spatialFrameId": "block:19C2",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1F70",
+      "text": "Ø115",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1F70",
+      "spatialFrameId": "block:1A28",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:1F67",
+      "text": "3x45°",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:1F67",
+      "spatialFrameId": "block:1A34",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28F4",
+      "text": "185",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28F4",
+      "spatialFrameId": "block:20AE",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28F9",
+      "text": "∅200",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28F9",
+      "spatialFrameId": "block:20C5",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:28FF",
+      "text": "∅110",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:28FF",
+      "spatialFrameId": "block:20D9",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:2907",
+      "text": "∅16",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2907",
+      "spatialFrameId": "block:20F5",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:26AE",
+      "text": "12x40°",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:26AE",
+      "spatialFrameId": "block:268B",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:26B9",
+      "text": "10x50°",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:26B9",
+      "spatialFrameId": "block:2699",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:274A",
+      "text": "3x45°",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:274A",
+      "spatialFrameId": "block:2710",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:2755",
+      "text": "3x45°",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2755",
+      "spatialFrameId": "block:272A",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:texts:drawing_e2e63036993ea9033898d553:2914",
+      "text": "Ø16",
+      "source": "drawing_context",
+      "sourceKind": "texts",
+      "sourceSha256": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "drawing_e2e63036993ea9033898d553:2914",
+      "spatialFrameId": "block:2838",
+      "coordinateSystem": "block_local"
+    },
+    {
+      "id": "ctx:titleBlock:1",
+      "text": "SLOTTED STEPPED SHAFT",
+      "source": "drawing_context",
+      "sourceKind": "titleBlock",
+      "sourceSha256": "e1455ccc5ffa85582091691e9a79dc5d83f2a4f764da30a6521e2b9597e76f29",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "1",
+      "spatialFrameId": null,
+      "coordinateSystem": null
+    },
+    {
+      "id": "ctx:titleBlock:2",
+      "text": "ORL-b6dd4661b",
+      "source": "drawing_context",
+      "sourceKind": "titleBlock",
+      "sourceSha256": "e1455ccc5ffa85582091691e9a79dc5d83f2a4f764da30a6521e2b9597e76f29",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "2",
+      "spatialFrameId": null,
+      "coordinateSystem": null
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:1",
+      "text": "Ø16 R8",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:1",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 8.0,
+        "diameterMm": 16.0,
+        "axialMinMm": 5.674375327499807e-15,
+        "axialMaxMm": 38.00000019999971,
+        "through": false,
+        "role": "hole"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:2",
+      "text": "Ø16 R8",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:2",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 8.0,
+        "diameterMm": 16.0,
+        "axialMinMm": 5.6743753274998045e-15,
+        "axialMaxMm": 38.00000019999971,
+        "through": false,
+        "role": "hole"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:3",
+      "text": "Ø200 R100",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:3",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 100.0,
+        "diameterMm": 200.0,
+        "axialMinMm": 3.0,
+        "axialMaxMm": 270.0000001999997,
+        "through": false,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:4",
+      "text": "Ø250 R125",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:4",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 125.0,
+        "diameterMm": 250.0,
+        "axialMinMm": 280.00000000000045,
+        "axialMaxMm": 325.00000019999925,
+        "through": false,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:5",
+      "text": "Ø140 R70",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:5",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 70.0,
+        "diameterMm": 140.0,
+        "axialMinMm": 337.0,
+        "axialMaxMm": 365.0000001999997,
+        "through": false,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:6",
+      "text": "Ø115 R57.5",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:6",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 57.5,
+        "diameterMm": 115.0,
+        "axialMinMm": 377.00000000000955,
+        "axialMaxMm": 917.0000001999992,
+        "through": false,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:7",
+      "text": "Ø16 R8",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:7",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 8.0,
+        "diameterMm": 16.0,
+        "axialMinMm": -8.613431364219656e-15,
+        "axialMaxMm": 38.0000001999997,
+        "through": false,
+        "role": "hole"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:8",
+      "text": "Ø16 R8",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:8",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 8.0,
+        "diameterMm": 16.0,
+        "axialMinMm": -8.61343136421966e-15,
+        "axialMaxMm": 38.0000001999997,
+        "through": false,
+        "role": "hole"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:9",
+      "text": "Ø45 R22.5",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:9",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 22.5,
+        "diameterMm": 45.0,
+        "axialMinMm": -100.00000010000008,
+        "axialMaxMm": -84.69999989999974,
+        "through": false,
+        "role": "hole"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cyl:10",
+      "text": "Ø45 R22.5",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cyl:10",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cylinder",
+        "radiusMm": 22.5,
+        "diameterMm": 45.0,
+        "axialMinMm": -100.00000010000008,
+        "axialMaxMm": -84.69999989999974,
+        "through": false,
+        "role": "hole"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cone:1",
+      "text": "R75 39.80557109°",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cone:1",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cone",
+        "radiusMm": 75.0,
+        "semiAngleDeg": 39.8055710922822,
+        "axialMinMm": -337.0000001999997,
+        "axialMaxMm": -325.0,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cone:2",
+      "text": "R63.5 45°",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cone:2",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cone",
+        "radiusMm": 63.5,
+        "semiAngleDeg": 44.999999999974314,
+        "axialMinMm": -377.0000002000029,
+        "axialMaxMm": -364.9999999999968,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cone:3",
+      "text": "R56 45°",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cone:3",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cone",
+        "radiusMm": 56.0,
+        "semiAngleDeg": 44.999999999974314,
+        "axialMinMm": -920.0000002000006,
+        "axialMaxMm": -916.9999999999991,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cone:4",
+      "text": "R98.5 45°",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cone:4",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cone",
+        "radiusMm": 98.5,
+        "semiAngleDeg": 44.999999999974314,
+        "axialMinMm": -9.094947017729282e-13,
+        "axialMaxMm": 3.0000002000006134,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:cone:5",
+      "text": "R106 50.19442891°",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:cone:5",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "cone",
+        "radiusMm": 106.0,
+        "semiAngleDeg": 50.194428907723726,
+        "axialMinMm": 269.99999999999864,
+        "axialMaxMm": 280.00000020000107,
+        "role": "boss"
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:1",
+      "text": "offset 325.0000001",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:1",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": 325.00000009999985,
+        "areaMm2": 28981.19222936585
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:2",
+      "text": "offset -9.999984481e-08",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:2",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": -9.999984481073189e-08,
+        "areaMm2": 28754.997558307386
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:3",
+      "text": "offset 84.7",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:3",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": 84.69999999999982,
+        "areaMm2": 10815.431280879831
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:4",
+      "text": "offset -280.0000001",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:4",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": -280.00000009999985,
+        "areaMm2": 9679.246965710154
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:5",
+      "text": "offset 920.0000001",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:5",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": 920.0000000999999,
+        "areaMm2": 9331.315579325083
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:6",
+      "text": "offset -22.5",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:6",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": -22.499999999999904,
+        "areaMm2": 2610.854651545028
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:7",
+      "text": "offset -22.5",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:7",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": -22.500000000000096,
+        "areaMm2": 2610.854651545028
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:8",
+      "text": "offset -38.0000001",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:8",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": -38.00000009999985,
+        "areaMm2": 804.2477193189873
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:plane:9",
+      "text": "offset 365.0000001",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:plane:9",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "plane",
+        "offsetMm": 365.00000009999985,
+        "areaMm2": 219.12608758788883
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:profile:1",
+      "text": "profile xy offset 9.999985195e-08",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:profile:1",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "planar_profile",
+        "offsetMm": 9.999985195463523e-08,
+        "areaMm2": 28754.997558307386
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:profile:2",
+      "text": "profile xy offset 280.0000001",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:profile:2",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "planar_profile",
+        "offsetMm": 280.00000009999985,
+        "areaMm2": 9679.246965710154
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:profile:3",
+      "text": "profile xy offset 325.0000001",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:profile:3",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "planar_profile",
+        "offsetMm": 325.00000009999985,
+        "areaMm2": 28981.19222936585
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:profile:4",
+      "text": "profile xy offset 920.0000001",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:profile:4",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "planar_profile",
+        "offsetMm": 920.0000000999999,
+        "areaMm2": 9331.315579325083
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:profile:5",
+      "text": "profile xz offset -84.7",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:profile:5",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "planar_profile",
+        "offsetMm": -84.69999999999982,
+        "areaMm2": 10815.431280879831
+      }
+    },
+    {
+      "id": "ctx:referenceGeometry:rg:section:1",
+      "text": "section z",
+      "source": "drawing_context",
+      "sourceKind": "referenceGeometry",
+      "sourceSha256": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87",
+      "assetId": "drawing_e2e63036993ea9033898d553",
+      "entityId": "rg:section:1",
+      "spatialFrameId": "canonical",
+      "coordinateSystem": "canonical",
+      "partId": "part_8a8548fe7e9187aba5795d25",
+      "values": {
+        "kind": "revolve_section"
+      }
+    }
+  ],
+  "contextSource": {
+    "path": "F:\\CatiaAgent\\runs\\orla-pilotdeck\\attempts\\ORL-b6dd4661b\\p4-20261107160601\\.tmp\\chat-uploads\\08535bc2-8edb-438f-b058-4d5a731bf0e0\\files\\attachment-drawing-context.json\\content.json",
+    "sha256": "697a0f7b670ec79a658330300df7a5a6414ccead160f6a574f828ee367d2fb57",
+    "assetId": "drawing_e2e63036993ea9033898d553",
+    "pdfSha256": "bdfa26e1532551b33d65cf6157ea2544a1546a5740165af24035785850d9f2b5",
+    "sources": {
+      "dimensions": "979469ea9e2f795db756e0e6b36affdcec21d39af5e76427fcccb09298b9ac4f",
+      "texts": "fc6a16732275e575acea698c0edd30dc4afe0b10c0d0892fdde9ec0922b7431f",
+      "titleBlock": "e1455ccc5ffa85582091691e9a79dc5d83f2a4f764da30a6521e2b9597e76f29",
+      "geometry": "a3ed16a956418a888d6669e5f8c795502610e5c2efe6594d50f84ac5de2928ff",
+      "blocks": "90bde6631715524969ec570e354ba17496f1a5af3f6705704eb55d97ede2c382",
+      "layers": "46def1f01eb53eb752c604a67c6e8b7d357236757841f39cd17e79f267c5ef36",
+      "referenceGeometry": "8a0802bdb7ce009dcdf09b4b9423e3ca6874d0cb91b563794b84cbc43f339c87"
+    }
+  }
+}
