@@ -1,0 +1,130 @@
+{
+  "$id": "https://catia.local/contracts/catia/v1/schema/run-context.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "attemptId": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Attemptid",
+      "type": "string"
+    },
+    "codeVersion": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Codeversion",
+      "type": "string"
+    },
+    "contractVersion": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Contractversion",
+      "type": "string"
+    },
+    "createdAt": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Createdat",
+      "type": "string"
+    },
+    "deadlineMs": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deadlinems"
+    },
+    "modelId": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Modelid"
+    },
+    "operationId": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Operationid"
+    },
+    "promptId": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Promptid"
+    },
+    "runId": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Runid",
+      "type": "string"
+    },
+    "schema": {
+      "const": "catia-run-context/1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sessionId": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sessionid"
+    },
+    "sourceFingerprint": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Sourcefingerprint",
+      "type": "string"
+    },
+    "workingDirectory": {
+      "maxLength": 4096,
+      "minLength": 1,
+      "title": "Workingdirectory",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "runId",
+    "attemptId",
+    "sourceFingerprint",
+    "codeVersion",
+    "contractVersion",
+    "workingDirectory",
+    "createdAt"
+  ],
+  "title": "run-context",
+  "type": "object"
+}

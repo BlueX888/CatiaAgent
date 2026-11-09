@@ -1,0 +1,129 @@
+{
+  "schema": "catia-model-snapshot/1",
+  "editSessionId": "sess0000abcd",
+  "modelRevision": 3,
+  "source": {
+    "path": "C:\\work\\输入\\plate.CATPart",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sizeBytes": 196608,
+    "mtimeUtc": "2026-10-23T05:59:00.000+00:00"
+  },
+  "workingCopy": {
+    "path": "C:\\work\\edits\\plate.CATPart",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "createdUtc": "2026-10-23T06:00:00.000+00:00"
+  },
+  "document": {
+    "name": "plate.CATPart",
+    "fullName": "C:\\work\\edits\\plate.CATPart",
+    "saved": false
+  },
+  "part": {
+    "name": "Part2",
+    "mainBody": "PartBody",
+    "featureCount": 2,
+    "bodyNames": [
+      "PartBody"
+    ]
+  },
+  "parameters": [
+    {
+      "handle": "Part2\\L",
+      "name": "Part2\\L",
+      "value": 160.0,
+      "unit": "mm",
+      "dimensionType": "LENGTH",
+      "kind": "driver",
+      "writable": true
+    },
+    {
+      "handle": "Part2\\Angle",
+      "name": "Part2\\Angle",
+      "value": 45.0,
+      "unit": "deg",
+      "dimensionType": "ANGLE",
+      "kind": "driver",
+      "writable": true
+    },
+    {
+      "handle": "Part2\\PartBody\\Sketch.1\\Length.1",
+      "name": "Part2\\PartBody\\Sketch.1\\Length.1",
+      "value": 160.0,
+      "unit": "mm",
+      "dimensionType": "LENGTH",
+      "kind": "driven",
+      "writable": false
+    },
+    {
+      "handle": "Part2\\PartBody\\Sketch.1\\Offset.13",
+      "name": "Part2\\PartBody\\Sketch.1\\Offset.13",
+      "value": 5.0,
+      "unit": "mm",
+      "dimensionType": "LENGTH",
+      "kind": "driven",
+      "writable": false
+    },
+    {
+      "handle": "Part2\\PartNumber",
+      "name": "Part2\\PartNumber",
+      "value": "plate",
+      "unit": "",
+      "dimensionType": "SYSTEM",
+      "kind": "system",
+      "writable": false
+    }
+  ],
+  "holes": [
+    {
+      "center": {
+        "x": 65.0,
+        "y": 10.0
+      },
+      "radius": 6.0,
+      "source": "Sketch.1"
+    }
+  ],
+  "drivers": [
+    "Part2\\L",
+    "Part2\\Angle"
+  ],
+  "impacts": {
+    "Part2\\L": {
+      "handle": "Part2\\L",
+      "writeStuck": true,
+      "geometryChanged": true,
+      "holeCentersMoved": true,
+      "edgeDistancesPreserved": true,
+      "restored": true
+    },
+    "Part2\\Angle": {
+      "handle": "Part2\\Angle",
+      "writeStuck": true,
+      "geometryChanged": false,
+      "holeCentersMoved": false,
+      "edgeDistancesPreserved": true,
+      "restored": true
+    }
+  },
+  "capabilities": {
+    "writableDrivers": [
+      "Part2\\L",
+      "Part2\\Angle"
+    ],
+    "geometryDrivers": [
+      "Part2\\L"
+    ],
+    "nonsemanticDrivers": [
+      "Part2\\Angle"
+    ],
+    "invariants": {
+      "holes_edge_distance": {
+        "supported": true,
+        "reason": "hole margins follow L through HoleX_L"
+      }
+    },
+    "unsupported": []
+  },
+  "limitations": [],
+  "capturedUtc": "2026-10-23T06:00:01.000+00:00"
+}

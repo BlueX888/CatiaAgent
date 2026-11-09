@@ -1,0 +1,21 @@
+{
+  "schema": "catia-edit-plan/1",
+  "editSessionId": "sess0000abcd",
+  "operationId": "op-0001",
+  "expectedRevision": 3,
+  "intent": {
+    "text": "长度改为 200 mm",
+    "resolved": "absolute length = 200 mm"
+  },
+  "changes": [
+    {
+      "parameter": "Part2\\L",
+      "oldValue": 160.0,
+      "newValue": 200.0,
+      "unit": "mm",
+      "reason": "lengthen the plate"
+    }
+  ],
+  "preserve": [],
+  "acceptance": []
+}

@@ -1,5 +1,20 @@
 import type { AgentTranscriptWriter } from "../transcript/TranscriptWriter.js";
 import type { SessionMetadataValue } from "../transcript/TranscriptEntry.js";
+import type { CatiaRunContext } from "../../tool/protocol/catiaRunContext.js";
+import type { CatiaRecoveryProjection } from "../../tool/protocol/catiaRunRecovery.js";
+
+export type CatiaRunMetadataRecord = {
+  context: CatiaRunContext;
+  stateSource: "host" | "coordinator" | "journal";
+  sequence: number;
+  updatedAt: string;
+};
+
+export type CatiaRecoveryMetadataRecord = {
+  projection: CatiaRecoveryProjection;
+  sequence: number;
+  updatedAt: string;
+};
 
 export type SessionMetadataStoreOptions = {
   transcript: AgentTranscriptWriter;
@@ -10,6 +25,8 @@ export type SessionMetadataStoreOptions = {
 export class SessionMetadataStore {
   private readonly now: () => Date;
   private metadata: SessionMetadataValue = {};
+  private catiaRunContext: CatiaRunMetadataRecord | undefined;
+  private catiaRecovery: CatiaRecoveryMetadataRecord | undefined;
 
   constructor(private readonly options: SessionMetadataStoreOptions) {
     this.now = options.now ?? (() => new Date());
@@ -53,6 +70,14 @@ export class SessionMetadataStore {
    */
   restoreFromReplay(metadata: SessionMetadataValue): void {
     this.metadata = mergeMetadata(this.metadata, metadata);
+    const restored = (metadata as unknown as { catiaRunContext?: CatiaRunMetadataRecord }).catiaRunContext;
+    if (restored && restored.context && typeof restored.sequence === "number") {
+      this.catiaRunContext = cloneCatiaRunRecord(restored);
+    }
+    const recovery = (metadata as unknown as { catiaRecovery?: CatiaRecoveryMetadataRecord }).catiaRecovery;
+    if (recovery && recovery.projection && typeof recovery.sequence === "number") {
+      this.catiaRecovery = recovery;
+    }
   }
 
   /**
@@ -77,6 +102,55 @@ export class SessionMetadataStore {
     );
   }
 
+  getCatiaRunContext(): CatiaRunMetadataRecord | undefined {
+    return cloneCatiaRunRecord(this.catiaRunContext);
+  }
+
+  /**
+   * Persist host-owned run identity as a sidecar metadata entry. The sequence is
+   * monotonic across reopen; the CATIA coordinator/journal stay authoritative
+   * for execution state.
+   */
+  async saveCatiaRunContext(
+    context: CatiaRunContext,
+    options: { stateSource?: CatiaRunMetadataRecord["stateSource"]; turnId?: string } = {},
+  ): Promise<CatiaRunMetadataRecord> {
+    const record: CatiaRunMetadataRecord = {
+      context: { ...context },
+      stateSource: options.stateSource ?? "host",
+      sequence: (this.catiaRunContext?.sequence ?? 0) + 1,
+      updatedAt: this.now().toISOString(),
+    };
+    this.catiaRunContext = record;
+    await this.record(options.turnId ?? "catia-run-context", {
+      catiaRunContext: record,
+    } as unknown as SessionMetadataValue);
+    return cloneCatiaRunRecord(record)!;
+  }
+
+  getCatiaRecovery(): CatiaRecoveryMetadataRecord | undefined {
+    return this.catiaRecovery
+      ? { ...this.catiaRecovery, projection: { ...this.catiaRecovery.projection,
+          blockers: [...this.catiaRecovery.projection.blockers],
+          evidence: [...this.catiaRecovery.projection.evidence] } }
+      : undefined;
+  }
+
+  /** Persist a read-only recovery projection; it never triggers a CAD call. */
+  async saveCatiaRecovery(
+    projection: CatiaRecoveryProjection,
+    turnId = "catia-recovery",
+  ): Promise<CatiaRecoveryMetadataRecord> {
+    const record: CatiaRecoveryMetadataRecord = {
+      projection,
+      sequence: (this.catiaRecovery?.sequence ?? 0) + 1,
+      updatedAt: this.now().toISOString(),
+    };
+    this.catiaRecovery = record;
+    await this.record(turnId, { catiaRecovery: record } as unknown as SessionMetadataValue);
+    return this.getCatiaRecovery()!;
+  }
+
   async record(turnId: string, metadata: SessionMetadataValue): Promise<void> {
     this.metadata = mergeMetadata(this.metadata, metadata);
     if (!this.options.transcript.recordSessionMetadata) {
@@ -97,8 +171,18 @@ export function mergeMetadata(first: SessionMetadataValue, second: SessionMetada
 }
 
 function cloneMetadata(metadata: SessionMetadataValue): SessionMetadataValue {
-  return {
+  const cloned = {
     ...metadata,
     linkedPullRequest: metadata.linkedPullRequest ? { ...metadata.linkedPullRequest } : undefined,
-  };
+  } as SessionMetadataValue & { catiaRunContext?: CatiaRunMetadataRecord; catiaRecovery?: CatiaRecoveryMetadataRecord };
+  const catia = (metadata as unknown as { catiaRunContext?: CatiaRunMetadataRecord }).catiaRunContext;
+  if (catia) cloned.catiaRunContext = cloneCatiaRunRecord(catia);
+  const recovery = (metadata as unknown as { catiaRecovery?: CatiaRecoveryMetadataRecord }).catiaRecovery;
+  if (recovery) cloned.catiaRecovery = recovery;
+  return cloned;
+}
+
+function cloneCatiaRunRecord(record: CatiaRunMetadataRecord | undefined): CatiaRunMetadataRecord | undefined {
+  if (!record) return undefined;
+  return { ...record, context: { ...record.context } };
 }

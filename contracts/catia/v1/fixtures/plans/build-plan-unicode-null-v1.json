@@ -1,0 +1,416 @@
+{
+  "schema": "catia-build-plan/1",
+  "unit": "mm",
+  "partName": "板件-Ω",
+  "parameters": [
+    {
+      "name": "L",
+      "type": "length",
+      "value": 120.0,
+      "role": "length"
+    },
+    {
+      "name": "W",
+      "type": "length",
+      "value": 80.0,
+      "role": "width"
+    },
+    {
+      "name": "T",
+      "type": "length",
+      "value": 10.0,
+      "role": "thickness"
+    },
+    {
+      "name": "D",
+      "type": "length",
+      "value": 10.0,
+      "role": "hole_diameter"
+    },
+    {
+      "name": "EX",
+      "type": "length",
+      "value": 20.0,
+      "role": "hole_edge_x"
+    },
+    {
+      "name": "EY",
+      "type": "length",
+      "value": 20.0,
+      "role": "hole_edge_y"
+    }
+  ],
+  "steps": [
+    {
+      "op": "new_part",
+      "name": "PLATE"
+    },
+    {
+      "op": "create_parameters",
+      "parameters": [
+        "L",
+        "W",
+        "T",
+        "D",
+        "EX",
+        "EY"
+      ]
+    },
+    {
+      "op": "create_sketch",
+      "plane": "xy",
+      "role": "body"
+    },
+    {
+      "op": "rectangle",
+      "x1": -60.0,
+      "y1": -40.0,
+      "x2": 60.0,
+      "y2": 40.0
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 80.0,
+      "geometry_index_1": 2,
+      "geometry_index_2": 4,
+      "bind": "W",
+      "role": "body_width"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 120.0,
+      "geometry_index_1": 3,
+      "geometry_index_2": 5,
+      "bind": "L",
+      "role": "body_length"
+    },
+    {
+      "op": "close_sketch",
+      "role": "body"
+    },
+    {
+      "op": "pad",
+      "height": 10.0,
+      "bind": "T"
+    },
+    {
+      "op": "create_sketch",
+      "plane": "xy",
+      "role": "holes"
+    },
+    {
+      "op": "construction_rectangle",
+      "x1": -60.0,
+      "y1": -40.0,
+      "x2": 60.0,
+      "y2": 40.0
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 80.0,
+      "geometry_index_1": 2,
+      "geometry_index_2": 4,
+      "bind": "W",
+      "role": "hole_ref_width"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 120.0,
+      "geometry_index_1": 3,
+      "geometry_index_2": 5,
+      "bind": "L",
+      "role": "hole_ref_length"
+    },
+    {
+      "op": "circle",
+      "cx": -40.0,
+      "cy": -20.0,
+      "radius": 5.0,
+      "geometry_index": 6,
+      "hole": 0
+    },
+    {
+      "op": "constraint",
+      "type": "radius",
+      "value": 5.0,
+      "geometry_index_1": 6,
+      "bind": "D / 2",
+      "role": "hole_1_radius"
+    },
+    {
+      "op": "circle",
+      "cx": -40.0,
+      "cy": 20.0,
+      "radius": 5.0,
+      "geometry_index": 7,
+      "hole": 1
+    },
+    {
+      "op": "constraint",
+      "type": "radius",
+      "value": 5.0,
+      "geometry_index_1": 7,
+      "bind": "D / 2",
+      "role": "hole_2_radius"
+    },
+    {
+      "op": "circle",
+      "cx": 40.0,
+      "cy": -20.0,
+      "radius": 5.0,
+      "geometry_index": 8,
+      "hole": 2
+    },
+    {
+      "op": "constraint",
+      "type": "radius",
+      "value": 5.0,
+      "geometry_index_1": 8,
+      "bind": "D / 2",
+      "role": "hole_3_radius"
+    },
+    {
+      "op": "circle",
+      "cx": 40.0,
+      "cy": 20.0,
+      "radius": 5.0,
+      "geometry_index": 9,
+      "hole": 3
+    },
+    {
+      "op": "constraint",
+      "type": "radius",
+      "value": 5.0,
+      "geometry_index_1": 9,
+      "bind": "D / 2",
+      "role": "hole_4_radius"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 15.0,
+      "geometry_index_1": 6,
+      "geometry_index_2": 5,
+      "bind": "EX - D / 2",
+      "role": "hole_1_x"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 15.0,
+      "geometry_index_1": 6,
+      "geometry_index_2": 2,
+      "bind": "EY - D / 2",
+      "role": "hole_1_y"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 15.0,
+      "geometry_index_1": 7,
+      "geometry_index_2": 5,
+      "bind": "EX - D / 2",
+      "role": "hole_2_x"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 15.0,
+      "geometry_index_1": 7,
+      "geometry_index_2": 4,
+      "bind": "EY - D / 2",
+      "role": "hole_2_y"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 15.0,
+      "geometry_index_1": 8,
+      "geometry_index_2": 3,
+      "bind": "EX - D / 2",
+      "role": "hole_3_x"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 15.0,
+      "geometry_index_1": 8,
+      "geometry_index_2": 2,
+      "bind": "EY - D / 2",
+      "role": "hole_3_y"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 15.0,
+      "geometry_index_1": 9,
+      "geometry_index_2": 3,
+      "bind": "EX - D / 2",
+      "role": "hole_4_x"
+    },
+    {
+      "op": "constraint",
+      "type": "distance",
+      "value": 15.0,
+      "geometry_index_1": 9,
+      "geometry_index_2": 4,
+      "bind": "EY - D / 2",
+      "role": "hole_4_y"
+    },
+    {
+      "op": "close_sketch",
+      "role": "holes"
+    },
+    {
+      "op": "pocket",
+      "depth": 12.0,
+      "bind": "T + 2mm"
+    },
+    {
+      "op": "verify_geometry",
+      "expected": {
+        "volumeMm3": 92858.40734641021,
+        "bbox": {
+          "min": {
+            "x": -60.0,
+            "y": -40.0,
+            "z": 0.0
+          },
+          "max": {
+            "x": 60.0,
+            "y": 40.0,
+            "z": 10.0
+          }
+        },
+        "holes": [
+          {
+            "x": -40.0,
+            "y": -20.0,
+            "diameter": 10.0,
+            "through": true
+          },
+          {
+            "x": -40.0,
+            "y": 20.0,
+            "diameter": 10.0,
+            "through": true
+          },
+          {
+            "x": 40.0,
+            "y": -20.0,
+            "diameter": 10.0,
+            "through": true
+          },
+          {
+            "x": 40.0,
+            "y": 20.0,
+            "diameter": 10.0,
+            "through": true
+          }
+        ]
+      }
+    }
+  ],
+  "expected": {
+    "unit": "mm",
+    "volumeMm3": 92858.407346,
+    "bbox": {
+      "min": {
+        "x": -60.0,
+        "y": -40.0,
+        "z": 0.0
+      },
+      "max": {
+        "x": 60.0,
+        "y": 40.0,
+        "z": 10.0
+      }
+    },
+    "holes": [
+      {
+        "x": -40.0,
+        "y": -20.0,
+        "diameter": 10.0,
+        "through": true
+      },
+      {
+        "x": -40.0,
+        "y": 20.0,
+        "diameter": 10.0,
+        "through": true
+      },
+      {
+        "x": 40.0,
+        "y": -20.0,
+        "diameter": 10.0,
+        "through": true
+      },
+      {
+        "x": 40.0,
+        "y": 20.0,
+        "diameter": 10.0,
+        "through": true
+      }
+    ],
+    "holeCount": 4,
+    "featureCount": 2,
+    "parameters": {
+      "L": 120.0,
+      "W": 80.0,
+      "T": 10.0,
+      "D": 10.0,
+      "EX": 20.0,
+      "EY": 20.0
+    }
+  },
+  "checks": [
+    {
+      "name": "unit_normalized",
+      "passed": true,
+      "detail": "source unit mm"
+    },
+    {
+      "name": "positive_dimensions",
+      "passed": true
+    },
+    {
+      "name": "holes_inside_body",
+      "passed": true
+    },
+    {
+      "name": "closed_profile_ops",
+      "passed": true
+    },
+    {
+      "name": "supported_operations_only",
+      "passed": true
+    }
+  ],
+  "topology": {
+    "bodySketch": {
+      "axis": 1,
+      "lines": {
+        "bottom": 2,
+        "right": 3,
+        "top": 4,
+        "left": 5
+      }
+    },
+    "holeSketch": {
+      "axis": 1,
+      "referenceLines": {
+        "bottom": 2,
+        "right": 3,
+        "top": 4,
+        "left": 5
+      },
+      "firstCircle": 6
+    }
+  },
+  "source": null,
+  "planId": "sha256:34d97c1cdd9644d4f2ea57a13f64938cabd257e341fc61ab764dd89725d04478"
+}

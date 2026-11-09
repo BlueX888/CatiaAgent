@@ -1,0 +1,40 @@
+{
+  "schema_version": "catiaagent-task-result/1",
+  "plan_version": "1.0",
+  "task_id": null,
+  "run_id": null,
+  "attempt": 0,
+  "state": "PENDING",
+  "baseline_commit": null,
+  "patch_sha256": null,
+  "working_tree_fingerprint": null,
+  "environment_digest": null,
+  "changed_files": [],
+  "commands": [],
+  "command_record_shape": {
+    "command_id": null,
+    "cwd": null,
+    "argv": [],
+    "started_at": null,
+    "finished_at": null,
+    "exit_code": null,
+    "stdout_path": null,
+    "stderr_path": null,
+    "report_path": null,
+    "counts": {
+      "collected": null,
+      "passed": null,
+      "failed": null,
+      "skipped": null,
+      "xfailed": null
+    },
+    "mandatory_test_ids": [],
+    "skip_details": []
+  },
+  "acceptance_results": [],
+  "gate_results": [],
+  "artifacts": [],
+  "known_limitations": [],
+  "blocker": null,
+  "next_task": null
+}

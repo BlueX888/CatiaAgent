@@ -1,0 +1,41 @@
+{
+  "plan_version": "1.0",
+  "reviewed_commit": "b58e40bc0b8ad0152b4afc854757e6b4f4b094c9",
+  "created_date": "2026-11-09",
+  "tasks_total": 33,
+  "core_tasks": 30,
+  "extension_tasks": 3,
+  "execution_started": false,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1177,
+      "sha256": "be6aa55ab21fbc8f375db8d902fa28efd527528bab01aaed1acab582de5c8f8e"
+    },
+    {
+      "path": "START_HERE.md",
+      "bytes": 2597,
+      "sha256": "658a74347ec0018dd7ee48faacbc805b3ddf837fc809da7a9cfee7ba0f4856cd"
+    },
+    {
+      "path": "execution_state.template.json",
+      "bytes": 5131,
+      "sha256": "f517d6653e0dd5c81eb5c7d0b48f070ce36719e7830576927496c459e749d97e"
+    },
+    {
+      "path": "plan.md",
+      "bytes": 96651,
+      "sha256": "984378592a3f4d14f378b9dcd4345cbf8428b2e1fc0853fd7c27435adb764f99"
+    },
+    {
+      "path": "task-result.template.json",
+      "bytes": 872,
+      "sha256": "25d8c6cf3a8810cd8d3befd643d8504ba1d11bbdb5a4572e863fc1814c0d48c9"
+    },
+    {
+      "path": "tasks.json",
+      "bytes": 99477,
+      "sha256": "96b6379db38e9de06fa2d3e7625091f143443d7473d37a235d3dd4f9f3eb707a"
+    }
+  ]
+}

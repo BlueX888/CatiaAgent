@@ -100,3 +100,59 @@ it.each(['pnpm build', 'printf "hello\\n"\npnpm build'])('copies the original sh
   fireEvent.click(screen.getByRole('button', { name: 'Copy command' }));
   expect(copyTextToClipboard).toHaveBeenCalledExactlyOnceWith(command);
 });
+import { catiaUiStatus } from './UnifiedToolCall';
+
+const catiaMessage = (receipt: unknown): ChatMessage => ({
+  id: 'catia-call', type: 'assistant', timestamp: '2026-11-09', isToolUse: true,
+  toolName: 'catia_build_part', toolInput: {}, toolResult: { toolUseResult: receipt },
+});
+
+const verifiedReceipt = {
+  ok: true, code: 'BUILD_COMPLETED', effects: { modified: true },
+  data: {
+    businessState: 'completed',
+    verification: { verdict: 'PASS' },
+    delivery: { path: 'C:\out\part.CATPart' },
+  },
+};
+
+describe('CATIA business status', () => {
+  it('shows verified delivery only for a complete trusted receipt', () => {
+    render(view(catiaMessage(verifiedReceipt)));
+    fireEvent.click(screen.getByRole('button', { name: /catia_build_part/ }));
+    expect(screen.getByText('Verified delivery')).toBeTruthy();
+    expect(screen.getByText(/part\.CATPart/)).toBeTruthy();
+  });
+
+  it('does not show green success for incomplete receipts', () => {
+    render(view(catiaMessage({ ...verifiedReceipt, data: { businessState: 'completed' } })));
+    fireEvent.click(screen.getByRole('button', { name: /catia_build_part/ }));
+    expect(screen.queryByText('Verified delivery')).toBeNull();
+    expect(screen.getByText('Status unknown')).toBeTruthy();
+  });
+
+  it('keeps unknown session state visible and offers no retry', () => {
+    render(view(catiaMessage({ ok: false, code: 'VERIFIER_SESSION_UNKNOWN', effects: { modified: null },
+      data: { businessState: 'session_unknown', sessionHealth: 'unknown' } })));
+    fireEvent.click(screen.getByRole('button', { name: /catia_build_part/ }));
+    expect(screen.getByText('Status unknown')).toBeTruthy();
+    expect(screen.getByRole('status').textContent).toMatch(/do not retry/);
+    expect(screen.queryByRole('button', { name: /retry/i })).toBeNull();
+    expect(screen.queryByText('Verified delivery')).toBeNull();
+  });
+
+  it('shows definite failures as failed', () => {
+    render(view(catiaMessage({ ok: false, code: 'FEATURE_BUILD_FAILED', effects: { modified: false },
+      data: { businessState: 'build_failed', failure: { reason: 'profile invalid' } } })));
+    fireEvent.click(screen.getByRole('button', { name: /catia_build_part/ }));
+    expect(screen.getByText('Failed')).toBeTruthy();
+    expect(screen.queryByText('Verified delivery')).toBeNull();
+  });
+
+  it('classifies contradictory success/failure receipts without trusting flags alone', () => {
+    expect(catiaUiStatus('catia_build_part', { toolUseResult: verifiedReceipt })?.kind).toBe('verified');
+    expect(catiaUiStatus('catia_build_part', { toolUseResult: { ...verifiedReceipt, ok: false } })?.kind).toBe('failed');
+    expect(catiaUiStatus('catia_build_part', { toolUseResult: { ok: true } })?.kind).toBe('unknown');
+    expect(catiaUiStatus('bash', { content: 'ok' })).toBeUndefined();
+  });
+});

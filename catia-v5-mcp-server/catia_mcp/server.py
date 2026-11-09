@@ -24,11 +24,12 @@ from mcp.server.stdio import stdio_server
 from mcp.types import CallToolResult, ImageContent, TextContent, Tool
 
 from catia_mcp.connection import CATIAConnection
+from catia_mcp.contracts.dispatch import shadow_check
 from catia_mcp.generation_scope import GenerationScope, GENERATION_TOOLS
 from catia_mcp.reference_binding import ReferenceBinding
 from catia_mcp.reference_views import ReferenceViews
 from catia_mcp.reference_tools import ReferenceTools
-from catia_mcp.results import operation_result
+from catia_mcp.results import operation_result, record_result_shadow
 from catia_mcp.tools.assembly import AssemblyTools
 from catia_mcp.tools.diagnostics import DiagnosticsTools
 from catia_mcp.tools.document import DocumentTools
@@ -271,7 +272,25 @@ class CATIAMCPServer:
                 self._schemas[name] = schema
         if self._denied_tools:
             logger.info("Disabled tools via CATIA_MCP_TOOL_DENY: %s", ", ".join(sorted(self._denied_tools)))
+        self._shadow_differences: list[dict[str, Any]] = []
         self._setup_handlers()
+
+    def _record_shadow_check(self, name: str, arguments: dict[str, Any]) -> None:
+        """Shadow-only structural comparison; it never changes the decision."""
+        try:
+            outcome = shadow_check(name, arguments)
+        except Exception as error:  # a shadow defect must not affect the tool
+            outcome = {"registered": True, "status": "shadow_error", "tool": name,
+                       "problems": [{"code": "SHADOW_ERROR", "message": str(error), "path": ""}]}
+        if outcome["status"] == "difference":
+            if len(self._shadow_differences) >= 20:
+                self._shadow_differences.pop(0)
+            self._shadow_differences.append({
+                "tool": name, "problems": outcome["problems"][:10],
+            })
+            logger.info("Contract shadow difference for %s: %s", name, outcome["problems"][:3])
+        elif outcome["status"] == "shadow_error":
+            logger.warning("Contract shadow error for %s: %s", name, outcome["problems"])
 
     def _generation_build_access(self) -> dict[str, Any] | None:
         # Called only after DrawingTools has acquired the machine-wide lock.
@@ -293,7 +312,13 @@ class CATIAMCPServer:
 
         @self.server.call_tool(validate_input=False)
         async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> CallToolResult:
-            meta = self.server.request_context.meta
+            # A direct handler invocation (tests, embedding) has no SDK request
+            # context; production dispatch always has one.  Missing context
+            # simply means no deadline metadata.
+            try:
+                meta = self.server.request_context.meta
+            except LookupError:
+                meta = None
             deadline = (meta.model_extra or {}).get("pilotdeck/operationDeadlineMs") if meta else None
             return await self.call_tool(name, arguments or {}, operation_deadline_ms=deadline)
 
@@ -320,7 +345,25 @@ class CATIAMCPServer:
         if (name == "catia_build_part" and deadline_ms is not None
                 and time.time_ns() // 1_000_000 >= deadline_ms):
             return failure("OPERATION_DEADLINE_EXPIRED", "Operation deadline expired while queued.", "queue", False, name)
-        return self._execute_tool(name, arguments)
+        result = self._execute_tool(name, arguments)
+        # A deadline expiring during execution is recorded as a fact. It does
+        # not cancel the work and does not convert a known result to unknown.
+        if (name == "catia_build_part" and deadline_ms is not None
+                and time.time_ns() // 1_000_000 >= deadline_ms):
+            payload = result if isinstance(result, dict) else getattr(result, "structuredContent", None)
+            if isinstance(payload, dict):
+                diagnostics = payload.setdefault("diagnostics", [])
+                if isinstance(diagnostics, list):
+                    diagnostics.append({
+                        "code": "OPERATION_DEADLINE_EXPIRED_DURING_EXECUTION",
+                        "message": "The host deadline expired while the build was running; "
+                                   "the model state is reported as observed, not cancelled.",
+                    })
+                if not isinstance(result, dict):
+                    # Keep the text fallback and structured content from the same source.
+                    result.content = [TextContent(type="text", text=json.dumps(
+                        payload, ensure_ascii=False, allow_nan=False, indent=2))]
+        return result
 
     def _execute_tool(self, name: str, arguments: dict[str, Any]) -> CallToolResult:
         module = self._tool_router.get(name)
@@ -335,6 +378,9 @@ class CATIAMCPServer:
                 arguments = self.generation_scope.prepare(name, arguments)
             except (ValueError, OSError) as error:
                 return failure("GENERATION_SCOPE_DENIED", str(error), "validate", False, name)
+        # Shadow structural check: registered edit contracts only; result is
+        # recorded for parity and never changes routing or execution.
+        self._record_shadow_check(name, arguments)
         logger.info("Tool call: %s(%s)", name, arguments)
         stage = "connect"
         try:
@@ -355,6 +401,9 @@ class CATIAMCPServer:
                     return failure("GENERATION_INPUT_CHANGED", str(error), "post_execute",
                                    None if name == "catia_build_part" else False, name)
             if isinstance(result, dict):
+                # Output-side shadow check: records malformed receipts without
+                # changing the returned bytes or re-running the executor.
+                record_result_shadow(result)
                 logger.info("Tool result: %s %s", name, result.get("code"))
                 if result.get("ok") is not True and name == "catia_build_part":
                     failure_detail = ((result.get("data") or {}).get("failure") or {})

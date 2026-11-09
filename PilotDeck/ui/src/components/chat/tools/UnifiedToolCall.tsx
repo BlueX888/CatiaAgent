@@ -3,7 +3,7 @@ import { isVideoDeliverable, videoAttachment } from './videoPresentation';
 import GeneratedImageCard from './GeneratedImageCard';
 import { hasImageAttachment, isDrawingTool, isImageDeliverable } from './imagePresentation';
 import { useMemo, useState } from 'react';
-import { Check, ChevronRight, FileText, Globe, Loader2, Pencil, Search, Terminal, Wrench, X } from 'lucide-react';
+import { AlertTriangle, Check, ChevronRight, FileText, Globe, Loader2, Pencil, Search, Terminal, Wrench, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ChatMessage } from '../types/types';
 import type { Project } from '../../../types/app';
@@ -14,6 +14,63 @@ import { ToolDetails } from './components/ToolDetails';
 import { displayText, objectValue, resultText, shellOutput } from './toolPresentation';
 
 type DiffLine = { type: string; content: string; lineNum: number };
+
+type CatiaUiStatus = { kind: 'verified' | 'failed' | 'unknown' | 'pending' | 'neutral'; detail?: string; delivery?: string };
+
+function recordValue(value: unknown): Record<string, unknown> | undefined {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown> : undefined;
+}
+
+function catiaReceipt(result: unknown): Record<string, unknown> | undefined {
+  const outer = recordValue(result);
+  if (!outer) return undefined;
+  const direct = recordValue(outer.toolUseResult);
+  if (direct && ('ok' in direct || 'code' in direct)) return direct;
+  const content = recordValue(outer.content);
+  if (content && ('ok' in content || 'code' in content)) return content;
+  return direct;
+}
+
+export function catiaUiStatus(toolName: string, result: unknown): CatiaUiStatus | undefined {
+  if (!/^catia_/.test(toolName)) return undefined;
+  if (result === null || result === undefined) return { kind: 'pending' };
+  const receipt = catiaReceipt(result);
+  if (!receipt) return { kind: 'unknown', detail: 'No machine-readable CATIA receipt; verify read-only.' };
+  const data = recordValue(receipt.data) ?? {};
+  const effects = recordValue(receipt.effects) ?? {};
+  const modified = effects.modified;
+  const code = String(receipt.code ?? '');
+  const businessState = String(data.businessState ?? '');
+  if (businessState === 'session_unknown' || code === 'VERIFIER_SESSION_UNKNOWN' || modified === null) {
+    return { kind: 'unknown', detail: 'Status unknown — verify read-only; do not retry or create a new operation id.' };
+  }
+  const decision = String(data.decision ?? '');
+  if (decision === 'needs_clarification' || code === 'NEEDS_CLARIFICATION') {
+    return { kind: 'neutral', detail: 'Waiting for clarification; no model change was made.' };
+  }
+  if (decision === 'unsupported' || code === 'UNSUPPORTED_CAPABILITY') {
+    return { kind: 'neutral', detail: 'Capability not supported; no model change was made.' };
+  }
+  if (decision === 'planned') {
+    return { kind: 'neutral', detail: 'Plan compiled; no model change has been applied yet.' };
+  }
+  const verification = recordValue(data.verification) ?? {};
+  const delivery = recordValue(data.delivery) ?? {};
+  const verdict = String(verification.verdict ?? data.verdict ?? '');
+  if (receipt.ok === true && code === 'BUILD_COMPLETED' && verdict === 'PASS'
+    && typeof delivery.path === 'string' && delivery.path.length > 0) {
+    return { kind: 'verified', detail: 'Independently verified delivery', delivery: delivery.path };
+  }
+  if (verdict === 'PASS' && receipt.ok === true) {
+    return { kind: 'verified', detail: 'Verified result' };
+  }
+  if (receipt.ok === false || verdict === 'FAIL') {
+    return { kind: 'failed', detail: String((recordValue(data.failure) ?? {}).reason ?? '').slice(0, 500) || undefined };
+  }
+  return { kind: 'unknown', detail: 'Receipt is incomplete; verify read-only.' };
+}
+
 
 export function usesUnifiedToolCall(message: ChatMessage): boolean {
   return !message.isSubagentContainer && !['TodoWrite', 'TodoRead', 'todo_write', 'todo_read', 'TaskCreate', 'TaskUpdate', 'TaskList', 'TaskGet', 'Task', 'Agent', 'AskUserQuestion', 'exit_plan_mode', 'ExitPlanMode', 'ExitPlanModeV2'].includes(getCanonicalToolName(message.toolName || ''));
@@ -35,6 +92,7 @@ export function UnifiedToolCall({ message, createDiff, onFileOpen, selectedProje
   const input = useMemo(() => objectValue(message.toolInput), [message.toolInput]);
   const config = getToolConfig(message.toolName || '', commonT);
   const result = message.toolResult;
+  const catia = catiaUiStatus(name, result);
   const shell = useMemo(() => shellOutput(result), [result]);
   const isShell = name === 'Bash';
   const isEdit = ['Edit', 'Write', 'ApplyPatch'].includes(name);
@@ -65,12 +123,18 @@ export function UnifiedToolCall({ message, createDiff, onFileOpen, selectedProje
   const resultDetails = !config.result?.hidden && !config.result?.hideOnSuccess && config.result?.type === 'collapsible' && !['text', 'success-message', 'file-list'].includes(config.result.contentType || '');
   const files = objectValue(result?.toolUseResult);
   const hasFileList = [files.files, files.filenames].some(value => Array.isArray(value) && value.length > 0);
+  const leafStatus = catia?.kind === 'verified' ? <><Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" /><span>Verified delivery</span></>
+    : catia?.kind === 'failed' ? <><X className="h-3.5 w-3.5 text-red-500" /><span>Failed</span></>
+    : catia?.kind === 'unknown' ? <><AlertTriangle className="h-3.5 w-3.5 text-amber-500" /><span>Status unknown</span></>
+    : catia?.kind === 'neutral' ? <><AlertTriangle className="h-3.5 w-3.5 text-neutral-500" /><span>{catia.detail}</span></>
+    : null;
   const footer = result && !externalError ? <>
-    {result.isError ? <X className="h-3.5 w-3.5 text-red-500" /> : <Check className="h-3.5 w-3.5" />}
-    <span>{t(result.isError ? 'toolDisplay.failed' : 'toolDisplay.success')}</span>
+    {leafStatus ?? <>{result.isError ? <X className="h-3.5 w-3.5 text-red-500" /> : <Check className="h-3.5 w-3.5" />}
+    <span>{t(result.isError ? 'toolDisplay.failed' : 'toolDisplay.success')}</span></>}
+    {catia?.kind === 'verified' && catia.delivery && <span>· {catia.delivery}</span>}
     {isShell && shell.exitCode !== undefined && <span>· {t('toolDisplay.exitCode', { code: shell.exitCode })}</span>}
     {typeof duration === 'number' && duration >= 0 && <span>· {(duration / 1000).toFixed(1)}s</span>}
-  </> : <span>{t(active ? 'toolDisplay.executing' : externalError ? 'toolDisplay.actionRequired' : 'toolDisplay.noResult')}</span>;
+  </> : <span>{t(active ? 'toolDisplay.executing' : externalError ? 'toolDisplay.actionRequired' : catia?.kind === 'pending' ? 'toolDisplay.executing' : 'toolDisplay.noResult')}</span>;
   return (
     <div className="tool-call min-w-0 py-1" data-tool-id={message.toolId}>
       <div className="flex min-w-0 items-center gap-2 text-[13px] leading-6 text-neutral-500 dark:text-neutral-400">
@@ -99,6 +163,7 @@ export function UnifiedToolCall({ message, createDiff, onFileOpen, selectedProje
               : <pre className="whitespace-pre-wrap break-words font-mono">{output || t('toolDisplay.noOutput')}</pre>}
           </> : <span className="text-neutral-400">{t(active ? 'toolDisplay.executing' : 'toolDisplay.noResult')}</span>)}
         </ToolDetails>}
+        {catia?.kind === 'unknown' && <p role="status" className="ml-[22px] text-xs text-amber-600 dark:text-amber-400">{catia.detail}</p>}
       </div>}
     </div>
   );

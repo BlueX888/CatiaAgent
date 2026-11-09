@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "Effects": {
+      "additionalProperties": false,
+      "properties": {
+        "modified": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Modified"
+        }
+      },
+      "required": [
+        "modified"
+      ],
+      "title": "Effects",
+      "type": "object"
+    },
+    "Recovery": {
+      "additionalProperties": false,
+      "properties": {
+        "automatic_retry_allowed": {
+          "title": "Automatic Retry Allowed",
+          "type": "boolean"
+        },
+        "next_actions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Next Actions",
+          "type": "array"
+        },
+        "rollback_supported": {
+          "title": "Rollback Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "rollback_supported",
+        "automatic_retry_allowed"
+      ],
+      "title": "Recovery",
+      "type": "object"
+    }
+  },
+  "$id": "https://catia.local/contracts/catia/v1/schema/build-result.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "code": {
+      "minLength": 1,
+      "title": "Code",
+      "type": "string"
+    },
+    "data": {
+      "additionalProperties": true,
+      "title": "Data",
+      "type": "object"
+    },
+    "diagnostics": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Diagnostics",
+      "type": "array"
+    },
+    "effects": {
+      "$ref": "#/$defs/Effects"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "ok": {
+      "title": "Ok",
+      "type": "boolean"
+    },
+    "operation_id": {
+      "minLength": 1,
+      "title": "Operation Id",
+      "type": "string"
+    },
+    "recovery": {
+      "$ref": "#/$defs/Recovery"
+    },
+    "tool": {
+      "minLength": 1,
+      "title": "Tool",
+      "type": "string"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "ok",
+    "code",
+    "operation_id",
+    "tool",
+    "message",
+    "data",
+    "effects",
+    "recovery"
+  ],
+  "title": "build-result",
+  "type": "object"
+}

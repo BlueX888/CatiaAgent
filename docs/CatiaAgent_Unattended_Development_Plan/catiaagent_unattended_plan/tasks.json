@@ -1,0 +1,2712 @@
+{
+  "schema_version": "catiaagent-development-plan/1",
+  "plan_version": "1.0",
+  "title": "CatiaAgent 无人值守架构演进与开发执行规划",
+  "created_date": "2026-11-09",
+  "timezone": "Etc/UTC",
+  "repository": "https://github.com/BlueX888/CatiaAgent",
+  "reviewed_commit": "b58e40bc0b8ad0152b4afc854757e6b4f4b094c9",
+  "execution_started": false,
+  "authority_note": "本文件描述待实施任务；实际操作遵循执行会话已有授权。",
+  "default_scope": "core",
+  "max_parallel_code_tasks": 2,
+  "max_catia_writers_per_instance": 1,
+  "task_budget_minutes": 45,
+  "max_repair_attempts": 2,
+  "production_file_soft_limit": 4,
+  "states": [
+    "PENDING",
+    "READY",
+    "RUNNING",
+    "VERIFYING",
+    "DONE",
+    "BLOCKED_ENV",
+    "BLOCKED_BASELINE",
+    "BLOCKED_CONTRACT",
+    "FAILED"
+  ],
+  "gate_ids": [
+    "G0",
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "G6"
+  ],
+  "command_ids": [
+    "C01",
+    "C02",
+    "C03",
+    "C04",
+    "C05",
+    "C06",
+    "C07",
+    "C08",
+    "C09",
+    "C10"
+  ],
+  "test_run_protocol": {
+    "version": "catiaagent-test-run/1",
+    "path_variables": [
+      "REPO_ROOT",
+      "RUN_ROOT"
+    ],
+    "executable_variables": [
+      "PYTHON_OFFLINE",
+      "PYTHON_CAD_SUPPORT",
+      "NODE",
+      "PNPM"
+    ],
+    "variable_source": "T00/T01 register absolute paths; never resolve from model text or shell interpolation",
+    "new_entrypoint_policy": "May run inside its owner task after creation; downstream use requires owner DONE",
+    "reports": [
+      "junit",
+      "tap",
+      "vitest-json",
+      "contract-wheel-check/1"
+    ],
+    "pass_requires": [
+      "exit_code_zero",
+      "expected_report_present",
+      "mandatory_checks_executed",
+      "no_failed_checks",
+      "no_unapproved_skip",
+      "source_fingerprint_match"
+    ],
+    "contract_wheel_check_report": {
+      "schema_version": "contract-wheel-check/1",
+      "source_fingerprint": "actual fingerprint supplied by gate runner",
+      "checks": [
+        {
+          "id": "one mandatory_check_id",
+          "passed": true,
+          "evidence_path": "absolute actual artifact path"
+        }
+      ],
+      "note": "All required IDs must appear exactly once and pass; missing, duplicate or unsupported fields cannot substitute for a check"
+    }
+  },
+  "task_result_template": "task-result.template.json",
+  "state_template": "execution_state.template.json",
+  "tasks": [
+    {
+      "id": "T00",
+      "title": "建立真实仓库和环境清单",
+      "phase": "P0",
+      "dependencies": [],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "README.md",
+        "项目需求.md",
+        "PilotDeck/AGENTS.md",
+        "PilotDeck/CONTRIBUTING.md",
+        "PilotDeck/src/README.md",
+        "catia-v5-mcp-server/pyproject.toml",
+        "docs/OrlaMechCAD-PilotDeck-无人值守开发计划.md"
+      ],
+      "allowed_write_paths": [
+        "RUN_ROOT/environment.json",
+        "RUN_ROOT/repository-map.json",
+        "RUN_ROOT/execution_state.json"
+      ],
+      "steps": [
+        "分别确认聚合根和两个组件的实际 Git 根、HEAD、分支及已有修改，保存不含密钥的环境摘要。",
+        "登记 Python、Node、pnpm、CATIA、CAD support、模型连接与测试件是否真实可用；只读探测，不自动启动 CAD 写操作。",
+        "将历史盘符映射为实际工作路径，确定隔离工作区、运行目录及执行会话的操作范围。",
+        "记录旧文档与源码差异，确认 referenceGeometry 已存在、根 CI 待接线，缺失资源标记 unavailable。"
+      ],
+      "acceptance_assertions": [
+        "清单有实际 SHA、工作区指纹和修改清单；用户文件未变化。",
+        "所有后续路径都能从 repository-map 解析；未获得的环境值是 null 并附原因。"
+      ],
+      "required_gates": [
+        "G0"
+      ],
+      "existing_command_ids": [
+        "C01"
+      ],
+      "new_test_paths": [],
+      "stop_conditions": [
+        "无法确定真实仓库或隔离会覆盖用户修改。",
+        "将旧文档路径、旧通过数量当作本机事实。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T01",
+      "title": "运行并冻结各环境的原始基线",
+      "phase": "P0",
+      "dependencies": [
+        "T00"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/tests/conftest.py",
+        "catia-v5-mcp-server/.github/workflows/ci.yml",
+        "PilotDeck/package.json",
+        "PilotDeck/ui/vite.config.js"
+      ],
+      "allowed_write_paths": [
+        "RUN_ROOT/baseline/**",
+        "RUN_ROOT/constraints/**",
+        "RUN_ROOT/gate-baseline.json"
+      ],
+      "steps": [
+        "在独立环境解析依赖并记录完整版本，保留现有锁文件；不将 Linux 源码测试冒充完整产品安装。",
+        "运行当前可用的 C03 和 C04 至 C06；Windows 可用时运行 C07/C08。",
+        "逐个记录收集、通过、失败、跳过和预期失败的 test ID；必需环境缺失单独登记。",
+        "给每个基线失败记录是否影响本轮契约范围；不修改生产代码来制造基线。"
+      ],
+      "acceptance_assertions": [
+        "每条基线绑定命令、cwd、环境、源码指纹和原始报告。",
+        "基线发现任务可以 DONE，但不可用门禁仍为 BLOCKED_ENV，不被写成 PASS。"
+      ],
+      "required_gates": [
+        "G0"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C04",
+        "C05",
+        "C06",
+        "C07",
+        "C08"
+      ],
+      "new_test_paths": [],
+      "stop_conditions": [
+        "相关基线失败原因不清，后续生产修改须等待分类。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T02",
+      "title": "冻结契约语料和三类计划哈希",
+      "phase": "P0",
+      "dependencies": [
+        "T01"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/editing/validation.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/plan.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_model.py",
+        "catia-v5-mcp-server/tests/test_feature_model.py",
+        "PilotDeck/src/tool/protocol/catiaFailureStatus.ts"
+      ],
+      "allowed_write_paths": [
+        "contracts/catia/v1/fixtures/**",
+        "contracts/catia/v1/corpus-index.json",
+        "catia-v5-mcp-server/tests/test_contract_baseline.py"
+      ],
+      "steps": [
+        "用现有测试和原实现建立第 10 节语料，每条写明 oracle 来源及结构/领域/副作用预期。",
+        "为编辑计划、普通 build plan 和 feature plan 分别固定原始 JSON 字节及摘要。",
+        "收录合法表达式、澄清别名、unknown 结果、text 与 structuredContent 不一致等负例。"
+      ],
+      "acceptance_assertions": [
+        "不改生产逻辑即可验证基线语料；语料没有密钥和客户文件。",
+        "必需情形全部在索引出现，禁止用新模型自动重录 oracle。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_baseline.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T02-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_baseline.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_baseline.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T02/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T02/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T03",
+      "title": "实现开发门禁和可恢复任务账本",
+      "phase": "P0",
+      "dependencies": [
+        "T01"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "tasks.json",
+        "execution_state.template.json",
+        "task-result.template.json"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/gate.py",
+        "scripts/architecture/task_state.py",
+        "scripts/architecture/command_profiles.json",
+        "scripts/architecture/tests/test_gate.py",
+        "scripts/architecture/tests/test_task_state.py"
+      ],
+      "steps": [
+        "按 argv 数组运行固定命令，并机械执行任务 test_runs 的 runner、cwd、argv 与报告映射；不临时猜测测试运行器。产物目录由 RUN_ROOT 分配。",
+        "实现依赖检查、单任务领取、原子状态更新、源码指纹绑定和中断后恢复，不加入云调度服务。",
+        "用合成报告演练零收集、必跑 skip、报告缺失、版本不一致及预算耗尽。",
+        "命令登记表区分现有入口与本任务以后创建的入口，未存在的命令直接阻塞。"
+      ],
+      "acceptance_assertions": [
+        "零收集、缺报告、必跑 skip 和非零退出码均不能产生 PASS。",
+        "两个执行者无法同时领取同一任务；旧源码报告不能认证新修改。",
+        "监督器从不自动重放 CAD 操作。"
+      ],
+      "required_gates": [
+        "G0"
+      ],
+      "existing_command_ids": [],
+      "new_test_paths": [
+        "scripts/architecture/tests/test_gate.py",
+        "scripts/architecture/tests/test_task_state.py"
+      ],
+      "stop_conditions": [
+        "实现依赖修改产品 CAD 状态机或另建远程任务平台。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T03-test-01",
+          "source_path": "scripts/architecture/tests/test_gate.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "scripts/architecture/tests/test_gate.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T03/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T03/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T03-test-02",
+          "source_path": "scripts/architecture/tests/test_task_state.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "scripts/architecture/tests/test_task_state.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T03/test-runs/02/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T03/test-runs/02/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T04",
+      "title": "建立纯 Python 契约模块与依赖",
+      "phase": "P1",
+      "dependencies": [
+        "T02",
+        "T03"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/pyproject.toml",
+        "catia-v5-mcp-server/requirements.txt",
+        "catia-v5-mcp-server/catia_mcp/server.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/pyproject.toml",
+        "catia-v5-mcp-server/requirements.txt",
+        "catia-v5-mcp-server/catia_mcp/contracts/__init__.py",
+        "catia-v5-mcp-server/catia_mcp/contracts/base.py",
+        "catia-v5-mcp-server/catia_mcp/contracts/errors.py",
+        "catia-v5-mcp-server/tests/test_contract_foundation.py"
+      ],
+      "steps": [
+        "声明经基线解析验证的 Pydantic v2 直接依赖，保持 Python 3.10 兼容。",
+        "定义明确的封闭结构策略、wire 字段别名、missing/null 处理和错误路径适配。",
+        "契约模块只依赖纯类型与 Pydantic；不读取文件、不连接 COM、不 import coordinator。"
+      ],
+      "acceptance_assertions": [
+        "contracts 在无 pywin32 的纯逻辑环境可导入。",
+        "数字布尔值、非有限值、未知字段、缺失与 null 的策略有具体断言。",
+        "生产调用路径尚未切换。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_foundation.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T04-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_foundation.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_foundation.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T04/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T04/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T05",
+      "title": "为意图草稿建立兼容结构模型",
+      "phase": "P1",
+      "dependencies": [
+        "T04"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/editing/intent.py",
+        "catia-v5-mcp-server/catia_mcp/tools/editing.py",
+        "catia-v5-mcp-server/docs/cad-intent-v1.md",
+        "catia-v5-mcp-server/tests/test_editing_intent.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/intent.py",
+        "catia-v5-mcp-server/tests/test_contract_intent.py"
+      ],
+      "steps": [
+        "分别定义完整 Wire 接受集和 Canonical 表示，按 planned、needs_clarification、unsupported 分支建模，别名在 wire Schema 中显式出现。",
+        "缺单位、参数和方向保持可见；归一化只做现有明确别名映射。",
+        "建立与原 compile_intent 输出的差分测试，本任务不重写编译器。"
+      ],
+      "acceptance_assertions": [
+        "澄清和不支持分支可表示不完整草稿。",
+        "模型不会选第一个候选、猜 mm、伪造用户确认或改写 host 文本来源。",
+        "原有可执行/澄清/拒绝分界保持。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_intent.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T05-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_intent.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_intent.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T05/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T05/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T06",
+      "title": "为编辑计划建立结构模型",
+      "phase": "P1",
+      "dependencies": [
+        "T04"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/editing/validation.py",
+        "catia-v5-mcp-server/catia_mcp/tools/editing.py",
+        "catia-v5-mcp-server/tests/test_editing_offline.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/edit_plan.py",
+        "catia-v5-mcp-server/tests/test_contract_edit_plan.py"
+      ],
+      "steps": [
+        "建立 WireParameterChange、分类型 Acceptance 和 EditPlan，逐项对齐既有字段与范围；integer 沿既有数学整数语义接受合法 1.0，拒绝 true 和字符串 1。",
+        "验证通过后保留原 wire dict 用于旧哈希；不直接以 model_dump 替换计划。",
+        "领域判断仍调用 validate_plan，覆盖多错误聚合、revision、oldValue 和可写性。"
+      ],
+      "acceptance_assertions": [
+        "三类哈希基线无变化；字段名和错误码/path 无未登记变化。",
+        "布尔值不可冒充尺寸；有效角度与长度规则不混淆。",
+        "模型类型名称不被当作执行信任凭证。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_edit_plan.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T06-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_edit_plan.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_edit_plan.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T06/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T06/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T07",
+      "title": "建立结果外壳和关键业务载荷",
+      "phase": "P1",
+      "dependencies": [
+        "T04"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/results.py",
+        "PilotDeck/src/tool/protocol/catiaFailureStatus.ts"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/results.py",
+        "catia-v5-mcp-server/tests/test_contract_results.py"
+      ],
+      "steps": [
+        "定义 Effects、Recovery 和现有结果外壳；针对建模成功、确定失败和未知状态定义关键载荷。",
+        "让 modified 必填且严格保留 true/false/null；不改变 automatic_retry_allowed 语义。",
+        "为矛盾 code、ok、businessState、verification、delivery 组合建立拒绝样本。"
+      ],
+      "acceptance_assertions": [
+        "已有合法结果保持 wire 字段和空值语义。",
+        "unknown 不变成未修改，畸形成功回执不能通过业务判定。",
+        "模型不凭字段存在声称实际几何已验证。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_results.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T07-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_results.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_results.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T07/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T07/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T08",
+      "title": "建立 CAD support 响应模型",
+      "phase": "P1",
+      "dependencies": [
+        "T04"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_workflow.py",
+        "catia-v5-mcp-server/catia_mcp/cad_support_client.py",
+        "catia-v5-mcp-server/tests/test_material_inconclusive.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/cad_support.py",
+        "catia-v5-mcp-server/tests/test_contract_cad_support.py"
+      ],
+      "steps": [
+        "对 evaluate 成功、候选拒绝、运行失败、比较不确定建立分类型响应。",
+        "约束 reason、budget、attemptCount、candidateCount 和 volumeDiagnostics 的结构与有限数值。",
+        "保留现有数值一致性、可信度和 verdict 判断，模型不将 INCONCLUSIVE 转为 PASS。"
+      ],
+      "acceptance_assertions": [
+        "所有第 10 节相关响应有正负样本。",
+        "partial/unknown 与普通参数错误分开，字段缺失不以默认零值隐藏。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_cad_support.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T08-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_cad_support.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_cad_support.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T08/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T08/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T09",
+      "title": "将编辑输入模型接入服务入口",
+      "phase": "P2",
+      "dependencies": [
+        "T05",
+        "T06"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/server.py",
+        "catia-v5-mcp-server/catia_mcp/tools/editing.py",
+        "catia-v5-mcp-server/catia_mcp/generation_scope.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/dispatch.py",
+        "catia-v5-mcp-server/catia_mcp/server.py",
+        "catia-v5-mcp-server/catia_mcp/tools/editing.py",
+        "catia-v5-mcp-server/tests/test_contract_dispatch.py"
+      ],
+      "steps": [
+        "只对登记的编辑契约安装 shadow 适配器，保留 jsonschema、路由及其他工具行为；active 由 T16 推广。",
+        "PydanticValidationError 使用别名；映射到既有错误格式。",
+        "普通与 generation mode 继续使用每实例有效策略；用 spy 证明入参错误在连接和执行前终止。"
+      ],
+      "acceptance_assertions": [
+        "非法输入的 ensure_connected 与工具执行次数均为零。",
+        "动态 evidencePath、requireEvidence、editCheck、expected 限制不被弱化。",
+        "澄清分支仍进入原业务判断且不产生写入。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_dispatch.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T09-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_dispatch.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_dispatch.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T09/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T09/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T10",
+      "title": "将结果模型接入现有返回路径",
+      "phase": "P2",
+      "dependencies": [
+        "T07",
+        "T08"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/results.py",
+        "catia-v5-mcp-server/catia_mcp/server.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_workflow.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/results.py",
+        "catia-v5-mcp-server/catia_mcp/server.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_workflow.py",
+        "catia-v5-mcp-server/tests/test_contract_output_effects.py"
+      ],
+      "steps": [
+        "在现有结果封装和辅助响应边界安装 shadow 适配器，保留字典返回接口和现有生产决策；active 由 T16 推广。",
+        "执行后校验异常保留原诊断、已知副作用或 null，不转换为零写入参数错误。",
+        "active 的失败路径使用独立最小构造器，不能在 except 中再次调用同一个出错结果工厂；保持 text JSON 与 structuredContent 同源。"
+      ],
+      "acceptance_assertions": [
+        "输出校验失败时执行器只被调用一次。",
+        "modified=None 和既有失败传播保持；不因验证失败自动重试。",
+        "现有客户端成功/失败样本判定不变。"
+      ],
+      "required_gates": [
+        "G1",
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_output_effects.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T10-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_output_effects.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_output_effects.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T10/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T10/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T11",
+      "title": "为特征语言建立基础类型",
+      "phase": "P2",
+      "dependencies": [
+        "T04"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_schema.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_model.py",
+        "catia-v5-mcp-server/tests/test_feature_model.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/feature_primitives.py",
+        "catia-v5-mcp-server/tests/test_contract_feature_primitives.py"
+      ],
+      "steps": [
+        "分别定义 Wire 参数、点、向量、证据引用、compact 形式、表达式 union 和 Canonical 类型，不迁移特征编译流程。",
+        "建立 compact 与对象表示的兼容适配测试，保留现有字符串表达式语言。",
+        "把静态字段范围与依赖证据/量纲的领域规则分别标注。"
+      ],
+      "acceptance_assertions": [
+        "合法零表达式和完整回转表示维持原行为。",
+        "非法未经引用尺寸仍由领域层拒绝，不能先 float 化。",
+        "类型模块无 COM 和 I/O。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_feature_primitives.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T11-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_feature_primitives.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_feature_primitives.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T11/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T11/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T12",
+      "title": "逐个特征变体接入结构适配",
+      "phase": "P2",
+      "dependencies": [
+        "T11"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_model.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_executor.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_schema.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/features.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_model.py",
+        "catia-v5-mcp-server/tests/test_contract_features.py"
+      ],
+      "steps": [
+        "按 pad/pocket、shaft/groove、fillet/chamfer 顺序形成可独立验证的小批次；每批保留检查点。",
+        "以 shadow 模式适配结构后调用原表达式、证据和特征依赖校验，不重排输入；T16 决定 active。",
+        "保留执行前重建需求并重新编译计划的防篡改检查。"
+      ],
+      "acceptance_assertions": [
+        "各批次语料与原实现一致；依赖前序特征及前一实体状态规则不变。",
+        "三类哈希、旧结果决策及编译产物不发生未批准变化。",
+        "任何一个变体失败仅阻塞该批次，不能禁用整个领域验证。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_features.py"
+      ],
+      "stop_conditions": [
+        "需要改写特征 DSL、支持范围或几何算法才能让模型通过。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T12-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_features.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_features.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T12/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T12/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T13",
+      "title": "导出完整 Schema 和可打包契约",
+      "phase": "P2",
+      "dependencies": [
+        "T05",
+        "T06",
+        "T07",
+        "T08",
+        "T12"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/tools/editing.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/tools.py",
+        "PilotDeck/tsconfig.json"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/export.py",
+        "scripts/architecture/export_contracts.py",
+        "scripts/architecture/check_contract_wheel.py",
+        "contracts/catia/v1/schema/**",
+        "contracts/catia/v1/registry.json",
+        "PilotDeck/src/tool/protocol/generated/catiaContracts.ts",
+        "catia-v5-mcp-server/tests/test_contract_schema_export.py",
+        "scripts/architecture/tests/test_contract_wheel.py"
+      ],
+      "steps": [
+        "从完整 Wire 模型生成工具参数 Schema 及元数据注册表，旧契约族继续登记为 legacy，迁移族暂为 shadow。",
+        "检验全部 refs、Dialect、别名与包资源路径；生成 TS 可编译的常量副本。",
+        "生成器输出确定，连续运行两次零差异；不手改生成物。Python 运行时由包内模型生成 Schema，无静态 JSON 包资源依赖。",
+        "构建 wheel 并解包到独立临时目录，离开源码 cwd 后加载包内 contracts/export 并编译 Schema；检查包内容与依赖元数据，Windows G3 再验证正常安装。",
+        "保持运行时动态策略独立，记录结构规则与 Python 自定义验证器规则的边界。",
+        "check_contract_wheel.py 实现 test_runs 规定的 --server-root 和 --out 参数，输出 contract-wheel-check/1 JSON；每项检查有布尔结果和证据路径，任一失败或缺项退出非零。T03 包装器按这一确定格式判定。"
+      ],
+      "acceptance_assertions": [
+        "所有发布 Schema 可独立编译；嵌套 refs 从根正确解析。",
+        "分发包和 dist 含必要资源，运行时不访问源码仓库兄弟目录。",
+        "生成摘要与源码注册表一致。"
+      ],
+      "required_gates": [
+        "G1",
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C05"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_schema_export.py",
+        "scripts/architecture/tests/test_contract_wheel.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T13-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_schema_export.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_schema_export.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T13/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T13/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T13-test-02",
+          "source_path": "scripts/architecture/tests/test_contract_wheel.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "scripts/architecture/tests/test_contract_wheel.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T13/test-runs/02/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T13/test-runs/02/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T13-wheel-check",
+          "source_path": "scripts/architecture/check_contract_wheel.py",
+          "runner": "python-check",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "scripts/architecture/check_contract_wheel.py",
+            "--server-root",
+            "{REPO_ROOT}/catia-v5-mcp-server",
+            "--out",
+            "{RUN_ROOT}/tasks/T13/wheel-check.json"
+          ],
+          "requires_build": false,
+          "report_format": "contract-wheel-check/1",
+          "report_path": "{RUN_ROOT}/tasks/T13/wheel-check.json",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": [],
+          "mandatory_check_ids": [
+            "wheel_built",
+            "contracts_packaged",
+            "dependency_metadata",
+            "isolated_import",
+            "schema_compilation"
+          ]
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T14",
+      "title": "增加 CATIA 专用 Ajv 验证适配器",
+      "phase": "P3",
+      "dependencies": [
+        "T13"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "PilotDeck/src/tool/execution/validateToolInput.ts",
+        "PilotDeck/src/tool/protocol/schema.ts",
+        "PilotDeck/package.json",
+        "PilotDeck/src/mcp/runtime/PluginToToolBridge.ts"
+      ],
+      "allowed_write_paths": [
+        "PilotDeck/package.json",
+        "PilotDeck/pnpm-lock.yaml",
+        "PilotDeck/src/tool/protocol/catiaContractValidator.ts",
+        "PilotDeck/src/mcp/runtime/PluginToToolBridge.ts",
+        "PilotDeck/tests/tool/protocol/catia-contract-validator.spec.ts"
+      ],
+      "steps": [
+        "新增经兼容验证的 Ajv 8 直接依赖，使用 Draft 2020-12 入口。",
+        "显式关闭 coercion、default 注入和 removeAdditional；使用本地注册 schema、缓存验证器。",
+        "active 且版本和允许有效摘要匹配才进入 Ajv；登记 legacy 沿原路径，shadow 仅差分。已知契约的不支持版本、缺标识或摘要未知均拒绝。",
+        "普通与 generation mode 的有效 Schema 分别测试，不能换成本地更宽松的基础 Schema。非 CATIA 工具不受影响。",
+        "覆盖 refs、union、const、prefixItems、数值范围以及 discriminator 派生表示。"
+      ],
+      "acceptance_assertions": [
+        "结构正负语料全部符合预期；原输入对象未变。",
+        "不自动下载远程 schema，不用全局 strict=false 消除错误。",
+        "非 CATIA 工具默认行为不变。"
+      ],
+      "required_gates": [
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "PilotDeck/tests/tool/protocol/catia-contract-validator.spec.ts"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T14-test-01",
+          "source_path": "PilotDeck/tests/tool/protocol/catia-contract-validator.spec.ts",
+          "runner": "node-test",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/tool/protocol/catia-contract-validator.spec.js"
+          ],
+          "requires_build": true,
+          "report_format": "tap",
+          "report_path": "{RUN_ROOT}/tasks/T14/test-runs/01/results.tap",
+          "report_from_stdout": true,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T15",
+      "title": "核对模型供应商的 Schema 适配",
+      "phase": "P3",
+      "dependencies": [
+        "T14"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "PilotDeck/src/model/providers/openai/schema.ts",
+        "PilotDeck/src/model/providers/google/schema.ts",
+        "PilotDeck/tests/model/request/openaiSchema.spec.ts"
+      ],
+      "allowed_write_paths": [
+        "PilotDeck/src/model/providers/openai/schema.ts",
+        "PilotDeck/src/model/providers/google/schema.ts",
+        "PilotDeck/tests/model/request/catia-schema-compatibility.spec.ts"
+      ],
+      "steps": [
+        "对当前实际启用的 provider 路径逐一传递真实工具 Schema，记录其派生格式。",
+        "只修复必要的转换，不把 provider 能力限制回写成更宽松的服务端契约。",
+        "未配置模型账号时只完成离线转换测试，把真实请求兼容性留给目标环境验证。"
+      ],
+      "acceptance_assertions": [
+        "参数名、required 与枚举含义不丢失；Schema 可以按目标适配规则生成。",
+        "结构转换和真实供应商调用的证据分别记录。",
+        "客户端预检失败仍不能触发 CAD 写入。"
+      ],
+      "required_gates": [
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "PilotDeck/tests/model/request/catia-schema-compatibility.spec.ts"
+      ],
+      "stop_conditions": [
+        "必须降低服务端约束或改变工具语义才能满足 provider。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T15-test-01",
+          "source_path": "PilotDeck/tests/model/request/catia-schema-compatibility.spec.ts",
+          "runner": "node-test",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/model/request/catia-schema-compatibility.spec.js"
+          ],
+          "requires_build": true,
+          "report_format": "tap",
+          "report_path": "{RUN_ROOT}/tasks/T15/test-runs/01/results.tap",
+          "report_from_stdout": true,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T16",
+      "title": "完成跨语言差分并按族推广",
+      "phase": "P3",
+      "dependencies": [
+        "T09",
+        "T10",
+        "T12",
+        "T15"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "contracts/catia/v1/registry.json",
+        "contracts/catia/v1/corpus-index.json",
+        "catia-v5-mcp-server/catia_mcp/server.py",
+        "PilotDeck/src/tool/protocol/catiaContractValidator.ts"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/check_contract_parity.py",
+        "contracts/catia/v1/registry.json",
+        "catia-v5-mcp-server/catia_mcp/tools/editing.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/tools.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_schema.py",
+        "catia-v5-mcp-server/tests/test_contract_parity.py",
+        "PilotDeck/tests/tool/protocol/catia-contract-parity.spec.ts"
+      ],
+      "steps": [
+        "对每个已迁移族运行 Python 模型、导出 Schema、jsonschema 与 Ajv 的结构判定对照。",
+        "单独比较领域决策、错误码/path、序列化摘要和副作用断言，不把领域拒绝当作 Ajv 缺陷。",
+        "每族推广时将 get_tool_definitions 中对应完整 inputSchema 接到 T13 生成源，保留名称、描述、动态策略及 legacy 族。",
+        "按族的小补丁撤除已证明重复的手写结构，保留 feature_schema 的兼容导出入口；以真实 list_tools 回读结果核对 registry 的 active 状态。"
+      ],
+      "acceptance_assertions": [
+        "不存在未解释的结构分歧，三类 hash 基线保持。",
+        "注册表明确 active/legacy，不能长期两套手写结构都自称权威。",
+        "旧客户端样本与新服务兼容，新客户端不误读旧结果。"
+      ],
+      "required_gates": [
+        "G1",
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_parity.py",
+        "PilotDeck/tests/tool/protocol/catia-contract-parity.spec.ts"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T16-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_parity.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_parity.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T16/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T16/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T16-test-02",
+          "source_path": "PilotDeck/tests/tool/protocol/catia-contract-parity.spec.ts",
+          "runner": "node-test",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/tool/protocol/catia-contract-parity.spec.js"
+          ],
+          "requires_build": true,
+          "report_format": "tap",
+          "report_path": "{RUN_ROOT}/tasks/T16/test-runs/02/results.tap",
+          "report_from_stdout": true,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T17",
+      "title": "交付独立可验证的离线检查点",
+      "phase": "P3",
+      "dependencies": [
+        "T03",
+        "T16"
+      ],
+      "activation": "core",
+      "environment": "offline_and_node",
+      "read_paths": [
+        "contracts/catia/v1/registry.json",
+        "RUN_ROOT/execution_state.json",
+        "scripts/architecture/command_profiles.json"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/offline_evidence.py",
+        "scripts/architecture/tests/test_offline_evidence.py",
+        "RUN_ROOT/offline-release/**"
+      ],
+      "steps": [
+        "先完成证据汇总脚本及测试，再冻结本检查点的源码指纹；冻结后只向 RUN_ROOT 写产物。",
+        "在该快照重新运行 G1/G2 必需旧测试及 T02 至 T16 全部已创建的 test_runs，核对语料、Schema 和错误行为差分。",
+        "生成包含补丁、依赖约束、输入语料、报告摘要、已实现范围和未认证范围的离线交付清单。",
+        "G3/G4/G5、远端 CI 或运行状态后续任务不可用时明确写 NOT_VERIFIED 或 BLOCKED_ENV；不依赖这些任务解锁本检查点。"
+      ],
+      "acceptance_assertions": [
+        "G1/G2 的本快照证据齐全才可记录 OFFLINE_READY；这仅覆盖本检查点已完成范围。",
+        "缺 Windows、CATIA、模型凭据或远端执行权限不会阻止真实离线证据交付。",
+        "后续源码变化使当前离线交付状态回到 NOT_VERIFIED，旧报告保留并仅认证旧快照；再次冻结时可重跑此检查点。"
+      ],
+      "required_gates": [
+        "G1",
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "scripts/architecture/tests/test_offline_evidence.py"
+      ],
+      "stop_conditions": [
+        "必需离线测试失败、跳过、报告缺失或源码指纹不一致。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T17-test-01",
+          "source_path": "scripts/architecture/tests/test_offline_evidence.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "scripts/architecture/tests/test_offline_evidence.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T17/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T17/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "all_completed_in_scope_tasks_on_frozen_source"
+    },
+    {
+      "id": "T18",
+      "title": "接入聚合仓库根 CI",
+      "phase": "P3",
+      "dependencies": [
+        "T03",
+        "T16",
+        "T17"
+      ],
+      "activation": "core",
+      "environment": "windows_offline_and_node",
+      "read_paths": [
+        "catia-v5-mcp-server/.github/workflows/ci.yml",
+        "PilotDeck/.github/workflows/web-regression.yml",
+        "scripts/architecture/command_profiles.json"
+      ],
+      "allowed_write_paths": [
+        ".github/workflows/catia-architecture.yml",
+        "scripts/architecture/command_profiles.json"
+      ],
+      "steps": [
+        "在仓库根创建路径触发的工作流，设置正确 cwd，分别运行 G1、G2 和 Windows G3。",
+        "保持锁文件安装和必需测试范围，上传带源码指纹的门禁报告。",
+        "处理 fork/无密钥环境只运行离线测试；真实 CATIA 不在普通托管 runner 上假装运行。",
+        "获得授权后查看一次真实 workflow run；无法提交或远端运行时记录 CI_WIRING_UNVERIFIED。"
+      ],
+      "acceptance_assertions": [
+        "根工作流确实被发现并执行才视为远端接线完成。",
+        "每个 gate 的 cwd、报告路径和状态正确；不能因路径过滤漏掉共享契约变化。",
+        "无密钥的离线回归不访问生产会话。"
+      ],
+      "required_gates": [
+        "G1",
+        "G2",
+        "G3"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C05",
+        "C06",
+        "C07",
+        "C08"
+      ],
+      "new_test_paths": [],
+      "stop_conditions": [
+        "缺少实际提交/远端运行权限时，只完成补丁，不伪造 CI 已通过。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T19",
+      "title": "建立最小运行身份和持久记录",
+      "phase": "P4",
+      "dependencies": [
+        "T07",
+        "T03",
+        "T16"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/editing/journal.py",
+        "PilotDeck/src/session/metadata/SessionMetadataStore.ts",
+        "PilotDeck/src/agent/protocol/events.ts",
+        "PilotDeck/src/mcp/runtime/PluginToToolBridge.ts"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/run_context.py",
+        "catia-v5-mcp-server/catia_mcp/contracts/export.py",
+        "contracts/catia/v1/registry.json",
+        "contracts/catia/v1/schema/run-context.json",
+        "contracts/catia/v1/fixtures/run_context/**",
+        "contracts/catia/v1/corpus-index.json",
+        "PilotDeck/src/tool/protocol/generated/catiaContracts.ts",
+        "PilotDeck/src/tool/protocol/catiaRunContext.ts",
+        "PilotDeck/src/session/metadata/SessionMetadataStore.ts",
+        "PilotDeck/src/mcp/runtime/PluginToToolBridge.ts",
+        "PilotDeck/tests/session/catia-run-context.spec.ts",
+        "catia-v5-mcp-server/tests/test_contract_run_context.py"
+      ],
+      "steps": [
+        "先定位现有 session metadata 与 journal 的归属和恢复入口，写最小字段映射。",
+        "先将 host 专用 RunContext 注册为新契约族，从 Python 模型重新生成 Schema 和 TS 常量；TS 适配器复用生成物，不另写第二套结构。该族不暴露给模型作为可填写权限。",
+        "重新执行 T16 建立的逐族差分与推广规则，只有当前源码指纹的报告通过后才 active；不得沿用 T16 的旧报告。",
+        "增加 host 生成的 run/attempt 关联及版本、输入摘要记录，在现有桥接入口透传旁路元数据，不改变旧 journal 表语义。",
+        "记录状态来源和序号，原子写入，重开可读取；保持原协调器为执行事实来源。"
+      ],
+      "acceptance_assertions": [
+        "相同操作可跨平台日志关联，模型不能用自报身份改变权限。",
+        "RunContext 在当前导出物和语料索引中有版本与摘要，Python 与 TS 结构判定一致。",
+        "中断重开不把 unknown 变成 completed；历史记录仍可读取。",
+        "不新增第二套 CAD 执行状态机。"
+      ],
+      "required_gates": [
+        "G1",
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "PilotDeck/tests/session/catia-run-context.spec.ts",
+        "catia-v5-mcp-server/tests/test_contract_run_context.py"
+      ],
+      "stop_conditions": [
+        "需要迁移旧数据库或引入新执行服务，须另立方案。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T19-test-01",
+          "source_path": "PilotDeck/tests/session/catia-run-context.spec.ts",
+          "runner": "node-test",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/session/catia-run-context.spec.js"
+          ],
+          "requires_build": true,
+          "report_format": "tap",
+          "report_path": "{RUN_ROOT}/tasks/T19/test-runs/01/results.tap",
+          "report_from_stdout": true,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T19-test-02",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_run_context.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_run_context.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T19/test-runs/02/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T19/test-runs/02/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T19-test-03",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_parity.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_parity.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T19/test-runs/03/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T19/test-runs/03/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T19-test-04",
+          "source_path": "PilotDeck/tests/tool/protocol/catia-contract-parity.spec.ts",
+          "runner": "node-test",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/tool/protocol/catia-contract-parity.spec.js"
+          ],
+          "requires_build": true,
+          "report_format": "tap",
+          "report_path": "{RUN_ROOT}/tasks/T19/test-runs/04/results.tap",
+          "report_from_stdout": true,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T20",
+      "title": "补齐 host 截止时间到执行端的链路",
+      "phase": "P4",
+      "dependencies": [
+        "T19",
+        "T09"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "PilotDeck/src/agent/loop/AgentLoop.ts",
+        "PilotDeck/src/mcp/runtime/PluginToToolBridge.ts",
+        "PilotDeck/src/mcp/client/McpClient.ts",
+        "catia-v5-mcp-server/catia_mcp/server.py"
+      ],
+      "allowed_write_paths": [
+        "PilotDeck/src/agent/loop/AgentLoop.ts",
+        "PilotDeck/src/mcp/runtime/PluginToToolBridge.ts",
+        "PilotDeck/src/mcp/client/McpClient.ts",
+        "catia-v5-mcp-server/catia_mcp/server.py",
+        "PilotDeck/tests/mcp/catia-deadline-propagation.spec.ts",
+        "catia-v5-mcp-server/tests/test_operation_deadline.py"
+      ],
+      "steps": [
+        "追踪普通用户回合和嵌套工具调用的 deadline 生产与传递，只补缺失链路。",
+        "deadline 由 host 策略给定，不能被模型延长；保持现有元数据字段和安全整数限制。",
+        "在服务端按现有请求上下文读取 T19 的纯数据元信息，验证后显式传入执行线程；不得假设 ContextVar 自动跨 executor 传播。旧调用无元数据时沿旧路径。",
+        "区分排队前过期、排队中过期、执行中超时和客户端取消。"
+      ],
+      "acceptance_assertions": [
+        "执行前到期零 CAD 调用；嵌套调用不能延长截止时间。",
+        "执行中超时保持 unknown 或实际已知状态，不宣称强制取消成功。",
+        "无 deadline 的旧调用保持既有兼容行为。"
+      ],
+      "required_gates": [
+        "G1",
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "PilotDeck/tests/mcp/catia-deadline-propagation.spec.ts",
+        "catia-v5-mcp-server/tests/test_operation_deadline.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T20-test-01",
+          "source_path": "PilotDeck/tests/mcp/catia-deadline-propagation.spec.ts",
+          "runner": "node-test",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/mcp/catia-deadline-propagation.spec.js"
+          ],
+          "requires_build": true,
+          "report_format": "tap",
+          "report_path": "{RUN_ROOT}/tasks/T20/test-runs/01/results.tap",
+          "report_from_stdout": true,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T20-test-02",
+          "source_path": "catia-v5-mcp-server/tests/test_operation_deadline.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_operation_deadline.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T20/test-runs/02/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T20/test-runs/02/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T21",
+      "title": "补齐只读恢复和未知状态展示",
+      "phase": "P4",
+      "dependencies": [
+        "T19",
+        "T10"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "PilotDeck/src/mcp/client/McpClient.ts",
+        "PilotDeck/src/session/metadata/SessionMetadataStore.ts",
+        "catia-v5-mcp-server/catia_mcp/editing/coordinator.py",
+        "catia-v5-mcp-server/catia_mcp/editing/journal.py"
+      ],
+      "allowed_write_paths": [
+        "PilotDeck/src/tool/protocol/catiaRunRecovery.ts",
+        "PilotDeck/src/session/metadata/SessionMetadataStore.ts",
+        "PilotDeck/src/mcp/runtime/McpRuntime.ts",
+        "PilotDeck/tests/mcp/client/catia-recovery-evidence.spec.ts",
+        "catia-v5-mcp-server/tests/test_editing_idempotency.py"
+      ],
+      "steps": [
+        "从持久记录和现有只读证据重建可观察状态；无法确认时明确 unknown。",
+        "同 operationId 同 hash 的合法 replay 依现有 journal 处理；不同 hash 保持冲突。",
+        "在现有 McpRuntime 启动或重连的状态加载入口调用只读恢复投影，测试经过真实消费入口，避免只新增无人调用的 helper。",
+        "恢复模块不绕过 client 围栏发新写请求，不以新连接证明旧操作终止。"
+      ],
+      "acceptance_assertions": [
+        "断线重开、重复消息和旧记录均不会导致第二次副作用。",
+        "澄清、open ambiguity 和 unknown 的现有写入阻断仍成立。",
+        "缺证据时给出精确阻塞原因，不创建新 operationId 规避。"
+      ],
+      "required_gates": [
+        "G1",
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "PilotDeck/tests/mcp/client/catia-recovery-evidence.spec.ts",
+        "catia-v5-mcp-server/tests/test_editing_idempotency.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T21-test-01",
+          "source_path": "PilotDeck/tests/mcp/client/catia-recovery-evidence.spec.ts",
+          "runner": "node-test",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/mcp/client/catia-recovery-evidence.spec.js"
+          ],
+          "requires_build": true,
+          "report_format": "tap",
+          "report_path": "{RUN_ROOT}/tasks/T21/test-runs/01/results.tap",
+          "report_from_stdout": true,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T21-test-02",
+          "source_path": "catia-v5-mcp-server/tests/test_editing_idempotency.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_editing_idempotency.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T21/test-runs/02/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T21/test-runs/02/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T22",
+      "title": "验证输入绑定和单写入者隔离",
+      "phase": "P4",
+      "dependencies": [
+        "T09",
+        "T19"
+      ],
+      "activation": "core",
+      "environment": "offline_with_windows_gate",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/generation_scope.py",
+        "catia-v5-mcp-server/catia_mcp/locking.py",
+        "catia-v5-mcp-server/catia_mcp/input_binding.py",
+        "catia-v5-mcp-server/catia_mcp/reference_binding.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/generation_scope.py",
+        "catia-v5-mcp-server/catia_mcp/input_binding.py",
+        "catia-v5-mcp-server/tests/test_architecture_scope_isolation.py"
+      ],
+      "steps": [
+        "增加跨实例、原件身份、输出目录、运行前后输入变更的负例，先验证现有保护。",
+        "仅对复现出的隔离缺陷做局部修复；没有缺陷时不改生产逻辑。",
+        "验证模型提供的路径、run_id 或说明文字不能扩大工具权限或工作目录。"
+      ],
+      "acceptance_assertions": [
+        "原件只读、工作副本绑定和 post-execute 输入检查保持。",
+        "同一 CATIA 实例不会因新 runId 绕开单写入者。",
+        "不使用 bypassPermissions 或提示词替代真实范围检查。"
+      ],
+      "required_gates": [
+        "G1",
+        "G3"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C08"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_architecture_scope_isolation.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T22-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_architecture_scope_isolation.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_architecture_scope_isolation.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T22/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T22/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T23",
+      "title": "生成绑定版本和产物的运行证据",
+      "phase": "P4",
+      "dependencies": [
+        "T19",
+        "T21",
+        "T22"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_workflow.py",
+        "catia-v5-mcp-server/catia_mcp/editing/report.py",
+        "catia-v5-mcp-server/scripts/independent_verify_part.py"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/run_evidence.py",
+        "catia-v5-mcp-server/catia_mcp/drawing/feature_workflow.py",
+        "catia-v5-mcp-server/catia_mcp/editing/report.py",
+        "catia-v5-mcp-server/tests/test_run_evidence.py"
+      ],
+      "steps": [
+        "在既有报告产出点生成 sidecar 证据，不覆盖老报告或改变 planId。",
+        "记录输入、代码、契约、验收器、交付件与报告摘要，以及实际副作用和验证状态。",
+        "写入后读取核对，半写文件或摘要不匹配时不能生成 completed 投影。"
+      ],
+      "acceptance_assertions": [
+        "证据绑定同一次运行和同一源码指纹，不能引用其他 attempt 的成功。",
+        "PASS/FAIL/INCONCLUSIVE/NOT_VERIFIED 有明确判定。",
+        "哈希仅作为内容标识，不当作真实性签名或权限。"
+      ],
+      "required_gates": [
+        "G1"
+      ],
+      "existing_command_ids": [
+        "C03"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_run_evidence.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T23-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_run_evidence.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_run_evidence.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T23/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T23/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T24",
+      "title": "在现有界面展示业务验证状态",
+      "phase": "P4",
+      "dependencies": [
+        "T23",
+        "T15"
+      ],
+      "activation": "core",
+      "environment": "offline",
+      "read_paths": [
+        "PilotDeck/ui/src/components/chat/tools/UnifiedToolCall.tsx",
+        "PilotDeck/ui/src/components/chat/types/types.ts",
+        "PilotDeck/src/tool/protocol/catiaFailureStatus.ts"
+      ],
+      "allowed_write_paths": [
+        "PilotDeck/ui/src/components/chat/tools/UnifiedToolCall.tsx",
+        "PilotDeck/ui/src/components/chat/types/types.ts",
+        "PilotDeck/ui/src/components/chat/tools/UnifiedToolCall.test.tsx"
+      ],
+      "steps": [
+        "复用现有工具结果展示，区分执行中、待验证、已验证交付、失败和状态未知。",
+        "只根据可信回执显示交付入口和验证状态；不要依据模型总结显示成功。",
+        "未知状态给出只读核实入口或明确阻塞说明，不新增自动重试按钮。"
+      ],
+      "acceptance_assertions": [
+        "矛盾回执、缺报告和 unknown 不显示绿色成功。",
+        "普通非 CATIA 工具展示保持，前端不暴露内部实现细节。",
+        "组件测试与实际状态事件对应；未做浏览器检查时不声称已做 UI E2E。"
+      ],
+      "required_gates": [
+        "G2"
+      ],
+      "existing_command_ids": [
+        "C05",
+        "C06",
+        "C09"
+      ],
+      "new_test_paths": [
+        "PilotDeck/ui/src/components/chat/tools/UnifiedToolCall.test.tsx"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T24-test-01",
+          "source_path": "PilotDeck/ui/src/components/chat/tools/UnifiedToolCall.test.tsx",
+          "runner": "vitest-client",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{PNPM}",
+            "--dir",
+            "ui",
+            "exec",
+            "vitest",
+            "run",
+            "--project",
+            "client",
+            "src/components/chat/tools/UnifiedToolCall.test.tsx",
+            "--reporter=json",
+            "--outputFile={RUN_ROOT}/tasks/T24/test-runs/01/results.json"
+          ],
+          "requires_build": false,
+          "report_format": "vitest-json",
+          "report_path": "{RUN_ROOT}/tasks/T24/test-runs/01/results.json",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T25",
+      "title": "建立目标平台与几何环境门禁",
+      "phase": "P5",
+      "dependencies": [
+        "T18",
+        "T22"
+      ],
+      "activation": "core",
+      "environment": "windows_cad_support_and_catia",
+      "read_paths": [
+        "catia-v5-mcp-server/requirements-cad-support.txt",
+        "catia-v5-mcp-server/tests/test_feature_geometry.py",
+        "catia-v5-mcp-server/scripts/independent_verify_part.py"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/prepare_acceptance.py",
+        "scripts/architecture/tests/test_acceptance_fixtures.py",
+        "scripts/architecture/command_profiles.json",
+        "RUN_ROOT/acceptance/environment.json",
+        "RUN_ROOT/acceptance/fixtures.json",
+        "RUN_ROOT/acceptance/fixtures/**"
+      ],
+      "steps": [
+        "在专用 Windows 上确认实际 CATIA 版本和可用许可证，隔离生产文档。",
+        "分别配置 COM Python 与 CAD support Python，固定源件、PDF、STEP 和预期规范的哈希。",
+        "历史夹具不可得时，在 prepare_acceptance.py 中按事前冻结的解析尺寸生成简单合成源件、PDF/STEP 及独立规范，写入 RUN_ROOT/acceptance/fixtures；明确标为新夹具，不从待验输出反算期望。夹具创建涉及 CATIA 时沿本次专用环境的既有执行授权。",
+        "运行 G3 及登记的 G4 必需几何测试，逐一核对 skip 原因。",
+        "为 T26 至 T28 生成运行前检查清单和唯一输出位置。"
+      ],
+      "acceptance_assertions": [
+        "两个环境不混装；必需几何测试实际执行。",
+        "固定夹具及期望存在且可读，路径不是占位符。",
+        "缺 CATIA 或数据时本任务 BLOCKED_ENV，不阻止无依赖的离线成果交付。"
+      ],
+      "required_gates": [
+        "G3",
+        "G4"
+      ],
+      "existing_command_ids": [
+        "C07",
+        "C08"
+      ],
+      "new_test_paths": [
+        "scripts/architecture/tests/test_acceptance_fixtures.py"
+      ],
+      "stop_conditions": [
+        "专用 Windows、CATIA 授权或必需夹具不可用。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T25-test-01",
+          "source_path": "scripts/architecture/tests/test_acceptance_fixtures.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "scripts/architecture/tests/test_acceptance_fixtures.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T25/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T25/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        },
+        {
+          "id": "T25-geometry-test",
+          "source_path": "catia-v5-mcp-server/tests/test_feature_geometry.py",
+          "runner": "pytest",
+          "environment_profile": "cad_support",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_CAD_SUPPORT}",
+            "-m",
+            "pytest",
+            "tests/test_feature_geometry.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T25/test-runs/02/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T25/test-runs/02/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": [],
+          "required_gate": "G4"
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T26",
+      "title": "完成真实参数改型认证",
+      "phase": "P5",
+      "dependencies": [
+        "T25",
+        "T20",
+        "T21",
+        "T23"
+      ],
+      "activation": "core",
+      "environment": "windows_catia_and_model",
+      "read_paths": [
+        "catia-v5-mcp-server/docs/editing-protocol-v1.md",
+        "PilotDeck/products/catia-agent/README.md",
+        "catia-v5-mcp-server/scripts/independent_verify_part.py"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/run_edit_acceptance.py",
+        "scripts/architecture/tests/test_edit_acceptance_manifest.py",
+        "RUN_ROOT/acceptance/edit/**"
+      ],
+      "steps": [
+        "为 T25 固定源件创建本次隔离工作副本，通过 PilotDeck 的现有改型链路执行合法修改。",
+        "用冻结期望调用独立验证器，检查源件未变、保存重开、尺寸、特征及可编辑性。",
+        "对需要澄清和陈旧计划的负例证明零写入；记录真实用户回合与 MCP 操作关联。"
+      ],
+      "acceptance_assertions": [
+        "成功样例有本版本独立 PASS 和真实交付件，负例无写入。",
+        "不以 MCP 直连结果冒充 PilotDeck 模型 E2E；分别登记路径。",
+        "固定模型或凭据不可用时只完成工具层验证，产品项仍阻塞。"
+      ],
+      "required_gates": [
+        "G5"
+      ],
+      "existing_command_ids": [
+        "C10"
+      ],
+      "new_test_paths": [
+        "scripts/architecture/tests/test_edit_acceptance_manifest.py"
+      ],
+      "stop_conditions": [
+        "源件身份、期望或运行状态不确定。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T26-test-01",
+          "source_path": "scripts/architecture/tests/test_edit_acceptance_manifest.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "scripts/architecture/tests/test_edit_acceptance_manifest.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T26/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T26/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T27",
+      "title": "完成 PDF 建模与附件链路认证",
+      "phase": "P5",
+      "dependencies": [
+        "T25",
+        "T23",
+        "T24"
+      ],
+      "activation": "core",
+      "environment": "windows_catia_and_model",
+      "read_paths": [
+        "PilotDeck/products/catia-agent/plugins/catia-edit/skills/catia-pdf-model/SKILL.md",
+        "catia-v5-mcp-server/docs/pdf-modeling-v1.md",
+        "catia-v5-mcp-server/scripts/independent_verify_part.py"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/run_pdf_acceptance.py",
+        "scripts/architecture/tests/test_pdf_acceptance_manifest.py",
+        "RUN_ROOT/acceptance/pdf/**"
+      ],
+      "steps": [
+        "使用固定且当前支持的小零件，通过平台上传附件并让模型生成需求与调用建模工具。",
+        "冻结输入模式与证据范围，保留模型需求、原生特征和参数编辑检查。",
+        "从磁盘重开交付件独立验收，核对界面状态与最终证据。"
+      ],
+      "acceptance_assertions": [
+        "附件身份从上传到交付可追踪；交付是原生参数化 CATPart。",
+        "独立几何/尺寸和可编辑性要求全部满足才计 PASS。",
+        "模型回合 completed、文件存在或参考 STEP 导入不能单独构成通过。"
+      ],
+      "required_gates": [
+        "G5"
+      ],
+      "existing_command_ids": [
+        "C10"
+      ],
+      "new_test_paths": [
+        "scripts/architecture/tests/test_pdf_acceptance_manifest.py"
+      ],
+      "stop_conditions": [
+        "数据或独立期望缺失、模型未实际经过附件链路。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T27-test-01",
+          "source_path": "scripts/architecture/tests/test_pdf_acceptance_manifest.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "scripts/architecture/tests/test_pdf_acceptance_manifest.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T27/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T27/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T28",
+      "title": "演练失联恢复和重复提交",
+      "phase": "P5",
+      "dependencies": [
+        "T26",
+        "T27",
+        "T21"
+      ],
+      "activation": "core",
+      "environment": "windows_catia",
+      "read_paths": [
+        "catia-v5-mcp-server/tests/test_editing_idempotency.py",
+        "catia-v5-mcp-server/tests/test_editing_rollback.py",
+        "PilotDeck/tests/mcp/client/catia-session-fence.spec.ts"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/recovery_scenarios.json",
+        "PilotDeck/tests/mcp/client/catia-recovery-scenarios.spec.ts",
+        "RUN_ROOT/acceptance/recovery/**"
+      ],
+      "steps": [
+        "先用模拟执行端覆盖提交后断线、重复结果、旧 operationId 不同 hash、输出畸形和 deadline。",
+        "真实演练只在专用夹具和现有执行授权内做可控传输故障；不自动杀 CNEXT 或破坏他人文档。",
+        "只读核对副作用次数、journal 和交付证据；未知不能被强行清围栏。"
+      ],
+      "acceptance_assertions": [
+        "故障测试的状态、围栏与副作用断言全部成立时测试可 PASS；被测业务结果仍可为 INCONCLUSIVE，不能据此计为成功交付。",
+        "新连接、超时或新 operationId 不触发重放。",
+        "真实恢复未执行时保持该认证项 NOT_VERIFIED。"
+      ],
+      "required_gates": [
+        "G2",
+        "G5"
+      ],
+      "existing_command_ids": [
+        "C05",
+        "C06"
+      ],
+      "new_test_paths": [
+        "PilotDeck/tests/mcp/client/catia-recovery-scenarios.spec.ts"
+      ],
+      "stop_conditions": [
+        "故障注入超出专用环境范围或无法确认旧操作已停止。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T28-test-01",
+          "source_path": "PilotDeck/tests/mcp/client/catia-recovery-scenarios.spec.ts",
+          "runner": "node-test",
+          "environment_profile": "node",
+          "cwd": "{REPO_ROOT}/PilotDeck",
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/mcp/client/catia-recovery-scenarios.spec.js"
+          ],
+          "requires_build": true,
+          "report_format": "tap",
+          "report_path": "{RUN_ROOT}/tasks/T28/test-runs/01/results.tap",
+          "report_from_stdout": true,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T29",
+      "title": "冻结交付版本并生成认证报告",
+      "phase": "P5",
+      "dependencies": [
+        "T16",
+        "T17",
+        "T18",
+        "T24",
+        "T26",
+        "T27",
+        "T28"
+      ],
+      "activation": "core",
+      "environment": "all_required_gates",
+      "read_paths": [
+        "RUN_ROOT/execution_state.json",
+        "contracts/catia/v1/registry.json",
+        "PilotDeck/src/mcp/README.md",
+        "catia-v5-mcp-server/docs/server-runtime.md"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/release_evidence.py",
+        "PilotDeck/src/mcp/README.md",
+        "catia-v5-mcp-server/docs/server-runtime.md",
+        "RUN_ROOT/release/**"
+      ],
+      "steps": [
+        "先完成 release_evidence.py 和既有维护文档等全部受跟踪改动，列出回退契约族、恢复入口和实际环境限制。",
+        "随后冻结最终源码指纹，重跑该版本必要门禁；冻结后只向 RUN_ROOT 写报告，任何源码修改都使本轮冻结失效。",
+        "生成离线、平台、产品和扩展四类状态及清晰的未解决项，拒绝引用旧指纹绿色报告。",
+        "生成可审阅补丁或按既有授权创建交付分支；发布与合并遵循当前授权。"
+      ],
+      "acceptance_assertions": [
+        "必须门禁全有本版本报告，报告与产物哈希互相匹配。",
+        "OFFLINE_READY 与 PRODUCT_CERTIFIED 不混淆。",
+        "回退不关闭校验，也不声称撤销了 CAD 副作用。"
+      ],
+      "required_gates": [
+        "G6"
+      ],
+      "existing_command_ids": [],
+      "new_test_paths": [],
+      "stop_conditions": [
+        "任一必需门禁未完成、源码指纹变化或产物摘要不匹配。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [],
+      "verification_scope": "all_completed_in_scope_tasks_on_frozen_source"
+    },
+    {
+      "id": "T30",
+      "title": "对齐数据集输入及旧跑批计划",
+      "phase": "P6",
+      "dependencies": [
+        "T29"
+      ],
+      "activation": "explicit_extension_scope",
+      "environment": "configured_dataset",
+      "read_paths": [
+        "docs/OrlaMechCAD-PilotDeck-无人值守开发计划.md",
+        "datasets/nist-pdf-benchmark/README.md",
+        "datasets/nist-pdf-benchmark/tools/run_case_pipeline.py"
+      ],
+      "allowed_write_paths": [
+        "scripts/architecture/dataset_preflight.py",
+        "RUN_ROOT/dataset/**"
+      ],
+      "steps": [
+        "只针对当前任务明确启用且真实存在的数据集建立清单，验证现有运行器确实连接当前 PilotDeck，不能只凭文件存在复用。",
+        "发现旧 AgentCPM 依赖时生成有接口、白名单和 mock 验收的适配任务并阻塞本任务，适配验收后才能解锁 T31。",
+        "将旧 referenceGeometry 待开发项改为回归项，确认原始数据、参考几何和运行输出的范围。",
+        "冻结案例、输入摘要、模型、容差和独立验收器，不从历史报告抄通过成绩。"
+      ],
+      "acceptance_assertions": [
+        "每个案例有真实文件与哈希，输入模式明确。",
+        "缺数据的案例不能被悄悄从分母删除，单独记 BLOCKED_ENV。"
+      ],
+      "required_gates": [
+        "G0"
+      ],
+      "existing_command_ids": [],
+      "new_test_paths": [],
+      "stop_conditions": [
+        "数据集未获当前扩展任务启用或资产不可得。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T31",
+      "title": "运行固定数据集的先导批次",
+      "phase": "P6",
+      "dependencies": [
+        "T30"
+      ],
+      "activation": "explicit_extension_scope",
+      "environment": "dataset_and_catia_and_model",
+      "read_paths": [
+        "RUN_ROOT/dataset/manifest.json",
+        "datasets/nist-pdf-benchmark/tools/verify_case.py"
+      ],
+      "allowed_write_paths": [
+        "RUN_ROOT/dataset/attempts/**",
+        "RUN_ROOT/dataset/report.json"
+      ],
+      "steps": [
+        "在已登记能力内选择固定先导案例，每例先运行一次，记录所有尝试。",
+        "使用既有通用链路与独立验收，按读图、结构、能力、执行、数值、交付分类失败。",
+        "只有普遍可复现的缺陷才新建独立修复任务；不按案例 ID 写特判。"
+      ],
+      "acceptance_assertions": [
+        "逐例 PASS/FAIL/INCONCLUSIVE/NOT_VERIFIED 与分母透明。",
+        "参考辅助、人工介入和重试次数分别披露。",
+        "不以先导通过声称全量数据集完成。"
+      ],
+      "required_gates": [
+        "G4",
+        "G5"
+      ],
+      "existing_command_ids": [],
+      "new_test_paths": [],
+      "stop_conditions": [
+        "需要扩展新特征或放宽容差才能继续，转独立工作流。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    },
+    {
+      "id": "T32",
+      "title": "集中配置验证并补充能力清单",
+      "phase": "P6",
+      "dependencies": [
+        "T29"
+      ],
+      "activation": "explicit_extension_scope",
+      "environment": "offline_with_windows_gate",
+      "read_paths": [
+        "catia-v5-mcp-server/catia_mcp/server.py",
+        "catia-v5-mcp-server/catia_mcp/http_transport.py",
+        "catia-v5-mcp-server/docs/server-runtime.md"
+      ],
+      "allowed_write_paths": [
+        "catia-v5-mcp-server/catia_mcp/contracts/settings.py",
+        "catia-v5-mcp-server/catia_mcp/server.py",
+        "catia-v5-mcp-server/pyproject.toml",
+        "catia-v5-mcp-server/requirements.txt",
+        "catia-v5-mcp-server/tests/test_contract_settings.py",
+        "catia-v5-mcp-server/docs/server-runtime.md"
+      ],
+      "steps": [
+        "当配置维护需求已明确时引入独立 pydantic-settings，保留既有环境变量、默认值和 CLI 优先级。",
+        "只集中纯配置和组合约束，文件身份、路径范围与执行策略仍由原模块检查。",
+        "在既有运行文档更新已验证能力及所需环境，不创建自动承诺新能力的注册系统。"
+      ],
+      "acceptance_assertions": [
+        "现有启动组合与错误位置可解释，默认端口和权限无变化。",
+        "未知配置不被默默丢弃；日志不包含密钥。",
+        "配置验证不会进行 COM 或外部网络操作。"
+      ],
+      "required_gates": [
+        "G1",
+        "G3"
+      ],
+      "existing_command_ids": [
+        "C03",
+        "C08"
+      ],
+      "new_test_paths": [
+        "catia-v5-mcp-server/tests/test_contract_settings.py"
+      ],
+      "stop_conditions": [
+        "公开契约、哈希或原有领域语义出现未批准变化。"
+      ],
+      "repair_attempts_max": 2,
+      "deliverables": [
+        "受控补丁或提交",
+        "task-result.json",
+        "命令日志与必需测试报告"
+      ],
+      "test_runs": [
+        {
+          "id": "T32-test-01",
+          "source_path": "catia-v5-mcp-server/tests/test_contract_settings.py",
+          "runner": "pytest",
+          "environment_profile": "python_offline",
+          "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_contract_settings.py",
+            "-q",
+            "-ra",
+            "--junitxml={RUN_ROOT}/tasks/T32/test-runs/01/junit.xml"
+          ],
+          "requires_build": false,
+          "report_format": "junit",
+          "report_path": "{RUN_ROOT}/tasks/T32/test-runs/01/junit.xml",
+          "report_from_stdout": false,
+          "mandatory": true,
+          "allowed_skips": []
+        }
+      ],
+      "verification_scope": "listed_existing_commands_and_all_test_runs"
+    }
+  ]
+}

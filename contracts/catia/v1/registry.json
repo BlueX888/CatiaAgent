@@ -1,0 +1,175 @@
+{
+  "contracts": [
+    {
+      "contract_id": "apply-edit-plan-input",
+      "mode": "active",
+      "model": "ApplyEditPlanInputWire",
+      "model_fillable": true,
+      "module": "catia_mcp.contracts.dispatch",
+      "role": "tool_input",
+      "schema_path": "contracts/catia/v1/schema/apply-edit-plan-input.json",
+      "schema_sha256": "80066163eb96585851830f05dacd6f52a4ba58b1552bdac23755181903695f16",
+      "tool": "catia_apply_edit_plan",
+      "wire_version": null
+    },
+    {
+      "contract_id": "build-result",
+      "mode": "shadow",
+      "model": "OperationResultWire",
+      "model_fillable": true,
+      "module": "catia_mcp.contracts.results",
+      "role": "tool_output",
+      "schema_path": "contracts/catia/v1/schema/build-result.json",
+      "schema_sha256": "a3f1ecbc57587607db3906aa204129552235806b6b7ff1d7640aa3db7a87ecf2",
+      "tool": "catia_build_part",
+      "wire_version": null
+    },
+    {
+      "contract_id": "cad-support-inconclusive-summary",
+      "mode": "shadow",
+      "model": "InconclusiveSummary",
+      "model_fillable": true,
+      "module": "catia_mcp.contracts.cad_support",
+      "role": "subprocess_fragment",
+      "schema_path": "contracts/catia/v1/schema/cad-support-inconclusive-summary.json",
+      "schema_sha256": "c8fdcd57e2b8cf002249127df458b7a6d48867c045a1865561195962016acc4d",
+      "tool": null,
+      "wire_version": null
+    },
+    {
+      "contract_id": "cad-support-volume-diagnostics",
+      "mode": "shadow",
+      "model": "VolumeDiagnostics",
+      "model_fillable": true,
+      "module": "catia_mcp.contracts.cad_support",
+      "role": "subprocess_fragment",
+      "schema_path": "contracts/catia/v1/schema/cad-support-volume-diagnostics.json",
+      "schema_sha256": "449778ff544218102298ebc8e7d7da9fc4748c7d5b2f519fb21f02a1ec58f25e",
+      "tool": null,
+      "wire_version": null
+    },
+    {
+      "contract_id": "compile-intent-input",
+      "mode": "active",
+      "model": "CompileIntentInputWire",
+      "model_fillable": true,
+      "module": "catia_mcp.contracts.dispatch",
+      "role": "tool_input",
+      "schema_path": "contracts/catia/v1/schema/compile-intent-input.json",
+      "schema_sha256": "800e04cf33b83d1cf4052eeb022d179db03621c6c991c917719c231880c015c2",
+      "tool": "catia_compile_intent",
+      "wire_version": null
+    },
+    {
+      "contract_id": "edit-plan",
+      "mode": "shadow",
+      "model": "EditPlanWire",
+      "model_fillable": true,
+      "module": "catia_mcp.contracts.edit_plan",
+      "role": "input_fragment",
+      "schema_path": "contracts/catia/v1/schema/edit-plan.json",
+      "schema_sha256": "9ed1a8f90571822767a0adbaf2ceffe3e5ee3d765cccd453d4e15c862031f8cb",
+      "tool": "catia_apply_edit_plan",
+      "wire_version": "catia-edit-plan/1"
+    },
+    {
+      "contract_id": "feature-requirements",
+      "mode": "shadow",
+      "model": "FeatureRequirementsWire",
+      "model_fillable": true,
+      "module": "catia_mcp.contracts.features",
+      "role": "tool_input",
+      "schema_path": "contracts/catia/v1/schema/feature-requirements.json",
+      "schema_sha256": "88dfcda079ffb9afd7ecd433ce25e39f4c154817a8037eef4ef01451a221f9c0",
+      "tool": "catia_build_part",
+      "wire_version": "catia-feature-requirements/1"
+    },
+    {
+      "contract_id": "intent-draft",
+      "mode": "shadow",
+      "model": "IntentDraftWire",
+      "model_fillable": true,
+      "module": "catia_mcp.contracts.intent",
+      "role": "input_fragment",
+      "schema_path": "contracts/catia/v1/schema/intent-draft.json",
+      "schema_sha256": "5ac5220da8b00999717ef104f5422a4cee7d137fcd84986e058a6312c9970ffc",
+      "tool": "catia_compile_intent",
+      "wire_version": "cad-intent-draft/1"
+    },
+    {
+      "contract_id": "run-context",
+      "mode": "shadow",
+      "model": "RunContext",
+      "model_fillable": false,
+      "module": "catia_mcp.contracts.run_context",
+      "role": "host_metadata",
+      "schema_path": "contracts/catia/v1/schema/run-context.json",
+      "schema_sha256": "699e790e93e8ee8c5a5aac42b060197b75ee44c09a5429afe910ae7c7b469181",
+      "tool": null,
+      "wire_version": "catia-run-context/1"
+    }
+  ],
+  "generator": "catia_mcp.contracts.export",
+  "generator_version": "1",
+  "legacy": [
+    {
+      "authority": "drawing.requirements and drawing.pdf_evidence",
+      "contract_id": "drawing-evidence-v1",
+      "note": "Not migrated in this round.",
+      "tools": [
+        "catia_inspect_drawing",
+        "catia_crop_drawing",
+        "catia_validate_requirements"
+      ]
+    },
+    {
+      "authority": "jsonschema tool schema + editing.validation.validate_plan",
+      "contract_id": "editing-protocol-v1",
+      "note": "The edit-plan wire model is shadow; T16 promotes it per family.",
+      "tools": [
+        "catia_apply_edit_plan"
+      ]
+    },
+    {
+      "authority": "drawing.feature_schema + drawing.feature_model + feature_executor recompile",
+      "contract_id": "feature-schema-v1",
+      "note": "Feature structure adapters are shadow; domain compilation remains authoritative.",
+      "tools": [
+        "catia_validate_requirements",
+        "catia_compile_build_plan",
+        "catia_build_part"
+      ]
+    },
+    {
+      "authority": "introduced by T19",
+      "contract_id": "host-run-context-v1",
+      "note": "Not created yet; registry reserves the id as legacy.",
+      "tools": []
+    },
+    {
+      "authority": "per-instance effective schema + generation_scope.prepare/check_bound_inputs",
+      "contract_id": "server-dynamic-policy",
+      "note": "Static export never replaces session, file identity or generation-mode rules.",
+      "tools": [
+        "catia_build_part",
+        "catia_validate_requirements",
+        "catia_compile_build_plan"
+      ]
+    }
+  ],
+  "schema_version": "catiaagent-contract-registry/1",
+  "structural_vs_domain": {
+    "domain_only": [
+      "unit conversion and dimensional compatibility",
+      "evidence references and source hashes",
+      "dependency order and the single-body feature chain",
+      "writability, revision/oldValue freshness and invariant feasibility",
+      "geometry/verification verdicts and delivery receipts"
+    ],
+    "rule": "A structure PASS does not imply a domain PASS; a domain rejection is not a schema defect.",
+    "structure_only": [
+      "type, required keys, closed/open objects, numeric finiteness, aliases",
+      "compact profile/segment shapes and literal zero/full-turn spelling"
+    ]
+  }
+}

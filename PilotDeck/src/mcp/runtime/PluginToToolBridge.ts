@@ -25,10 +25,13 @@ import {
   catiaContentAgrees,
   isCatiaBuildCall,
   isCatiaBuildSuccess,
+  isCatiaServerId,
   parseCatiaFailure,
   readCatiaFailure,
   unclassifiedCatiaFailure,
 } from "../../tool/protocol/catiaFailureStatus.js";
+import { routeCatiaToolInput } from "../../tool/protocol/catiaContractValidator.js";
+import { hostCatiaRunContext, type CatiaRunContext } from "../../tool/protocol/catiaRunContext.js";
 import type {
   PilotDeckToolDefinition,
   PilotDeckToolExecutionOutput,
@@ -45,6 +48,8 @@ import type {
 export type CreateToolDefinitionsOptions = {
   /** Per-call timeout override (default falls through to McpClient default). */
   callTimeoutMs?: number;
+  /** Optional host sink for CATIA run identity (sidecar metadata, not a permission). */
+  onCatiaRunContext?: (context: CatiaRunContext) => void;
 };
 
 export async function createMcpToolDefinitionsFromRuntime(
@@ -87,6 +92,36 @@ function buildToolDefinition(
         );
       }
       try {
+        if (isCatiaServerId(spec.serverId) && options.onCatiaRunContext) {
+          const runContext = hostCatiaRunContext({
+            sessionId: context.sessionId,
+            turnId: context.turnId,
+            cwd: context.cwd,
+            operationId: context.currentToolCallId,
+            ...(context.operationDeadlineMs !== undefined ? { deadlineMs: context.operationDeadlineMs } : {}),
+          });
+          if (runContext) {
+            try {
+              options.onCatiaRunContext(runContext);
+            } catch {
+              // Metadata persistence must not change the CAD decision.
+            }
+          }
+        }
+        // CATIA contract preflight. Shadow results are recorded only; legacy
+        // tools stay on the existing path. An active route rejects before the
+        // wire call, so an invalid input cannot reach CATIA.
+        if (isCatiaServerId(spec.serverId)) {
+          const contract = routeCatiaToolInput(spec.toolName, input);
+          if (contract?.decision === "reject"
+            || (contract?.decision === "ajv" && !contract.validation.ok)) {
+            const details = contract.decision === "reject"
+              ? contract.reasons.join("; ")
+              : contract.validation.ok ? "" : contract.validation.issues
+                .map(issue => `${issue.path}: ${issue.message}`).join("; ");
+            throw new PilotDeckToolRuntimeError("invalid_tool_input", `CATIA contract rejected input: ${details}`);
+          }
+        }
         const { content, structuredContent, isError } = await client.callTool(spec.toolName, input, {
           signal: context.abortSignal,
           timeoutMs: options.callTimeoutMs,

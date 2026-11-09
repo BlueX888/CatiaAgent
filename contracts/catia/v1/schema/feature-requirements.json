@@ -1,0 +1,2022 @@
+{
+  "$defs": {
+    "ArcSegmentWire": {
+      "additionalProperties": false,
+      "properties": {
+        "clockwise": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clockwise"
+        },
+        "end": {
+          "$ref": "#/$defs/PointWire"
+        },
+        "largeArc": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Largearc"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Radius"
+        },
+        "type": {
+          "const": "arc",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "end",
+        "radius"
+      ],
+      "title": "ArcSegmentWire",
+      "type": "object"
+    },
+    "ChamferFeature": {
+      "additionalProperties": false,
+      "properties": {
+        "angle": {
+          "const": 45,
+          "title": "Angle",
+          "type": "integer"
+        },
+        "dependsOn": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependson",
+          "type": "array"
+        },
+        "edges": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EdgeLinearWire"
+            },
+            {
+              "$ref": "#/$defs/EdgeCircularWire"
+            }
+          ],
+          "title": "Edges"
+        },
+        "id": {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,47}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "length": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Length"
+        },
+        "operation": {
+          "const": "chamfer",
+          "title": "Operation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "operation",
+        "length",
+        "angle",
+        "edges"
+      ],
+      "title": "ChamferFeature",
+      "type": "object"
+    },
+    "CircleWire": {
+      "additionalProperties": false,
+      "properties": {
+        "radius": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Radius"
+        },
+        "type": {
+          "const": "circle",
+          "title": "Type",
+          "type": "string"
+        },
+        "x": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        }
+      },
+      "required": [
+        "type",
+        "radius"
+      ],
+      "title": "CircleWire",
+      "type": "object"
+    },
+    "EdgeCircularWire": {
+      "additionalProperties": false,
+      "properties": {
+        "axis": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            }
+          ],
+          "title": "Axis",
+          "type": "array"
+        },
+        "centre": {
+          "items": {
+            "anyOf": [
+              {
+                "maximum": 1000000,
+                "minimum": -1000000,
+                "type": "number"
+              },
+              {
+                "maxLength": 256,
+                "type": "string"
+              }
+            ]
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Centre",
+          "type": "array"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Radius"
+        },
+        "type": {
+          "const": "circular",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "radius",
+        "centre",
+        "axis"
+      ],
+      "title": "EdgeCircularWire",
+      "type": "object"
+    },
+    "EdgeLinearWire": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            }
+          ],
+          "title": "Direction",
+          "type": "array"
+        },
+        "through": {
+          "items": {
+            "anyOf": [
+              {
+                "maximum": 1000000,
+                "minimum": -1000000,
+                "type": "number"
+              },
+              {
+                "maxLength": 256,
+                "type": "string"
+              }
+            ]
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Through",
+          "type": "array"
+        },
+        "type": {
+          "const": "linear",
+          "title": "Type",
+          "type": "string"
+        },
+        "withinSegment": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Withinsegment"
+        }
+      },
+      "required": [
+        "type",
+        "direction",
+        "through"
+      ],
+      "title": "EdgeLinearWire",
+      "type": "object"
+    },
+    "FilletFeature": {
+      "additionalProperties": false,
+      "properties": {
+        "dependsOn": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependson",
+          "type": "array"
+        },
+        "edges": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EdgeLinearWire"
+            },
+            {
+              "$ref": "#/$defs/EdgeCircularWire"
+            },
+            {
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/EdgeLinearWire"
+                  },
+                  {
+                    "$ref": "#/$defs/EdgeCircularWire"
+                  }
+                ]
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Edges"
+        },
+        "id": {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,47}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "operation": {
+          "const": "fillet",
+          "title": "Operation",
+          "type": "string"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Radius"
+        }
+      },
+      "required": [
+        "id",
+        "operation",
+        "radius",
+        "edges"
+      ],
+      "title": "FilletFeature",
+      "type": "object"
+    },
+    "GrooveFeature": {
+      "additionalProperties": false,
+      "properties": {
+        "angle": {
+          "anyOf": [
+            {
+              "const": 360,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Angle"
+        },
+        "axisX": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Axisx"
+        },
+        "dependsOn": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependson",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "const": "normal",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "id": {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,47}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "operation": {
+          "const": "groove",
+          "title": "Operation",
+          "type": "string"
+        },
+        "sketch": {
+          "$ref": "#/$defs/SketchWire"
+        }
+      },
+      "required": [
+        "id",
+        "operation",
+        "sketch",
+        "angle"
+      ],
+      "title": "GrooveFeature",
+      "type": "object"
+    },
+    "LineSegmentWire": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/$defs/PointWire"
+        },
+        "type": {
+          "const": "line",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "end"
+      ],
+      "title": "LineSegmentWire",
+      "type": "object"
+    },
+    "PadFeature": {
+      "additionalProperties": false,
+      "properties": {
+        "dependsOn": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependson",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "normal",
+                "reverse"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "id": {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,47}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "length": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Length"
+        },
+        "operation": {
+          "const": "pad",
+          "title": "Operation",
+          "type": "string"
+        },
+        "sketch": {
+          "$ref": "#/$defs/SketchWire"
+        }
+      },
+      "required": [
+        "id",
+        "operation",
+        "sketch",
+        "length"
+      ],
+      "title": "PadFeature",
+      "type": "object"
+    },
+    "PlaneFrameWire": {
+      "additionalProperties": false,
+      "properties": {
+        "normal": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "maximum": 1.000001,
+              "minimum": -1.000001,
+              "type": "number"
+            },
+            {
+              "maximum": 1.000001,
+              "minimum": -1.000001,
+              "type": "number"
+            },
+            {
+              "maximum": 1.000001,
+              "minimum": -1.000001,
+              "type": "number"
+            }
+          ],
+          "title": "Normal",
+          "type": "array"
+        },
+        "xDirection": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "maximum": 1.000001,
+              "minimum": -1.000001,
+              "type": "number"
+            },
+            {
+              "maximum": 1.000001,
+              "minimum": -1.000001,
+              "type": "number"
+            },
+            {
+              "maximum": 1.000001,
+              "minimum": -1.000001,
+              "type": "number"
+            }
+          ],
+          "title": "Xdirection",
+          "type": "array"
+        }
+      },
+      "required": [
+        "normal",
+        "xDirection"
+      ],
+      "title": "PlaneFrameWire",
+      "type": "object"
+    },
+    "PocketFeature": {
+      "additionalProperties": false,
+      "properties": {
+        "dependsOn": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependson",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "normal",
+                "reverse"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "id": {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,47}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "length": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Length"
+        },
+        "operation": {
+          "const": "pocket",
+          "title": "Operation",
+          "type": "string"
+        },
+        "sketch": {
+          "$ref": "#/$defs/SketchWire"
+        },
+        "through": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Through"
+        }
+      },
+      "required": [
+        "id",
+        "operation",
+        "sketch",
+        "length"
+      ],
+      "title": "PocketFeature",
+      "type": "object"
+    },
+    "PointWire": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Y"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "PointWire",
+      "type": "object"
+    },
+    "PolygonWire": {
+      "additionalProperties": false,
+      "properties": {
+        "points": {
+          "items": {
+            "$ref": "#/$defs/PointWire"
+          },
+          "maxItems": 256,
+          "minItems": 3,
+          "title": "Points",
+          "type": "array"
+        },
+        "type": {
+          "const": "polygon",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "points"
+      ],
+      "title": "PolygonWire",
+      "type": "object"
+    },
+    "RectangleWire": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Height"
+        },
+        "type": {
+          "const": "rectangle",
+          "title": "Type",
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "const": 0,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Width"
+        },
+        "x": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        }
+      },
+      "required": [
+        "type",
+        "width",
+        "height"
+      ],
+      "title": "RectangleWire",
+      "type": "object"
+    },
+    "RequirementParameterWire": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "name": {
+          "pattern": "^[A-Z][A-Z0-9_]{0,31}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "enum": [
+                "drawing",
+                "reference_inference"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "length",
+                "angle"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "value",
+        "evidence"
+      ],
+      "title": "RequirementParameterWire",
+      "type": "object"
+    },
+    "ShaftFeature": {
+      "additionalProperties": false,
+      "properties": {
+        "angle": {
+          "anyOf": [
+            {
+              "const": 360,
+              "type": "integer"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            }
+          ],
+          "title": "Angle"
+        },
+        "axisX": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Axisx"
+        },
+        "dependsOn": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependson",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "const": "normal",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "id": {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,47}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "operation": {
+          "const": "shaft",
+          "title": "Operation",
+          "type": "string"
+        },
+        "sketch": {
+          "$ref": "#/$defs/SketchWire"
+        }
+      },
+      "required": [
+        "id",
+        "operation",
+        "sketch",
+        "angle"
+      ],
+      "title": "ShaftFeature",
+      "type": "object"
+    },
+    "SketchWire": {
+      "additionalProperties": false,
+      "properties": {
+        "offset": {
+          "anyOf": [
+            {
+              "maximum": 1000000,
+              "minimum": -1000000,
+              "type": "number"
+            },
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offset"
+        },
+        "plane": {
+          "anyOf": [
+            {
+              "enum": [
+                "xy",
+                "yz",
+                "zx"
+              ],
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/PlaneFrameWire"
+            }
+          ],
+          "title": "Plane"
+        },
+        "profiles": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/RectangleWire"
+              },
+              {
+                "$ref": "#/$defs/CircleWire"
+              },
+              {
+                "$ref": "#/$defs/PolygonWire"
+              },
+              {
+                "$ref": "#/$defs/WireProfileWire"
+              },
+              {
+                "maxItems": 4,
+                "minItems": 4,
+                "prefixItems": [
+                  {
+                    "const": "circle",
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "maximum": 1000000,
+                        "minimum": -1000000,
+                        "type": "number"
+                      },
+                      {
+                        "maxLength": 256,
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "maximum": 1000000,
+                        "minimum": -1000000,
+                        "type": "number"
+                      },
+                      {
+                        "maxLength": 256,
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "const": 0,
+                        "type": "integer"
+                      },
+                      {
+                        "maxLength": 256,
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "maxItems": 5,
+                "minItems": 5,
+                "prefixItems": [
+                  {
+                    "const": "rectangle",
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "maximum": 1000000,
+                        "minimum": -1000000,
+                        "type": "number"
+                      },
+                      {
+                        "maxLength": 256,
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "maximum": 1000000,
+                        "minimum": -1000000,
+                        "type": "number"
+                      },
+                      {
+                        "maxLength": 256,
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "const": 0,
+                        "type": "integer"
+                      },
+                      {
+                        "maxLength": 256,
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "const": 0,
+                        "type": "integer"
+                      },
+                      {
+                        "maxLength": 256,
+                        "type": "string"
+                      }
+                    ]
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "const": "polygon",
+                    "type": "string"
+                  },
+                  {
+                    "items": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/$defs/PointWire"
+                        },
+                        {
+                          "maxItems": 2,
+                          "minItems": 2,
+                          "prefixItems": [
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            }
+                          ],
+                          "type": "array"
+                        }
+                      ]
+                    },
+                    "type": "array"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "maxItems": 3,
+                "minItems": 3,
+                "prefixItems": [
+                  {
+                    "const": "wire",
+                    "type": "string"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "$ref": "#/$defs/PointWire"
+                      },
+                      {
+                        "maxItems": 2,
+                        "minItems": 2,
+                        "prefixItems": [
+                          {
+                            "anyOf": [
+                              {
+                                "maximum": 1000000,
+                                "minimum": -1000000,
+                                "type": "number"
+                              },
+                              {
+                                "maxLength": 256,
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          {
+                            "anyOf": [
+                              {
+                                "maximum": 1000000,
+                                "minimum": -1000000,
+                                "type": "number"
+                              },
+                              {
+                                "maxLength": 256,
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ]
+                  },
+                  {
+                    "items": {
+                      "anyOf": [
+                        {
+                          "maxItems": 3,
+                          "minItems": 3,
+                          "prefixItems": [
+                            {
+                              "const": "line",
+                              "type": "string"
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            }
+                          ],
+                          "type": "array"
+                        },
+                        {
+                          "maxItems": 4,
+                          "minItems": 4,
+                          "prefixItems": [
+                            {
+                              "const": "arc",
+                              "type": "string"
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "const": 0,
+                                  "type": "integer"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            }
+                          ],
+                          "type": "array"
+                        },
+                        {
+                          "maxItems": 5,
+                          "minItems": 5,
+                          "prefixItems": [
+                            {
+                              "const": "arc",
+                              "type": "string"
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "const": 0,
+                                  "type": "integer"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "boolean"
+                            }
+                          ],
+                          "type": "array"
+                        },
+                        {
+                          "maxItems": 6,
+                          "minItems": 6,
+                          "prefixItems": [
+                            {
+                              "const": "arc",
+                              "type": "string"
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "maximum": 1000000,
+                                  "minimum": -1000000,
+                                  "type": "number"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "anyOf": [
+                                {
+                                  "const": 0,
+                                  "type": "integer"
+                                },
+                                {
+                                  "maxLength": 256,
+                                  "type": "string"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "type": "boolean"
+                            }
+                          ],
+                          "type": "array"
+                        }
+                      ]
+                    },
+                    "type": "array"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "pattern": "^P[0-9]{1,4}$",
+                "type": "string"
+              }
+            ]
+          },
+          "maxItems": 256,
+          "minItems": 1,
+          "title": "Profiles",
+          "type": "array"
+        }
+      },
+      "required": [
+        "plane",
+        "profiles"
+      ],
+      "title": "SketchWire",
+      "type": "object"
+    },
+    "WireProfileWire": {
+      "additionalProperties": false,
+      "properties": {
+        "segments": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/LineSegmentWire"
+              },
+              {
+                "$ref": "#/$defs/ArcSegmentWire"
+              }
+            ]
+          },
+          "maxItems": 256,
+          "minItems": 2,
+          "title": "Segments",
+          "type": "array"
+        },
+        "start": {
+          "$ref": "#/$defs/PointWire"
+        },
+        "type": {
+          "const": "wire",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "start",
+        "segments"
+      ],
+      "title": "WireProfileWire",
+      "type": "object"
+    }
+  },
+  "$id": "https://catia.local/contracts/catia/v1/schema/feature-requirements.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "features": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "chamfer": "#/$defs/ChamferFeature",
+            "fillet": "#/$defs/FilletFeature",
+            "groove": "#/$defs/GrooveFeature",
+            "pad": "#/$defs/PadFeature",
+            "pocket": "#/$defs/PocketFeature",
+            "shaft": "#/$defs/ShaftFeature"
+          },
+          "propertyName": "operation"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/PadFeature"
+          },
+          {
+            "$ref": "#/$defs/PocketFeature"
+          },
+          {
+            "$ref": "#/$defs/ShaftFeature"
+          },
+          {
+            "$ref": "#/$defs/GrooveFeature"
+          },
+          {
+            "$ref": "#/$defs/FilletFeature"
+          },
+          {
+            "$ref": "#/$defs/ChamferFeature"
+          }
+        ]
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Features",
+      "type": "array"
+    },
+    "parameters": {
+      "items": {
+        "$ref": "#/$defs/RequirementParameterWire"
+      },
+      "maxItems": 512,
+      "minItems": 1,
+      "title": "Parameters",
+      "type": "array"
+    },
+    "partName": {
+      "anyOf": [
+        {
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,47}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Partname"
+    },
+    "profiles": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/RectangleWire"
+          },
+          {
+            "$ref": "#/$defs/CircleWire"
+          },
+          {
+            "$ref": "#/$defs/PolygonWire"
+          },
+          {
+            "$ref": "#/$defs/WireProfileWire"
+          },
+          {
+            "maxItems": 4,
+            "minItems": 4,
+            "prefixItems": [
+              {
+                "const": "circle",
+                "type": "string"
+              },
+              {
+                "anyOf": [
+                  {
+                    "maximum": 1000000,
+                    "minimum": -1000000,
+                    "type": "number"
+                  },
+                  {
+                    "maxLength": 256,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "maximum": 1000000,
+                    "minimum": -1000000,
+                    "type": "number"
+                  },
+                  {
+                    "maxLength": 256,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "const": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "maxLength": 256,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "maxItems": 5,
+            "minItems": 5,
+            "prefixItems": [
+              {
+                "const": "rectangle",
+                "type": "string"
+              },
+              {
+                "anyOf": [
+                  {
+                    "maximum": 1000000,
+                    "minimum": -1000000,
+                    "type": "number"
+                  },
+                  {
+                    "maxLength": 256,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "maximum": 1000000,
+                    "minimum": -1000000,
+                    "type": "number"
+                  },
+                  {
+                    "maxLength": 256,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "const": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "maxLength": 256,
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "anyOf": [
+                  {
+                    "const": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "maxLength": 256,
+                    "type": "string"
+                  }
+                ]
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "const": "polygon",
+                "type": "string"
+              },
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/PointWire"
+                    },
+                    {
+                      "maxItems": 2,
+                      "minItems": 2,
+                      "prefixItems": [
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      ],
+                      "type": "array"
+                    }
+                  ]
+                },
+                "type": "array"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "maxItems": 3,
+            "minItems": 3,
+            "prefixItems": [
+              {
+                "const": "wire",
+                "type": "string"
+              },
+              {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/PointWire"
+                  },
+                  {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "prefixItems": [
+                      {
+                        "anyOf": [
+                          {
+                            "maximum": 1000000,
+                            "minimum": -1000000,
+                            "type": "number"
+                          },
+                          {
+                            "maxLength": 256,
+                            "type": "string"
+                          }
+                        ]
+                      },
+                      {
+                        "anyOf": [
+                          {
+                            "maximum": 1000000,
+                            "minimum": -1000000,
+                            "type": "number"
+                          },
+                          {
+                            "maxLength": 256,
+                            "type": "string"
+                          }
+                        ]
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ]
+              },
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "maxItems": 3,
+                      "minItems": 3,
+                      "prefixItems": [
+                        {
+                          "const": "line",
+                          "type": "string"
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      ],
+                      "type": "array"
+                    },
+                    {
+                      "maxItems": 4,
+                      "minItems": 4,
+                      "prefixItems": [
+                        {
+                          "const": "arc",
+                          "type": "string"
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "const": 0,
+                              "type": "integer"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      ],
+                      "type": "array"
+                    },
+                    {
+                      "maxItems": 5,
+                      "minItems": 5,
+                      "prefixItems": [
+                        {
+                          "const": "arc",
+                          "type": "string"
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "const": 0,
+                              "type": "integer"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "boolean"
+                        }
+                      ],
+                      "type": "array"
+                    },
+                    {
+                      "maxItems": 6,
+                      "minItems": 6,
+                      "prefixItems": [
+                        {
+                          "const": "arc",
+                          "type": "string"
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "maximum": 1000000,
+                              "minimum": -1000000,
+                              "type": "number"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "const": 0,
+                              "type": "integer"
+                            },
+                            {
+                              "maxLength": 256,
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "boolean"
+                        }
+                      ],
+                      "type": "array"
+                    }
+                  ]
+                },
+                "type": "array"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "pattern": "^P[0-9]{1,4}$",
+            "type": "string"
+          }
+        ]
+      },
+      "title": "Profiles",
+      "type": "object"
+    },
+    "schema": {
+      "const": "catia-feature-requirements/1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "unit": {
+      "enum": [
+        "mm",
+        "inch"
+      ],
+      "title": "Unit",
+      "type": "string"
+    },
+    "unitEvidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unitevidence",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "unit",
+    "parameters",
+    "features"
+  ],
+  "title": "feature-requirements",
+  "type": "object"
+}
