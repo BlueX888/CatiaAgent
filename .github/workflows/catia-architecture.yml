@@ -55,7 +55,7 @@ jobs:
 
   g2-node-client:
     name: G2 Node/PilotDeck (Node 22)
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
