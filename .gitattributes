@@ -1,0 +1,3 @@
+# Generated contracts are byte-checked across platforms: never rewrite EOL.
+contracts/catia/v1/** -text
+PilotDeck/src/tool/protocol/generated/catiaContracts.ts -text
