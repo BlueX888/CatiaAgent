@@ -1,0 +1,299 @@
+{
+  "schema_version": "catiaagent-command-profiles/1",
+  "description": "Mechanically expanded command registry. Path variables come from repository-map.json; executable variables are absolute paths registered by T00/T01. No shell is used.",
+  "path_variables": [
+    "REPO_ROOT",
+    "RUN_ROOT"
+  ],
+  "executable_variables": [
+    "PYTHON_OFFLINE",
+    "PYTHON_SYSTEM",
+    "PYTHON_CAD_SUPPORT",
+    "PYTHON_3_10",
+    "NODE",
+    "PNPM",
+    "GIT"
+  ],
+  "profiles": {
+    "C01": {
+      "status": "existing",
+      "gate": "G0",
+      "cwd": "{REPO_ROOT}",
+      "steps": [
+        {
+          "argv": [
+            "{GIT}",
+            "status",
+            "--short"
+          ]
+        },
+        {
+          "argv": [
+            "{GIT}",
+            "rev-parse",
+            "HEAD"
+          ]
+        }
+      ],
+      "report_format": null
+    },
+    "C02": {
+      "status": "existing",
+      "gate": "G1",
+      "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+      "steps": [
+        {
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pip",
+            "install",
+            "-e",
+            ".[dev]"
+          ]
+        }
+      ],
+      "report_format": null,
+      "note": "Setup command; not a certification gate by itself."
+    },
+    "C03": {
+      "status": "existing",
+      "gate": "G1",
+      "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+      "steps": [
+        {
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests/test_server_runtime.py",
+            "tests/test_editing_offline.py",
+            "tests/test_feature_model.py",
+            "tests/test_feature_workflow.py",
+            "-q",
+            "-ra",
+            "--junitxml={REPORT_PATH}"
+          ]
+        }
+      ],
+      "report_format": "junit",
+      "report_path": "{OUT_DIR}/junit.xml",
+      "allowed_skips": [
+        "tests.test_editing_offline::test_plan_hash_carries_the_documented_sha256_prefix"
+      ],
+      "allowed_skips_note": "The planHash prefix mismatch is a registered baseline xfail in gate-baseline.json; changing it needs a decision package."
+    },
+    "C04": {
+      "status": "existing",
+      "gate": "G2",
+      "cwd": "{REPO_ROOT}/PilotDeck",
+      "steps": [
+        {
+          "argv": [
+            "{NODE}",
+            "{PNPM_CJS}",
+            "install",
+            "--frozen-lockfile",
+            "--filter",
+            "pilotdeck",
+            "--filter",
+            "pilotdeck-ui"
+          ]
+        }
+      ],
+      "report_format": null,
+      "env": {
+        "CI": "true"
+      }
+    },
+    "C05": {
+      "status": "existing",
+      "gate": "G2",
+      "cwd": "{REPO_ROOT}/PilotDeck",
+      "steps": [
+        {
+          "argv": [
+            "{NODE}",
+            "{PNPM_CJS}",
+            "run",
+            "build"
+          ]
+        }
+      ],
+      "report_format": null,
+      "env": {
+        "CI": "true"
+      }
+    },
+    "C06": {
+      "status": "existing",
+      "gate": "G2",
+      "cwd": "{REPO_ROOT}/PilotDeck",
+      "steps": [
+        {
+          "argv": [
+            "{NODE}",
+            "--test",
+            "--test-timeout",
+            "60000",
+            "--test-reporter=tap",
+            "dist/tests/tool/protocol/catia-failure-status.spec.js",
+            "dist/tests/mcp/catia-build-failure.spec.js",
+            "dist/tests/mcp/client/catia-session-fence.spec.js",
+            "dist/tests/mcp/stdio-roundtrip.spec.js",
+            "dist/tests/model/request/openaiSchema.spec.js"
+          ]
+        }
+      ],
+      "report_format": "tap",
+      "report_from_stdout": true,
+      "report_path": "{OUT_DIR}/tap.txt"
+    },
+    "C07": {
+      "status": "existing",
+      "gate": "G3",
+      "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+      "steps": [
+        {
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pip",
+            "install",
+            "-e",
+            ".[dev]"
+          ]
+        }
+      ],
+      "report_format": null
+    },
+    "C08": {
+      "status": "existing",
+      "gate": "G3",
+      "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+      "steps": [
+        {
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests",
+            "test_server.py",
+            "-q",
+            "-ra",
+            "--junitxml={REPORT_PATH}"
+          ]
+        }
+      ],
+      "report_format": "junit",
+      "report_path": "{OUT_DIR}/junit.xml"
+    },
+    "C09": {
+      "status": "existing",
+      "gate": "G2",
+      "cwd": "{REPO_ROOT}/PilotDeck",
+      "steps": [
+        {
+          "argv": [
+            "{NODE}",
+            "{PNPM_CJS}",
+            "--dir",
+            "ui",
+            "exec",
+            "vitest",
+            "run",
+            "--project",
+            "client",
+            "--reporter=json",
+            "--outputFile={REPORT_PATH}"
+          ]
+        }
+      ],
+      "report_format": "vitest-json",
+      "report_path": "{OUT_DIR}/vitest.json"
+    },
+    "C10": {
+      "status": "existing",
+      "gate": "G5",
+      "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+      "steps": [
+        {
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "scripts/independent_verify_part.py"
+          ]
+        }
+      ],
+      "report_format": null,
+      "note": "Requires explicit frozen part path and output path; a bare run must not be treated as certification."
+    },
+    "C08_CI": {
+      "status": "existing",
+      "gate": "G3",
+      "cwd": "{REPO_ROOT}/catia-v5-mcp-server",
+      "steps": [
+        {
+          "argv": [
+            "{PYTHON_OFFLINE}",
+            "-m",
+            "pytest",
+            "tests",
+            "test_server.py",
+            "-q",
+            "-ra",
+            "--ignore=tests/test_cad_support_iso.py",
+            "--junitxml={REPORT_PATH}"
+          ]
+        }
+      ],
+      "report_format": "junit",
+      "report_path": "{OUT_DIR}/junit.xml",
+      "note": "CI variant of C08: the unguarded build123d module belongs to the G4 interpreter (registered exclusion).",
+      "allowed_skips": [
+        "tests.test_cad_support",
+        "tests.test_difference_witnesses",
+        "tests.test_feature_geometry",
+        "tests.test_volume_integration",
+        "tests.test_bounded_edge",
+        "tests.test_candidate_rejection",
+        "tests.test_current_edges",
+        "tests.test_false_zero_cut_identity",
+        "tests.test_fillet_group",
+        "tests.test_material_residual_budget",
+        "tests.test_numerical_join",
+        "tests.test_offset_revolution",
+        "tests.test_reference_tools",
+        "tests.test_reference_views",
+        "tests.test_shared_ball",
+        "tests.test_sketch_frame",
+        "tests.test_union_overlap",
+        "tests.test_editing_offline::test_plan_hash_carries_the_documented_sha256_prefix"
+      ],
+      "allowed_skips_note": "G3 has no build123d/OCCT support interpreter; those modules belong to G4/T25. The planHash xfail is registered in gate-baseline.json."
+    }
+  },
+  "planned": {
+    "T13-export": {
+      "status": "planned",
+      "owner_task": "T13",
+      "source_path": "scripts/architecture/export_contracts.py",
+      "note": "Registered before creation. Running it before its owner task is DONE blocks."
+    },
+    "T13-wheel-check": {
+      "status": "planned",
+      "owner_task": "T13",
+      "source_path": "scripts/architecture/check_contract_wheel.py",
+      "report_format": "contract-wheel-check/1"
+    },
+    "T17-offline-evidence": {
+      "status": "planned",
+      "owner_task": "T17",
+      "source_path": "scripts/architecture/offline_evidence.py"
+    },
+    "T29-release-evidence": {
+      "status": "planned",
+      "owner_task": "T29",
+      "source_path": "scripts/architecture/release_evidence.py"
+    }
+  }
+}

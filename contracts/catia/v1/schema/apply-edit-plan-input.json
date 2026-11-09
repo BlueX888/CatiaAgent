@@ -1,0 +1,605 @@
+{
+  "$defs": {
+    "BBoxDimensionWire": {
+      "additionalProperties": true,
+      "properties": {
+        "absTolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstolerance"
+        },
+        "axis": {
+          "enum": [
+            "x",
+            "y",
+            "z"
+          ],
+          "title": "Axis",
+          "type": "string"
+        },
+        "expected": {
+          "title": "Expected",
+          "type": "number"
+        },
+        "relTolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reltolerance"
+        },
+        "type": {
+          "const": "bbox_dimension",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "axis",
+        "expected"
+      ],
+      "title": "BBoxDimensionWire",
+      "type": "object"
+    },
+    "BBoxRangeWire": {
+      "additionalProperties": true,
+      "properties": {
+        "absTolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstolerance"
+        },
+        "axis": {
+          "enum": [
+            "x",
+            "y",
+            "z"
+          ],
+          "title": "Axis",
+          "type": "string"
+        },
+        "max": {
+          "title": "Max",
+          "type": "number"
+        },
+        "min": {
+          "title": "Min",
+          "type": "number"
+        },
+        "relTolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reltolerance"
+        },
+        "type": {
+          "const": "bbox_range",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "axis",
+        "min",
+        "max"
+      ],
+      "title": "BBoxRangeWire",
+      "type": "object"
+    },
+    "EdgeDistancePreserveWire": {
+      "additionalProperties": true,
+      "properties": {
+        "holes": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Holes"
+        },
+        "type": {
+          "const": "holes_edge_distance",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "EdgeDistancePreserveWire",
+      "type": "object"
+    },
+    "EditPlanWire": {
+      "additionalProperties": true,
+      "properties": {
+        "acceptance": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "bbox_dimension": "#/$defs/BBoxDimensionWire",
+                "bbox_range": "#/$defs/BBoxRangeWire",
+                "feature_count": "#/$defs/FeatureCountWire",
+                "hole_positions": "#/$defs/HolePositionsWire",
+                "hole_radius": "#/$defs/HoleRadiusWire",
+                "hole_world_positions": "#/$defs/HoleWorldPositionsWire",
+                "unchanged_dimension": "#/$defs/UnchangedDimensionWire",
+                "volume": "#/$defs/VolumeWire"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/BBoxRangeWire"
+              },
+              {
+                "$ref": "#/$defs/BBoxDimensionWire"
+              },
+              {
+                "$ref": "#/$defs/VolumeWire"
+              },
+              {
+                "$ref": "#/$defs/HolePositionsWire"
+              },
+              {
+                "$ref": "#/$defs/HoleWorldPositionsWire"
+              },
+              {
+                "$ref": "#/$defs/HoleRadiusWire"
+              },
+              {
+                "$ref": "#/$defs/UnchangedDimensionWire"
+              },
+              {
+                "$ref": "#/$defs/FeatureCountWire"
+              }
+            ]
+          },
+          "title": "Acceptance",
+          "type": "array"
+        },
+        "changes": {
+          "items": {
+            "$ref": "#/$defs/ParameterChangeWire"
+          },
+          "minItems": 1,
+          "title": "Changes",
+          "type": "array"
+        },
+        "editSessionId": {
+          "minLength": 1,
+          "title": "Editsessionid",
+          "type": "string"
+        },
+        "expectedRevision": {
+          "title": "Expectedrevision",
+          "type": "integer"
+        },
+        "intent": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intent"
+        },
+        "operationId": {
+          "minLength": 1,
+          "title": "Operationid",
+          "type": "string"
+        },
+        "preserve": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "hole_world_position": "#/$defs/WorldPositionPreserveWire",
+                "holes_edge_distance": "#/$defs/EdgeDistancePreserveWire"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/EdgeDistancePreserveWire"
+              },
+              {
+                "$ref": "#/$defs/WorldPositionPreserveWire"
+              }
+            ]
+          },
+          "title": "Preserve",
+          "type": "array"
+        },
+        "schema": {
+          "const": "catia-edit-plan/1",
+          "title": "Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema",
+        "editSessionId",
+        "operationId",
+        "expectedRevision",
+        "changes"
+      ],
+      "title": "EditPlanWire",
+      "type": "object"
+    },
+    "FeatureCountWire": {
+      "additionalProperties": true,
+      "properties": {
+        "expected": {
+          "minimum": 0,
+          "title": "Expected",
+          "type": "integer"
+        },
+        "type": {
+          "const": "feature_count",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "expected"
+      ],
+      "title": "FeatureCountWire",
+      "type": "object"
+    },
+    "HolePositionsWire": {
+      "additionalProperties": true,
+      "properties": {
+        "holes": {
+          "items": {
+            "$ref": "#/$defs/XYHoleWire"
+          },
+          "minItems": 1,
+          "title": "Holes",
+          "type": "array"
+        },
+        "type": {
+          "const": "hole_positions",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "holes"
+      ],
+      "title": "HolePositionsWire",
+      "type": "object"
+    },
+    "HoleRadiusWire": {
+      "additionalProperties": true,
+      "properties": {
+        "absTolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstolerance"
+        },
+        "expected": {
+          "title": "Expected",
+          "type": "number"
+        },
+        "parameter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parameter"
+        },
+        "relTolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reltolerance"
+        },
+        "type": {
+          "const": "hole_radius",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "expected"
+      ],
+      "title": "HoleRadiusWire",
+      "type": "object"
+    },
+    "HoleWorldPositionsWire": {
+      "additionalProperties": true,
+      "properties": {
+        "holes": {
+          "items": {
+            "$ref": "#/$defs/WorldHoleWire"
+          },
+          "minItems": 1,
+          "title": "Holes",
+          "type": "array"
+        },
+        "type": {
+          "const": "hole_world_positions",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "holes"
+      ],
+      "title": "HoleWorldPositionsWire",
+      "type": "object"
+    },
+    "ParameterChangeWire": {
+      "additionalProperties": true,
+      "properties": {
+        "newValue": {
+          "title": "Newvalue",
+          "type": "number"
+        },
+        "oldValue": {
+          "title": "Oldvalue",
+          "type": "number"
+        },
+        "parameter": {
+          "title": "Parameter",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "unit": {
+          "enum": [
+            "mm",
+            "deg",
+            "none"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "parameter",
+        "oldValue",
+        "newValue",
+        "unit"
+      ],
+      "title": "ParameterChangeWire",
+      "type": "object"
+    },
+    "UnchangedDimensionWire": {
+      "additionalProperties": true,
+      "properties": {
+        "expected": {
+          "title": "Expected",
+          "type": "number"
+        },
+        "parameter": {
+          "minLength": 1,
+          "title": "Parameter",
+          "type": "string"
+        },
+        "type": {
+          "const": "unchanged_dimension",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "parameter",
+        "expected"
+      ],
+      "title": "UnchangedDimensionWire",
+      "type": "object"
+    },
+    "VolumeWire": {
+      "additionalProperties": true,
+      "properties": {
+        "absTolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstolerance"
+        },
+        "expected": {
+          "title": "Expected",
+          "type": "number"
+        },
+        "relTolerance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reltolerance"
+        },
+        "type": {
+          "const": "volume",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "expected"
+      ],
+      "title": "VolumeWire",
+      "type": "object"
+    },
+    "WorldHoleWire": {
+      "additionalProperties": true,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "title": "Y",
+          "type": "number"
+        },
+        "z": {
+          "title": "Z",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "title": "WorldHoleWire",
+      "type": "object"
+    },
+    "WorldPositionPreserveWire": {
+      "additionalProperties": true,
+      "properties": {
+        "holes": {
+          "items": {
+            "$ref": "#/$defs/WorldHoleWire"
+          },
+          "minItems": 1,
+          "title": "Holes",
+          "type": "array"
+        },
+        "type": {
+          "const": "hole_world_position",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "holes"
+      ],
+      "title": "WorldPositionPreserveWire",
+      "type": "object"
+    },
+    "XYHoleWire": {
+      "additionalProperties": true,
+      "properties": {
+        "r": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "R"
+        },
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "XYHoleWire",
+      "type": "object"
+    }
+  },
+  "$id": "https://catia.local/contracts/catia/v1/schema/apply-edit-plan-input.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "editSessionId": {
+      "title": "Editsessionid",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "#/$defs/EditPlanWire"
+    }
+  },
+  "required": [
+    "editSessionId",
+    "plan"
+  ],
+  "title": "apply-edit-plan-input",
+  "type": "object"
+}

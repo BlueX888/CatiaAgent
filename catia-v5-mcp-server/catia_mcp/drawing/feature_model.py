@@ -21,6 +21,31 @@ PLANES = {"xy", "yz", "zx"}
 NAME = re.compile(r"^[A-Z][A-Z0-9_]{0,31}$")
 IDENTIFIER = re.compile(r"^[a-zA-Z][a-zA-Z0-9_]{0,47}$")
 
+_FEATURE_SHADOW_DIFFERENCES: list[dict[str, Any]] = []
+_MAX_FEATURE_SHADOW = 20
+
+
+def feature_shadow_differences() -> list[dict[str, Any]]:
+    return list(_FEATURE_SHADOW_DIFFERENCES)
+
+
+def clear_feature_shadow_differences() -> None:
+    _FEATURE_SHADOW_DIFFERENCES.clear()
+
+
+def _record_feature_shadow(req: Any) -> None:
+    """Compare the structural contract; never changes compilation."""
+    try:
+        from catia_mcp.contracts.features import structure_problems
+        problems = structure_problems(req)
+    except Exception as error:  # a shadow defect must not affect compilation
+        problems = [{"code": "SHADOW_ERROR", "message": str(error), "path": ""}]
+    if problems:
+        if len(_FEATURE_SHADOW_DIFFERENCES) >= _MAX_FEATURE_SHADOW:
+            _FEATURE_SHADOW_DIFFERENCES.pop(0)
+        _FEATURE_SHADOW_DIFFERENCES.append({"kind": "feature_structure",
+                                            "problems": problems[:10]})
+
 
 def sketch_plane(value):
     """A fixed orthonormal frame, positioned by the existing signed offset."""
@@ -415,6 +440,7 @@ def _compact_profile(value):
 
 def compile_features(req: dict, manifest: dict | None, *, require_evidence: bool = True,
                      reference_evidence: dict | None = None, _recompile_plan: bool = False) -> dict:
+    _record_feature_shadow(req)
     from catia_mcp.drawing.requirements import UNIT_TO_MM
     from catia_mcp.drawing.units import unit_evidence_matches
 

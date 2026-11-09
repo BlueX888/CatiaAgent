@@ -55,6 +55,21 @@ def _valid_volume_diagnostics(value):
                              rel_tol=1e-9, abs_tol=1e-9))
 
 
+def _shadow_support_response(result):
+    """Record an invalid CAD-support envelope; never changes the workflow."""
+    if not isinstance(result, dict) or "operation" not in result:
+        return
+    try:
+        from catia_mcp.contracts.cad_support import classify_cad_support_response
+        from catia_mcp.results import record_shadow_difference
+        outcome = classify_cad_support_response(result)
+        if outcome["state"] == "invalid":
+            record_shadow_difference("support_response", result.get("operation"), outcome["reasons"])
+    except Exception as error:  # shadow defects never affect the build
+        from catia_mcp.results import record_shadow_difference
+        record_shadow_difference("support_shadow_error", result.get("operation"), [str(error)])
+
+
 def _evaluate(requirements, actual=None, *, volume_tolerance_mm3=None, timeout=None):
     spec = {"requirements": requirements}
     if actual:
@@ -65,6 +80,7 @@ def _evaluate(requirements, actual=None, *, volume_tolerance_mm3=None, timeout=N
         spec["volumeToleranceMm3"] = "auto" if volume_tolerance_mm3 is None else volume_tolerance_mm3
     try:
         result = run_support("evaluate", spec, **({"timeout": timeout} if timeout is not None else {}))
+        _shadow_support_response(result)
     except ValueError as exc:
         # Client-side setup or serialization failed, not a rejected variant.
         raise CadSupportError("CAD_SUPPORT_REQUEST_FAILED", str(exc)) from exc
@@ -499,6 +515,12 @@ def build_features(connection, requirements, plan, target, stages, arguments):
                       output, ensure_ascii=False, indent=2, allow_nan=False)
         delivery.update({"reportJson": str(report_path), "reportJsonSha256": _file_sha256(report_path),
                          "stepPath": str(step_path)})
+        try:
+            from catia_mcp.run_evidence import write_build_evidence
+            write_build_evidence(report_path, plan=plan, delivery=delivery, verification=verification)
+        except Exception as evidence_error:  # evidence failure must stay visible, not fatal
+            (report_path.parent / "run-evidence-error.txt").write_text(
+                f"{type(evidence_error).__name__}: {evidence_error}", encoding="utf-8")
         stages.append({"stage": "delivery", "status": "completed", **delivery})
         # Freeze the delivery: the receipt hash must keep describing the file.
         try:

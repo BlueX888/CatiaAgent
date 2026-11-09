@@ -43,14 +43,15 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@pilotdeck/config": "workspace:*",
     "@google/genai": "^2.10.0",
     "@larksuiteoapi/node-sdk": "^1.65.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@pilotdeck/config": "workspace:*",
     "@playwright/mcp": "0.0.75",
     "@types/react": "^19.2.14",
     "@types/turndown": "^5.0.6",
     "@vscode/ripgrep": "^1.18.0",
+    "ajv": "^8.20.0",
     "csv-parse": "^7.0.0",
     "edgeclaw-memory-core": "file:src/context/memory/edgeclaw-memory-core",
     "ink": "^7.0.2",

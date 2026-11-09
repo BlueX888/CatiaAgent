@@ -1,0 +1,35 @@
+{
+  "$id": "https://catia.local/contracts/catia/v1/schema/cad-support-volume-diagnostics.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actualMm3": {
+      "exclusiveMinimum": 0,
+      "title": "Actualmm3",
+      "type": "number"
+    },
+    "maxIntersectionExcessMm3": {
+      "minimum": 0,
+      "title": "Maxintersectionexcessmm3",
+      "type": "number"
+    },
+    "netDifferenceMm3": {
+      "minimum": 0,
+      "title": "Netdifferencemm3",
+      "type": "number"
+    },
+    "referenceMm3": {
+      "exclusiveMinimum": 0,
+      "title": "Referencemm3",
+      "type": "number"
+    }
+  },
+  "required": [
+    "actualMm3",
+    "referenceMm3",
+    "netDifferenceMm3",
+    "maxIntersectionExcessMm3"
+  ],
+  "title": "cad-support-volume-diagnostics",
+  "type": "object"
+}

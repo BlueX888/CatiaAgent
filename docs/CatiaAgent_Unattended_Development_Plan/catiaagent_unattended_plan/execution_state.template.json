@@ -1,0 +1,261 @@
+{
+  "schema_version": "catiaagent-development-state/1",
+  "plan_version": "1.0",
+  "run_id": null,
+  "plan_root": null,
+  "repository_root": null,
+  "run_root": null,
+  "baseline_commit": null,
+  "working_tree_fingerprint": null,
+  "active_scope": "core",
+  "sequence": 0,
+  "active_tasks": [],
+  "gate_status": {
+    "G0": "NOT_RUN",
+    "G1": "NOT_RUN",
+    "G2": "NOT_RUN",
+    "G3": "NOT_RUN",
+    "G4": "NOT_RUN",
+    "G5": "NOT_RUN",
+    "G6": "NOT_RUN"
+  },
+  "delivery_status": {
+    "offline": "NOT_VERIFIED",
+    "target_platform": "NOT_VERIFIED",
+    "product": "NOT_VERIFIED",
+    "extension": "NOT_ENABLED"
+  },
+  "tasks": {
+    "T00": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T01": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T02": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T03": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T04": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T05": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T06": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T07": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T08": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T09": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T10": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T11": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T12": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T13": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T14": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T15": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T16": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T17": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T18": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T19": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T20": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T21": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T22": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T23": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T24": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T25": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T26": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T27": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T28": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T29": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T30": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T31": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    },
+    "T32": {
+      "state": "PENDING",
+      "attempts": 0,
+      "owner": null,
+      "result_path": null,
+      "reason": null
+    }
+  }
+}

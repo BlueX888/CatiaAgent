@@ -2,3 +2,4 @@ mcp>=1.27.0,<2
 pywin32>=306
 jsonschema>=4.20,<5
 PyMuPDF>=1.24,<2
+pydantic>=2.4,<3

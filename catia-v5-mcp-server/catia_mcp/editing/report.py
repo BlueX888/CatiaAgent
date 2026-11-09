@@ -570,6 +570,18 @@ def write_reports(
         json.dump(report, handle, ensure_ascii=False, indent=2, default=str)
     with open(md_path, "w", encoding="utf-8") as handle:
         handle.write(_markdown(report))
+    try:
+        from catia_mcp.run_evidence import write_edit_evidence
+        write_edit_evidence(
+            json_path,
+            session=session,
+            delivery={"path": delivery_path, "sha256": delivery_sha},
+            verification=verification,
+            operation_id=(report.get("request") or {}).get("operationId"),
+        )
+    except Exception as evidence_error:  # sidecar failure is recorded, not fatal
+        with open(json_path + ".evidence-error.txt", "w", encoding="utf-8") as handle:
+            handle.write(f"{type(evidence_error).__name__}: {evidence_error}")
     return {"json": json_path, "markdown": md_path}
 
 

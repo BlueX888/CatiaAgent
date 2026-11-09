@@ -143,6 +143,11 @@ export type AgentLoopInput = {
   permissionRules?: Partial<PermissionRuleSet>;
   modelOverride?: import("../protocol/input.js").AgentModelOverride;
   abortSignal?: AbortSignal;
+  /**
+   * Host policy deadline for CATIA operations (Unix ms). It is only a limit:
+   * it grants no permission and cannot be extended by nested tools or models.
+   */
+  operationDeadlineMs?: number;
   onDurableMessage?: (message: CanonicalMessage) => void | Promise<void>;
   onModelContext?: (snapshot: ModelContextSnapshot) => void | Promise<void>;
   onAgentStatusMessage?: (status: AgentStatusMessage) => void | Promise<void>;
@@ -2355,6 +2360,9 @@ export class AgentLoop {
       messageId: input.turnId,
       cwd: this.config.cwd,
       abortSignal: input.abortSignal,
+      ...(Number.isSafeInteger(input.operationDeadlineMs) && (input.operationDeadlineMs as number) >= 0
+        ? { operationDeadlineMs: input.operationDeadlineMs }
+        : {}),
       subagentTimeoutMs: this.config.subagentTimeoutMs,
       toolAliases: this.config.toolAliases,
       runMode: this.config.runMode ?? "agent",

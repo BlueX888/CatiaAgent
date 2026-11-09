@@ -1,0 +1,130 @@
+name: Catia Agent Architecture
+
+# Root wiring for the aggregate repository. Component workflows stay in their
+# own trees; this one covers shared contracts and the cross-component gates.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "catia-v5-mcp-server/**"
+      - "PilotDeck/**"
+      - "contracts/**"
+      - "scripts/architecture/**"
+      - ".github/workflows/catia-architecture.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "catia-v5-mcp-server/**"
+      - "PilotDeck/**"
+      - "contracts/**"
+      - "scripts/architecture/**"
+      - ".github/workflows/catia-architecture.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  g1-python-contracts:
+    name: G1 Python contracts (Windows, Python 3.12)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install offline package
+        working-directory: catia-v5-mcp-server
+        run: python -m pip install -e ".[dev]"
+      - name: G1 contract tests
+        working-directory: catia-v5-mcp-server
+        run: python -m pytest tests/test_server_runtime.py tests/test_editing_offline.py tests/test_feature_model.py tests/test_feature_workflow.py -q -ra --junitxml=g1-report.xml
+      - name: Contract parity and export
+        working-directory: catia-v5-mcp-server
+        run: |
+          python -m pytest tests/test_contract_baseline.py tests/test_contract_foundation.py tests/test_contract_intent.py tests/test_contract_edit_plan.py tests/test_contract_results.py tests/test_contract_cad_support.py tests/test_contract_dispatch.py tests/test_contract_output_effects.py tests/test_contract_feature_primitives.py tests/test_contract_features.py tests/test_contract_schema_export.py tests/test_contract_parity.py -q -ra
+          python ../scripts/architecture/export_contracts.py --repo-root .. --check
+      - name: Upload G1 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g1-python-contracts
+          path: catia-v5-mcp-server/g1-report.xml
+
+  g2-node-client:
+    name: G2 Node/PilotDeck (Node 22)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.0"
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@10.32.1 --no-audit --no-fund
+      - name: Install with frozen lockfile
+        working-directory: PilotDeck
+        run: pnpm install --frozen-lockfile --filter pilotdeck --filter pilotdeck-ui
+      - name: Build
+        working-directory: PilotDeck
+        run: pnpm run build
+      - name: G2 protocol tests
+        working-directory: PilotDeck
+        run: |
+          node --test --test-timeout 60000 --test-reporter=tap \
+            dist/tests/tool/protocol/catia-failure-status.spec.js \
+            dist/tests/mcp/catia-build-failure.spec.js \
+            dist/tests/mcp/client/catia-session-fence.spec.js \
+            dist/tests/mcp/stdio-roundtrip.spec.js \
+            dist/tests/model/request/openaiSchema.spec.js | tee g2-report.tap
+      - name: Client contract tests
+        working-directory: PilotDeck
+        run: |
+          node --test --test-timeout 60000 --test-reporter=tap \
+            dist/tests/tool/protocol/catia-contract-validator.spec.js \
+            dist/tests/tool/protocol/catia-contract-parity.spec.js \
+            dist/tests/model/request/catia-schema-compatibility.spec.js | tee g2-contracts.tap
+      - name: Upload G2 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g2-node-client
+          path: |
+            PilotDeck/g2-report.tap
+            PilotDeck/g2-contracts.tap
+
+  g3-windows-product:
+    name: G3 Windows product (Python ${{ matrix.python }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.12"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install offline package
+        working-directory: catia-v5-mcp-server
+        run: python -m pip install -e ".[dev]"
+      - name: Full offline regression
+        working-directory: catia-v5-mcp-server
+        # tests/test_cad_support_iso.py has an unconditional build123d import
+        # and belongs to the isolated G4 CAD-support interpreter (plan 11.2).
+        # Excluding it here is a registered environment exclusion, not a test
+        # waiver; T25 runs the module under its own interpreter.
+        run: python -m pytest tests test_server.py -q -ra --ignore=tests/test_cad_support_iso.py --junitxml=g3-report.xml
+      - name: Upload G3 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g3-windows-product-${{ matrix.python }}
+          path: catia-v5-mcp-server/g3-report.xml

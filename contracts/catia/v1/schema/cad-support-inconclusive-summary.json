@@ -1,0 +1,86 @@
+{
+  "$defs": {
+    "VolumeDiagnostics": {
+      "additionalProperties": false,
+      "properties": {
+        "actualMm3": {
+          "exclusiveMinimum": 0,
+          "title": "Actualmm3",
+          "type": "number"
+        },
+        "maxIntersectionExcessMm3": {
+          "minimum": 0,
+          "title": "Maxintersectionexcessmm3",
+          "type": "number"
+        },
+        "netDifferenceMm3": {
+          "minimum": 0,
+          "title": "Netdifferencemm3",
+          "type": "number"
+        },
+        "referenceMm3": {
+          "exclusiveMinimum": 0,
+          "title": "Referencemm3",
+          "type": "number"
+        }
+      },
+      "required": [
+        "actualMm3",
+        "referenceMm3",
+        "netDifferenceMm3",
+        "maxIntersectionExcessMm3"
+      ],
+      "title": "VolumeDiagnostics",
+      "type": "object"
+    }
+  },
+  "$id": "https://catia.local/contracts/catia/v1/schema/cad-support-inconclusive-summary.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "attemptCount": {
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Attemptcount",
+      "type": "integer"
+    },
+    "candidateCount": {
+      "minimum": 0,
+      "title": "Candidatecount",
+      "type": "integer"
+    },
+    "consistencyBudgetMm3": {
+      "exclusiveMinimum": 0,
+      "title": "Consistencybudgetmm3",
+      "type": "number"
+    },
+    "reason": {
+      "enum": [
+        "COMMON_UNION_DISAGREES",
+        "INSUFFICIENT_CONSISTENT_BOOLEANS",
+        "FUZZY_LEVELS_DISAGREE"
+      ],
+      "title": "Reason",
+      "type": "string"
+    },
+    "volumeDiagnostics": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VolumeDiagnostics"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "reason",
+    "consistencyBudgetMm3",
+    "attemptCount",
+    "candidateCount"
+  ],
+  "title": "cad-support-inconclusive-summary",
+  "type": "object"
+}

@@ -19,6 +19,7 @@ dependencies = [
     "pywin32>=306",
     "jsonschema>=4.20,<5",
     "PyMuPDF>=1.24,<2",
+    "pydantic>=2.4,<3",
 ]
 
 [project.optional-dependencies]

@@ -2,10 +2,28 @@
 
 from __future__ import annotations
 
+import copy
 from typing import Any
 
 from catia_mcp.connection import CATIAConnection
+from catia_mcp.contracts.export import build_schemas
 from catia_mcp.editing.coordinator import EditCoordinator
+
+
+def _contract_input_schema(contract_id: str, descriptions: dict[str, str]) -> dict[str, Any]:
+    """Active tool schema from the exported wire model, with lean descriptions.
+
+    The structure has one authority (the packaged Python model); descriptions
+    are added here because they are presentation, not contract.
+    """
+    schema = copy.deepcopy(build_schemas()[contract_id])
+    schema.pop("$id", None)
+    properties = schema.get("properties")
+    if isinstance(properties, dict):
+        for key, text in descriptions.items():
+            if isinstance(properties.get(key), dict):
+                properties[key]["description"] = text
+    return schema
 
 # While an edit session owns a model, every tool that is not on this read-only
 # list is refused. A deny-list drifts every time a new tool is registered
@@ -55,39 +73,14 @@ class EditingTools:
 
     # ------------------------------------------------------------------
     def get_tool_definitions(self) -> list[dict[str, Any]]:
-        plan_schema = {
-            "type": "object",
-            "description": (
+        apply_input_schema = _contract_input_schema("apply-edit-plan-input", {
+            "editSessionId": "The edit session returned by catia_begin_edit.",
+            "plan": (
                 "catia-edit-plan/1. changes[] target writable driver handles taken from the "
                 "snapshot; acceptance[] only adds assertions and can never replace the "
                 "server-side response checks."
             ),
-            "properties": {
-                "schema": {"type": "string", "enum": ["catia-edit-plan/1"]},
-                "editSessionId": {"type": "string"},
-                "operationId": {"type": "string"},
-                "expectedRevision": {"type": "integer"},
-                "intent": {"type": "object"},
-                "changes": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "parameter": {"type": "string"},
-                            "oldValue": {"type": "number"},
-                            "newValue": {"type": "number"},
-                            "unit": {"type": "string", "enum": ["mm", "deg", "none"]},
-                            "reason": {"type": "string"},
-                        },
-                        "required": ["parameter", "oldValue", "newValue", "unit"],
-                    },
-                },
-                "preserve": {"type": "array", "items": {"type": "object"}},
-                "acceptance": {"type": "array", "items": {"type": "object"}},
-            },
-            "required": ["schema", "editSessionId", "operationId", "expectedRevision", "changes"],
-        }
+        })
         return [
             {
                 "name": "catia_begin_edit",
@@ -133,65 +126,32 @@ class EditingTools:
                     "same session cannot compile a plan until the user answers: pass "
                     "userConfirmed=true plus the user's reply in confirmationText."
                 ),
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "editSessionId": {"type": "string"},
-                        "intent": {
-                            "type": "object",
-                            "description": (
-                                "cad-intent-draft/1. target.parameter is an exact snapshot handle, "
-                                "target.attribute is the user's quantity (length/width/thickness/"
-                                "diameter/radius/angle), operation.type is set/increase/decrease, "
-                                "operation.scope is overall/each_side/single_side, reference.basis "
-                                "is current/original, and preserve is a list of "
-                                "center_position / hole_edge_distance / hole_centers / "
-                                "hole_world_position / other_dimensions."
-                            ),
-                            "properties": {
-                                "schema": {"type": "string", "enum": ["cad-intent-draft/1"]},
-                                "text": {"type": "string"},
-                                "decision": {
-                                    "type": "string",
-                                    "enum": ["planned", "needs_clarification", "unsupported"],
-                                },
-                                "target": {"type": "object"},
-                                "operation": {"type": "object"},
-                                "reference": {"type": "object"},
-                                "preserve": {"type": "array"},
-                                "unresolved": {"type": "array", "items": {"type": "string"}},
-                            },
-                            "required": ["schema", "target", "operation"],
-                        },
-                        "operationId": {
-                            "type": "string",
-                            "description": "Optional plan operation id; generated deterministically when omitted",
-                        },
-                        "userText": {
-                            "type": "string",
-                            "description": (
-                                "Read-only. Injected by the host from the current user message; "
-                                "do not fill or rewrite it. Used to verify intent.text and to "
-                                "clear a pending clarification."
-                            ),
-                        },
-                        "userConfirmed": {
-                            "type": "boolean",
-                            "description": (
-                                "Set only after the user answered a pending clarification in this "
-                                "session. Requires confirmationText."
-                            ),
-                        },
-                        "confirmationText": {
-                            "type": "string",
-                            "description": (
-                                "The user's answer to the pending clarification, copied verbatim "
-                                "from the current user message."
-                            ),
-                        },
-                    },
-                    "required": ["editSessionId", "intent"],
-                },
+                "inputSchema": _contract_input_schema("compile-intent-input", {
+                    "editSessionId": "The edit session returned by catia_begin_edit.",
+                    "intent": (
+                        "cad-intent-draft/1. target.parameter is an exact snapshot handle, "
+                        "target.attribute is the user's quantity (length/width/thickness/"
+                        "diameter/radius/angle), operation.type is set/increase/decrease, "
+                        "operation.scope is overall/each_side/single_side, reference.basis "
+                        "is current/original, and preserve is a list of "
+                        "center_position / hole_edge_distance / hole_centers / "
+                        "hole_world_position / other_dimensions."
+                    ),
+                    "operationId": "Optional plan operation id; generated deterministically when omitted",
+                    "userText": (
+                        "Read-only. Injected by the host from the current user message; "
+                        "do not fill or rewrite it. Used to verify intent.text and to "
+                        "clear a pending clarification."
+                    ),
+                    "userConfirmed": (
+                        "Set only after the user answered a pending clarification in this "
+                        "session. Requires confirmationText."
+                    ),
+                    "confirmationText": (
+                        "The user's answer to the pending clarification, copied verbatim "
+                        "from the current user message."
+                    ),
+                }),
                 # The host replaces userText with the current user message; the
                 # model cannot paraphrase it. See PilotDeck PluginToToolBridge.
                 "_meta": {"pilotdeck/injectUserText": True},
@@ -203,14 +163,7 @@ class EditingTools:
                     "read back parameters and geometry and return a verdict "
                     "(PASS / NO_EFFECT / WRONG_EFFECT / INCONCLUSIVE / ALREADY_SATISFIED)."
                 ),
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "editSessionId": {"type": "string"},
-                        "plan": plan_schema,
-                    },
-                    "required": ["editSessionId", "plan"],
-                },
+                "inputSchema": apply_input_schema,
             },
             {
                 "name": "catia_get_edit_status",

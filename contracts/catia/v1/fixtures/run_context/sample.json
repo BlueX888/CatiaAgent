@@ -1,0 +1,15 @@
+{
+  "schema": "catia-run-context/1",
+  "runId": "run-20261109-01",
+  "attemptId": "turn-0007",
+  "sourceFingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "codeVersion": "b58e40b",
+  "contractVersion": "catia-run-context/1",
+  "modelId": "claude-fable-5-1",
+  "promptId": "catia-edit-v3",
+  "workingDirectory": "F:\\CatiaAgent",
+  "sessionId": "sess-abc",
+  "operationId": "op-0001",
+  "deadlineMs": 1893456000000,
+  "createdAt": "2026-11-09T07:00:00Z"
+}

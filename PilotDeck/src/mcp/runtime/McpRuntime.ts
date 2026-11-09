@@ -9,6 +9,11 @@
  */
 
 import { McpClient, McpClientError, type McpClientOptions } from "../client/McpClient.js";
+import {
+  projectCatiaRecovery,
+  type CatiaRecoveryInput,
+  type CatiaRecoveryProjection,
+} from "../../tool/protocol/catiaRunRecovery.js";
 import type {
   PilotDeckMcpClientStatusEntry,
   PilotDeckMcpServerInstructions,
@@ -21,12 +26,15 @@ export type McpRuntimeOptions = {
   connectConcurrency?: number;
   /** Per-client options passed through to `McpClient`. */
   clientOptions?: McpClientOptions;
+  /** Read-only recovery records supplied by the host at startup/reconnect. */
+  catiaRecovery?: () => { serverId: string; input: CatiaRecoveryInput } | undefined;
 };
 
 export class McpRuntime {
   private readonly clients = new Map<string, McpClient>();
   private readonly options: Required<Pick<McpRuntimeOptions, "connectConcurrency">> &
-    Pick<McpRuntimeOptions, "clientOptions">;
+    Pick<McpRuntimeOptions, "clientOptions" | "catiaRecovery">;
+  private readonly recoveries = new Map<string, CatiaRecoveryProjection>();
 
   constructor(
     public readonly servers: PilotDeckMcpServerSpec[],
@@ -35,6 +43,7 @@ export class McpRuntime {
     this.options = {
       connectConcurrency: options.connectConcurrency ?? 5,
       clientOptions: options.clientOptions,
+      catiaRecovery: options.catiaRecovery,
     };
     for (const spec of servers) {
       this.clients.set(spec.id, new McpClient(spec, this.options.clientOptions));
@@ -78,7 +87,16 @@ export class McpRuntime {
       );
     }
     await Promise.all(workers);
+    const provided = this.options.catiaRecovery?.();
+    if (provided) {
+      this.recoveries.set(provided.serverId, projectCatiaRecovery(provided.input));
+    }
     return results;
+  }
+
+  /** Observable recovery projection; no tool call is made to produce it. */
+  getCatiaRecovery(serverId = "catia"): CatiaRecoveryProjection | undefined {
+    return this.recoveries.get(serverId);
   }
 
   getClient(serverId: string): McpClient | undefined {
